@@ -20,10 +20,11 @@ jobs:
         java-version: '21'
 
 
-    - name: application.yaml 생성
-      run: | 
-          cd src/main/resources
-          echo "${{ secrets.APPLICATION_SECRET }}" > ./application-secret.yaml
+    - name: make application-secret.yml
+      run: |
+        touch ./src/main/resources/application-secret.yml
+        echo "${{ secrets.APPLICATION_SECRET }}" > ./src/main/resources/application-secret.yml
+      shell: bash
 
     - name: 빌드
       run: |
