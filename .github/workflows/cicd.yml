@@ -55,6 +55,5 @@ jobs:
         username: ${{ secrets.RELEASE_USERNAME }}
         key: ${{ secrets.RELEASE_KEY }}
         script: |
-            cd ~
-            chmod +x ~/deploy.sh
-            ./deploy.sh
+          sudo chmod +x /home/ubuntu/deploy.sh
+          sudo /home/ubuntu/deploy.sh      
