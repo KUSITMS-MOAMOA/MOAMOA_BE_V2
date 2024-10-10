@@ -56,4 +56,5 @@ jobs:
         key: ${{ secrets.RELEASE_KEY }}
         script: |
             cd ~
+            chmod +x ~/deploy.sh
             ./deploy.sh
