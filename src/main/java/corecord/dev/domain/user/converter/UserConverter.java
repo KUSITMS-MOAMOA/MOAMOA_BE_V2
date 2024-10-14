@@ -1,6 +1,6 @@
-package corecord.dev.domain.converter;
+package corecord.dev.domain.user.converter;
 
-import corecord.dev.domain.entity.User;
+import corecord.dev.domain.user.entity.User;
 
 public class UserConverter {
 

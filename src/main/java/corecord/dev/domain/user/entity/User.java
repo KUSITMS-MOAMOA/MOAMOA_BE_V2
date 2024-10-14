@@ -1,4 +1,4 @@
-package corecord.dev.domain.entity;
+package corecord.dev.domain.user.entity;
 
 import corecord.dev.common.base.BaseEntity;
 import jakarta.persistence.*;

@@ -1,9 +1,9 @@
-package corecord.dev.domain.controller;
+package corecord.dev.domain.user.controller;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.status.SuccessStatus;
-import corecord.dev.domain.service.UserService;
+import corecord.dev.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

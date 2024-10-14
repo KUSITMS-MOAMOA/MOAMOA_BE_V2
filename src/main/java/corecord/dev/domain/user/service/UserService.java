@@ -1,6 +1,6 @@
-package corecord.dev.domain.service;
+package corecord.dev.domain.user.service;
 
-import corecord.dev.domain.repository.UserRepository;
+import corecord.dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
