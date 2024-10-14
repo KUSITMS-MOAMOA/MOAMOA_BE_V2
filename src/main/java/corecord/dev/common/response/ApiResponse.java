@@ -1,34 +1,46 @@
 package corecord.dev.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.status.SuccessStatus;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 
 @Getter
-@AllArgsConstructor
-@JsonPropertyOrder({"code", "result", "message", "data"})
+@RequiredArgsConstructor
+@JsonPropertyOrder({"isSuccess", "code", "message", "data"})
 public class ApiResponse<T> {
-    private final int statusCode;
-    private final String result;
-    private final String message;
+    @JsonProperty("is_success")
+    private final Boolean isSuccess;  // 성공 여부
+    private final String code;        // 사용자 정의 코드 (e.g., S001, E999)
+    private final String message;     // 응답 메시지
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final T data;
+    private final T data;             // 응답 데이터
 
-    public static <T>ApiResponse<T> SuccessResponse(SuccessStatus status, T data){
-        return new ApiResponse<>(status.getCode(), "SUCCESS", status.getMessage(), data);
-    }
-    public static ApiResponse SuccessResponse(SuccessStatus status){
-        return new ApiResponse<>(status.getCode(), "SUCCESS", status.getMessage(), null);
-    }
-
-    public static ApiResponse FailureResponse(int statusCode, String message){
-        return new ApiResponse<>(statusCode, "FAILURE", message, null);
+    // 성공 응답 (데이터 없음)
+    public static <T> ResponseEntity<ApiResponse<T>> success(SuccessStatus successStatus) {
+        ApiResponse<T> response = new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), null);
+        return ResponseEntity.status(successStatus.getHttpStatus()).body(response);
     }
 
-    public static ApiResponse FailureResponse(ErrorStatus errorStatus){
-        return new ApiResponse<>(errorStatus.getCode(), "FAILURE", errorStatus.getMessage(), null);
+    // 성공 응답 (데이터 있음)
+    public static <T> ResponseEntity<ApiResponse<T>> success(SuccessStatus successStatus, T data) {
+        ApiResponse<T> response = new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), data);
+        return ResponseEntity.status(successStatus.getHttpStatus()).body(response);
+    }
+
+    // 에러 응답 (데이터 없음)
+    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorStatus errorStatus) {
+        ApiResponse<T> response = new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), null);
+        return ResponseEntity.status(errorStatus.getHttpStatus()).body(response);
+    }
+
+    // 에러 응답 (데이터 있음)
+    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorStatus errorStatus, T data) {
+        ApiResponse<T> response = new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), data);
+        return ResponseEntity.status(errorStatus.getHttpStatus()).body(response);
     }
 }
