@@ -19,5 +19,11 @@ public class User extends BaseEntity {
     private Long userId;
 
     @Column(nullable = false)
-    private String name;
+    private String providerId;
+
+    @Column(nullable = false)
+    private String nickName;
+
+    @Column(nullable = false)
+    private String status;
 }
