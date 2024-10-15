@@ -3,6 +3,8 @@ package corecord.dev.common.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import corecord.dev.common.base.BaseErrorStatus;
+import corecord.dev.common.base.BaseSuccessStatus;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.status.SuccessStatus;
 import lombok.Getter;
@@ -21,26 +23,26 @@ public class ApiResponse<T> {
     private final T data;             // 응답 데이터
 
     // 성공 응답 (데이터 없음)
-    public static <T> ResponseEntity<ApiResponse<T>> success(SuccessStatus successStatus) {
-        ApiResponse<T> response = new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), null);
-        return ResponseEntity.status(successStatus.getHttpStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> success(BaseSuccessStatus successStatus) {
+        return ResponseEntity.status(successStatus.getHttpStatus())
+                .body(new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), null));
     }
 
     // 성공 응답 (데이터 있음)
-    public static <T> ResponseEntity<ApiResponse<T>> success(SuccessStatus successStatus, T data) {
-        ApiResponse<T> response = new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), data);
-        return ResponseEntity.status(successStatus.getHttpStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> success(BaseSuccessStatus successStatus, T data) {
+        return ResponseEntity.status(successStatus.getHttpStatus())
+                .body(new ApiResponse<>(true, successStatus.getCode(), successStatus.getMessage(), data));
     }
 
     // 에러 응답 (데이터 없음)
-    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorStatus errorStatus) {
-        ApiResponse<T> response = new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), null);
-        return ResponseEntity.status(errorStatus.getHttpStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> error(BaseErrorStatus errorStatus) {
+        return ResponseEntity.status(errorStatus.getHttpStatus())
+                .body(new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), null));
     }
 
     // 에러 응답 (데이터 있음)
-    public static <T> ResponseEntity<ApiResponse<T>> error(ErrorStatus errorStatus, T data) {
-        ApiResponse<T> response = new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), data);
-        return ResponseEntity.status(errorStatus.getHttpStatus()).body(response);
+    public static <T> ResponseEntity<ApiResponse<T>> error(BaseErrorStatus errorStatus, T data) {
+        return ResponseEntity.status(errorStatus.getHttpStatus())
+                .body(new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), data));
     }
 }

@@ -1,12 +1,13 @@
 package corecord.dev.common.status;
 
+import corecord.dev.common.base.BaseErrorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ErrorStatus {
+public enum ErrorStatus implements BaseErrorStatus {
 
     /**
      *  Error Code
