@@ -2,6 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.token.exception.model.TokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +13,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 @RestControllerAdvice(annotations = {RestController.class})
 public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
+
+    // TokenException 처리
+    @ExceptionHandler(TokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTokenException(TokenException e) {
+        log.warn(">>>>>>>>TokenException: {}", e.getTokenErrorStatus().getMessage());
+        return ApiResponse.error(e.getTokenErrorStatus());
+    }
 
     // GeneralException 처리
     @ExceptionHandler(GeneralException.class)
