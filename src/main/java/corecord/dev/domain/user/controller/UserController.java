@@ -1,28 +1,37 @@
 package corecord.dev.domain.user.controller;
 
 import corecord.dev.common.response.ApiResponse;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.status.SuccessStatus;
+import corecord.dev.common.web.UserId;
+import corecord.dev.domain.user.constant.UserSuccessStatus;
+import corecord.dev.domain.user.dto.request.UserRequest;
+import corecord.dev.domain.user.dto.response.UserResponse;
 import corecord.dev.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/success")
-    public ResponseEntity<ApiResponse<Void>> getSuccess() {
-        return ApiResponse.success(SuccessStatus.OK);
+    @GetMapping("/test")
+    public ResponseEntity<ApiResponse<String>> getSuccess(
+            @UserId Long userId
+    ) {
+        return ApiResponse.success(SuccessStatus.OK, "userId: " + userId);
     }
 
-    @GetMapping("/fail")
-    public ResponseEntity<ApiResponse<Void>> getFail() {
-        return ApiResponse.error(ErrorStatus.BAD_REQUEST);
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserResponse.UserRegisterDto>> registerUser(
+            HttpServletResponse response,
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody UserRequest.UserRegisterDto request
+            ) {
+        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, authorizationHeader, request);
+        return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 }
