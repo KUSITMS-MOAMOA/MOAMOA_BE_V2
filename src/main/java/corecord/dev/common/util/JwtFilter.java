@@ -38,7 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 특정 경로는 필터링하지 않도록 설정
         String path = request.getRequestURI();
-        return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token/access-token");
+        return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token/access-token") || path.startsWith("/actuator/health");
     }
 
     private String resolveToken(HttpServletRequest request) {
