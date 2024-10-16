@@ -1,4 +1,4 @@
-package corecord.dev.common.status;
+package corecord.dev.domain.token.constant;
 
 import corecord.dev.common.base.BaseSuccessStatus;
 import lombok.AllArgsConstructor;
@@ -7,11 +7,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus implements BaseSuccessStatus {
-
-    // 전역
-    OK(HttpStatus.OK, "S001", "요청이 성공적으로 처리되었습니다."),
-    CREATED(HttpStatus.CREATED, "S002", "리소스가 성공적으로 생성되었습니다.");
+public enum TokenSuccessStatus implements BaseSuccessStatus {
+    REISSUE_ACCESS_TOKEN_SUCCESS(HttpStatus.CREATED, "S001", "Access Token 재발급 성공입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

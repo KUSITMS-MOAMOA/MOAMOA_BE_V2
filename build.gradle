@@ -36,6 +36,17 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// OAuth 2.0
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	//JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	// 시큐리티
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

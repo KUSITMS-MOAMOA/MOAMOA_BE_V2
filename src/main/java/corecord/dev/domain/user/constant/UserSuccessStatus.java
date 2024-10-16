@@ -1,4 +1,4 @@
-package corecord.dev.common.status;
+package corecord.dev.domain.user.constant;
 
 import corecord.dev.common.base.BaseSuccessStatus;
 import lombok.AllArgsConstructor;
@@ -7,11 +7,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus implements BaseSuccessStatus {
+public enum UserSuccessStatus implements BaseSuccessStatus {
 
-    // 전역
-    OK(HttpStatus.OK, "S001", "요청이 성공적으로 처리되었습니다."),
-    CREATED(HttpStatus.CREATED, "S002", "리소스가 성공적으로 생성되었습니다.");
+    USER_REGISTER_SUCCESS(HttpStatus.CREATED, "S101", "회원가입이 성공적으로 완료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
