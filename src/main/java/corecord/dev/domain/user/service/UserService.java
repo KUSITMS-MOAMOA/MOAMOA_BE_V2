@@ -30,17 +30,14 @@ public class UserService {
     @Transactional
     public UserResponse.UserRegisterDto registerUser(HttpServletResponse response, String authorizationHeader, UserRequest.UserRegisterDto request) {
         String registerToken = jwtUtil.getTokenFromHeader(authorizationHeader);
-
-        if(!jwtUtil.isRegisterTokenValid(registerToken)) {
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        }
+        validRegisterToken(registerToken);
 
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
         User newUser = UserConverter.toUserEntity(request, providerId);
         User user = userRepository.save(newUser);
 
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
-        RefreshToken newRefreshToken = RefreshToken.builder().userId(user.getUserId()).refreshToken(refreshToken).build();
+        RefreshToken newRefreshToken = RefreshToken.of(refreshToken, user.getUserId());
         refreshTokenRepository.save(newRefreshToken);
 
         ResponseCookie cookie = cookieUtil.createRefreshTokenCookie(refreshToken);
@@ -48,6 +45,12 @@ public class UserService {
 
         String accessToken = jwtUtil.generateAccessToken(user.getUserId());
         return UserConverter.toUserRegisterDto(user, accessToken);
+    }
+
+    private void validRegisterToken(String registerToken) {
+        if(!jwtUtil.isRegisterTokenValid(registerToken)) {
+            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
+        }
     }
 
 }

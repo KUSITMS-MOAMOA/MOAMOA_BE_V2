@@ -27,17 +27,18 @@ public class TokenService {
         Cookie cookie = cookieUtil.getCookie(request);
         String refreshToken = cookie.getValue();
         Long userId = Long.parseLong(jwtUtil.getUserIdFromRefreshToken(refreshToken));
-        RefreshToken existRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new TokenException(TokenErrorStatus.REFRESH_TOKEN_NOT_FOUND));
-        String newAccessToken;
+        RefreshToken existRefreshToken = getExistRefreshToken(refreshToken);
         if (!existRefreshToken.getRefreshToken().equals(refreshToken) || !(jwtUtil.isAccessTokenValid(refreshToken))) {
             throw new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN);
-        } else {
-            newAccessToken = jwtUtil.generateAccessToken(userId);
         }
-
+        String newAccessToken = jwtUtil.generateAccessToken(userId);
         ResponseCookie newCookie = cookieUtil.createRefreshTokenCookie(refreshToken);
         response.addHeader("Set-Cookie", newCookie.toString());
         return TokenResponse.AccessTokenResponse.builder().accessToken(newAccessToken).build();
+    }
+
+    private RefreshToken getExistRefreshToken(String refreshToken) {
+        return refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new TokenException(TokenErrorStatus.REFRESH_TOKEN_NOT_FOUND));
     }
 }
