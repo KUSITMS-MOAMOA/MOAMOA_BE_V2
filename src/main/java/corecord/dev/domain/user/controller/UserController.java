@@ -7,6 +7,7 @@ import corecord.dev.domain.user.constant.UserSuccessStatus;
 import corecord.dev.domain.user.dto.request.UserRequest;
 import corecord.dev.domain.user.dto.response.UserResponse;
 import corecord.dev.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,10 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse.UserRegisterDto>> registerUser(
             HttpServletResponse response,
-            @RequestHeader("Authorization") String authorizationHeader,
-            @RequestBody UserRequest.UserRegisterDto request
+            HttpServletRequest request,
+            @RequestBody UserRequest.UserRegisterDto userRegisterDto
             ) {
-        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, authorizationHeader, request);
+        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, request, userRegisterDto);
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 }

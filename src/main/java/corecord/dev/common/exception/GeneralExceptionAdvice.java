@@ -3,6 +3,7 @@ package corecord.dev.common.exception;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.token.exception.model.TokenException;
+import corecord.dev.domain.user.exception.model.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 @RestControllerAdvice(annotations = {RestController.class})
 public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
+
+    // UserException 처리
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserException(UserException e) {
+        log.warn(">>>>>>>>UserException: {}", e.getUserErrorStatus().getMessage());
+        return ApiResponse.error(e.getUserErrorStatus());
+    }
 
     // TokenException 처리
     @ExceptionHandler(TokenException.class)
