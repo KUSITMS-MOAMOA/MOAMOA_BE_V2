@@ -2,6 +2,7 @@ package corecord.dev.domain.token.service;
 
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.token.converter.TokenConverter;
 import corecord.dev.domain.token.dto.response.TokenResponse;
 import corecord.dev.domain.token.entity.RefreshToken;
 import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
@@ -36,9 +37,7 @@ public class TokenService {
         // AccessToken 쿠키 생성
         setAccessTokenCookie(response, newAccessToken);
 
-        return TokenResponse.AccessTokenResponse.builder()
-                .accessToken(newAccessToken)
-                .build();
+        return TokenConverter.toAccessTokenResponse(newAccessToken);
     }
 
     // 쿠키에서 RefreshToken 가져오기
