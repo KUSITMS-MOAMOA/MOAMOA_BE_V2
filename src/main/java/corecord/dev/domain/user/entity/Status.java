@@ -8,9 +8,9 @@ import lombok.AllArgsConstructor;
 public enum Status {
     UNIVERSITY_STUDENT("대학생"),
     GRADUATE_STUDENT("대학원생"),
-    JOB_SEEKER("취준생"),
+    JOB_SEEKER("취업 준비생"),
     INTERN("인턴"),
-    EMPLOYED("취업준비생"),
+    EMPLOYED("재직 중"),
     OTHER("기타");
 
     private final String value;
