@@ -70,11 +70,19 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 기존 쿠키 삭제
         deleteExistingTokens(response);
 
-        // 새 토큰 쿠키 설정
-        setTokenCookies(response, user.getUserId(), refreshToken);
+        // RefreshToken 쿠키 추가
+        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        // AccessToken 쿠키 추가
+        String accessToken = jwtUtil.generateAccessToken(user.getUserId());
+        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken);
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+
+        String redirectURI = String.format(ACCESS_TOKEN_REDIRECT_URI, accessToken, refreshToken);
 
         // 액세스 토큰 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, ACCESS_TOKEN_REDIRECT_URI);
+        getRedirectStrategy().sendRedirect(request, response, redirectURI);
     }
 
     // 신규 유저 처리
@@ -91,8 +99,10 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         ResponseCookie registerTokenCookie = cookieUtil.createTokenCookie("registerToken", registerToken);
         response.addHeader("Set-Cookie", registerTokenCookie.toString());
 
+        String redirectURI = String.format(REGISTER_TOKEN_REDIRECT_URI, registerToken);
+
         // 레지스터 토큰 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, REGISTER_TOKEN_REDIRECT_URI);
+        getRedirectStrategy().sendRedirect(request, response, redirectURI);
     }
 
     // 리프레쉬 토큰 저장
@@ -108,17 +118,5 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private void deleteExistingTokens(HttpServletResponse response) {
         response.addCookie(cookieUtil.deleteCookie("accessToken"));
         response.addCookie(cookieUtil.deleteCookie("refreshToken"));
-    }
-
-    // 새로운 토큰 쿠키 설정
-    private void setTokenCookies(HttpServletResponse response, Long userId, String refreshToken) {
-        // RefreshToken 쿠키 추가
-        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-
-        // AccessToken 쿠키 추가
-        String accessToken = jwtUtil.generateAccessToken(userId);
-        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken);
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
     }
 }
