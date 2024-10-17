@@ -50,14 +50,14 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         Optional<User> optionalUser = userRepository.findByProviderId(providerId);
 
         if (optionalUser.isPresent()) {
-            handleExistingUser(response, optionalUser.get());
+            handleExistingUser(request, response, optionalUser.get());
         } else {
-            handleNewUser(response, providerId);
+            handleNewUser(request, response, providerId);
         }
     }
 
     // 기존 유저 처리
-    private void handleExistingUser(HttpServletResponse response, User user) throws IOException {
+    private void handleExistingUser(HttpServletRequest request, HttpServletResponse response, User user) throws IOException {
         log.info("기존 유저입니다. 액세스 토큰과 리프레쉬 토큰을 발급합니다.");
 
         // 기존 리프레쉬 토큰 삭제
@@ -74,11 +74,11 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         setTokenCookies(response, user.getUserId(), refreshToken);
 
         // 액세스 토큰 리다이렉트
-        getRedirectStrategy().sendRedirect(null, response, ACCESS_TOKEN_REDIRECT_URI);
+        getRedirectStrategy().sendRedirect(request, response, ACCESS_TOKEN_REDIRECT_URI);
     }
 
     // 신규 유저 처리
-    private void handleNewUser(HttpServletResponse response, String providerId) throws IOException {
+    private void handleNewUser(HttpServletRequest request, HttpServletResponse response, String providerId) throws IOException {
         log.info("신규 유저입니다. 레지스터 토큰을 발급합니다.");
 
         // 이미 레지스터 토큰이 있다면 삭제
@@ -92,7 +92,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         response.addHeader("Set-Cookie", registerTokenCookie.toString());
 
         // 레지스터 토큰 리다이렉트
-        getRedirectStrategy().sendRedirect(null, response, REGISTER_TOKEN_REDIRECT_URI);
+        getRedirectStrategy().sendRedirect(request, response, REGISTER_TOKEN_REDIRECT_URI);
     }
 
     // 리프레쉬 토큰 저장
