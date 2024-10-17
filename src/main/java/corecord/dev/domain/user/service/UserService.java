@@ -64,8 +64,11 @@ public class UserService {
 
     // 쿠키에서 registerToken 가져오기
     private String getRegisterTokenFromCookie(HttpServletRequest request) {
-        return cookieUtil.getCookieValue(request, "registerToken")
-                .orElseThrow(() -> new TokenException(TokenErrorStatus.REGISTER_TOKEN_NOT_FOUND));
+        String registerToken = cookieUtil.getCookieValue(request, "registerToken");
+        if (registerToken == null) {
+            throw new TokenException(TokenErrorStatus.REGISTER_TOKEN_NOT_FOUND);
+        }
+        return registerToken;
     }
 
     // registerToken 유효성 검증

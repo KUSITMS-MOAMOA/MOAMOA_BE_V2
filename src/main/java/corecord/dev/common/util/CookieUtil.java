@@ -26,12 +26,12 @@ public class CookieUtil {
                 .build();
     }
 
-    public Cookie getCookie(HttpServletRequest request, String cookieName) {
+    public String getCookieValue(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals(cookieName)) {
-                    return cookie;
+                    return cookie.getValue();
                 }
             }
         }
@@ -44,10 +44,4 @@ public class CookieUtil {
         cookie.setPath("/");
         return cookie;
     }
-
-    public Optional<String> getCookieValue(HttpServletRequest request, String cookieName) {
-        Cookie cookie = getCookie(request, cookieName);
-        return Optional.ofNullable(cookie).map(Cookie::getValue);
-    }
-
 }

@@ -43,8 +43,11 @@ public class TokenService {
 
     // 쿠키에서 RefreshToken 가져오기
     private String getRefreshTokenFromCookie(HttpServletRequest request) {
-        return cookieUtil.getCookieValue(request, "refreshToken")
-                .orElseThrow(() -> new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN));
+        String refreshToken = cookieUtil.getCookieValue(request, "refreshToken");
+        if (refreshToken == null) {
+            throw new TokenException(TokenErrorStatus.REFRESH_TOKEN_NOT_FOUND);
+        }
+        return refreshToken;
     }
 
     // RefreshToken 검증
