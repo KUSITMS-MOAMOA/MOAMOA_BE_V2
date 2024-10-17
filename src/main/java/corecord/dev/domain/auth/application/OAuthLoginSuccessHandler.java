@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.Optional;
 
 @Slf4j
@@ -28,10 +27,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Value("${jwt.redirect.access}")
-    private String ACCESS_TOKEN_REDIRECT_URI; // 기존 유저 로그인 시 리다이렉트 URI
+    private String ACCESS_TOKEN_REDIRECT_URI;
 
     @Value("${jwt.redirect.register}")
-    private String REGISTER_TOKEN_REDIRECT_URI; // 신규 유저 로그인 시 리다이렉트 URI
+    private String REGISTER_TOKEN_REDIRECT_URI;
 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
@@ -49,29 +48,74 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("name: {}", name);
 
         Optional<User> optionalUser = userRepository.findByProviderId(providerId);
-        User user;
 
         if (optionalUser.isPresent()) {
-            log.info("기존 유저입니다. 액세스 토큰과 리프레쉬 토큰을 발급합니다.");
-            user = optionalUser.get();
-            refreshTokenRepository.deleteByUserId(user.getUserId());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
-            RefreshToken newRefreshToken = RefreshToken.builder().userId(user.getUserId()).refreshToken(refreshToken).build();
-            refreshTokenRepository.save(newRefreshToken);
-
-            ResponseCookie cookie = cookieUtil.createRefreshTokenCookie(refreshToken);
-            response.addHeader("Set-Cookie", cookie.toString());
-
-            String accessToken = URLEncoder.encode(jwtUtil.generateAccessToken(user.getUserId()));
-            String redirectURI = String.format(ACCESS_TOKEN_REDIRECT_URI, accessToken);
-            getRedirectStrategy().sendRedirect(request, response, redirectURI);
+            handleExistingUser(response, optionalUser.get());
         } else {
-            log.info("신규 유저입니다. 레지스터 토큰을 발급합니다.");
-            String registerToken = URLEncoder.encode(jwtUtil.generateRegisterToken(providerId));
-            String redirectURI = String.format(REGISTER_TOKEN_REDIRECT_URI, registerToken);
-            getRedirectStrategy().sendRedirect(request, response, redirectURI);
+            handleNewUser(response, providerId);
         }
     }
 
+    // 기존 유저 처리
+    private void handleExistingUser(HttpServletResponse response, User user) throws IOException {
+        log.info("기존 유저입니다. 액세스 토큰과 리프레쉬 토큰을 발급합니다.");
 
+        // 기존 리프레쉬 토큰 삭제
+        refreshTokenRepository.deleteByUserId(user.getUserId());
+
+        // 새로운 리프레쉬 토큰 생성 및 저장
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
+        saveRefreshToken(user, refreshToken);
+
+        // 기존 쿠키 삭제
+        deleteExistingTokens(response);
+
+        // 새 토큰 쿠키 설정
+        setTokenCookies(response, user.getUserId(), refreshToken);
+
+        // 액세스 토큰 리다이렉트
+        getRedirectStrategy().sendRedirect(null, response, ACCESS_TOKEN_REDIRECT_URI);
+    }
+
+    // 신규 유저 처리
+    private void handleNewUser(HttpServletResponse response, String providerId) throws IOException {
+        log.info("신규 유저입니다. 레지스터 토큰을 발급합니다.");
+
+        // 레지스터 토큰 발급
+        String registerToken = jwtUtil.generateRegisterToken(providerId);
+
+        // 레지스터 토큰 쿠키 설정
+        ResponseCookie registerTokenCookie = cookieUtil.createTokenCookie("registerToken", registerToken);
+        response.addHeader("Set-Cookie", registerTokenCookie.toString());
+
+        // 레지스터 토큰 리다이렉트
+        getRedirectStrategy().sendRedirect(null, response, REGISTER_TOKEN_REDIRECT_URI);
+    }
+
+    // 리프레쉬 토큰 저장
+    private void saveRefreshToken(User user, String refreshToken) {
+        RefreshToken newRefreshToken = RefreshToken.builder()
+                .userId(user.getUserId())
+                .refreshToken(refreshToken)
+                .build();
+        refreshTokenRepository.save(newRefreshToken);
+    }
+
+    // 기존 토큰 삭제
+    private void deleteExistingTokens(HttpServletResponse response) {
+        response.addCookie(cookieUtil.deleteCookie("accessToken"));
+        response.addCookie(cookieUtil.deleteCookie("refreshToken"));
+    }
+
+    // 새로운 토큰 쿠키 설정
+    private void setTokenCookies(HttpServletResponse response, Long userId, String refreshToken) {
+        // RefreshToken 쿠키 추가
+        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+
+        // AccessToken 쿠키 추가
+        String accessToken = jwtUtil.generateAccessToken(userId);
+        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken);
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+    }
 }
