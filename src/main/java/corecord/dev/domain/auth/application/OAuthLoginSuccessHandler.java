@@ -81,6 +81,9 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private void handleNewUser(HttpServletResponse response, String providerId) throws IOException {
         log.info("신규 유저입니다. 레지스터 토큰을 발급합니다.");
 
+        // 이미 레지스터 토큰이 있다면 삭제
+        response.addCookie(cookieUtil.deleteCookie("registerToken"));
+
         // 레지스터 토큰 발급
         String registerToken = jwtUtil.generateRegisterToken(providerId);
 
