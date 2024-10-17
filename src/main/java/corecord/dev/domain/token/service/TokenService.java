@@ -52,7 +52,7 @@ public class TokenService {
     // RefreshToken 검증
     private void validateRefreshToken(String refreshToken) {
         RefreshToken existingRefreshToken = getExistingRefreshToken(refreshToken);
-        if (!existingRefreshToken.getRefreshToken().equals(refreshToken) || !jwtUtil.isAccessTokenValid(refreshToken)) {
+        if (!existingRefreshToken.getRefreshToken().equals(refreshToken) || !jwtUtil.isRefreshTokenValid(refreshToken)) {
             throw new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN);
         }
     }
