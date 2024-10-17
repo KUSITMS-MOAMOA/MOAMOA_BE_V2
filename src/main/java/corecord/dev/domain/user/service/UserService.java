@@ -10,6 +10,8 @@ import corecord.dev.domain.user.converter.UserConverter;
 import corecord.dev.domain.user.dto.request.UserRequest;
 import corecord.dev.domain.user.dto.response.UserResponse;
 import corecord.dev.domain.user.entity.User;
+import corecord.dev.domain.user.exception.enums.UserErrorStatus;
+import corecord.dev.domain.user.exception.model.UserException;
 import corecord.dev.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
+
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -36,6 +40,9 @@ public class UserService {
 
         // registerToken 유효성 검증
         validRegisterToken(registerToken);
+
+        // user 정보 유효성 검증
+        validateUserRegisterInfo(userRegisterDto);
 
         // 새로운 유저 생성
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
@@ -89,5 +96,19 @@ public class UserService {
     // 쿠키 삭제 헤더 추가
     private void addDeleteCookieHeader(HttpServletResponse response, String cookieName) {
         response.addCookie(cookieUtil.deleteCookie(cookieName));
+    }
+
+    // user 정보 유효성 검증
+    private void validateUserRegisterInfo(UserRequest.UserRegisterDto userRegisterDto) {
+        String nickName = userRegisterDto.getNickName();
+        if (nickName == null || nickName.isEmpty() || nickName.length() > 10) {
+            throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
+        }
+
+        // 한글, 영어, 숫자, 공백만 허용
+        String nicknamePattern = "^[a-zA-Z0-9가-힣\\s]*$";
+        if (!Pattern.matches(nicknamePattern, nickName)) {
+            throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
+        }
     }
 }
