@@ -18,11 +18,22 @@ public class CookieUtil {
     @Value("${jwt.register-token.expiration-time}")
     private long registerTokenExpirationTime;
 
+    @Value("${jwt.access-token.expiration-time}")
+    private long accessTokenExpirationTime;
+
     public ResponseCookie createTokenCookie(String tokenName, String token) {
+        long expirationTime = switch (tokenName) {
+            case "refreshToken" -> refreshTokenExpirationTime;
+            case "registerToken" -> registerTokenExpirationTime;
+            case "accessToken" -> accessTokenExpirationTime;
+            default -> throw new IllegalArgumentException("Unexpected value: " + tokenName);
+        };
+
         return ResponseCookie.from(tokenName, token)
                 .httpOnly(true)
-                .secure(false) // 배포 시 수정
+                .secure(false) // 배포 시 true로 설정
                 .path("/")
+                .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
     }
 
