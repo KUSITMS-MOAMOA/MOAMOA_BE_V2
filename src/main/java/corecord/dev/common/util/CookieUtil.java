@@ -7,36 +7,51 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class CookieUtil {
     @Value("${jwt.refresh-token.expiration-time}")
     private long refreshTokenExpirationTime;
 
-    public ResponseCookie createRefreshTokenCookie(String refreshToken) {
-        return ResponseCookie.from("refresh_token", refreshToken)
+    @Value("${jwt.register-token.expiration-time}")
+    private long registerTokenExpirationTime;
+
+    @Value("${jwt.access-token.expiration-time}")
+    private long accessTokenExpirationTime;
+
+    public ResponseCookie createTokenCookie(String tokenName, String token) {
+        long expirationTime = switch (tokenName) {
+            case "refreshToken" -> refreshTokenExpirationTime;
+            case "registerToken" -> registerTokenExpirationTime;
+            case "accessToken" -> accessTokenExpirationTime;
+            default -> throw new IllegalArgumentException("Unexpected value: " + tokenName);
+        };
+
+        return ResponseCookie.from(tokenName, token)
                 .httpOnly(true)
-                .sameSite("None") // 배포 시 수정
-                .secure(false) // 배포 시 수정
+                .secure(false) // 배포 시 true로 설정
+                .sameSite("None")
                 .path("/")
-                .maxAge(refreshTokenExpirationTime)
+                .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
     }
 
-    public Cookie getCookie(HttpServletRequest request) {
+    public String getCookieValue(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("refresh_token")) {
-                    return cookie;
+                if (cookie.getName().equals(cookieName)) {
+                    return cookie.getValue();
                 }
             }
         }
         return null;
     }
 
-    public Cookie deleteRefreshTokenCookie() {
-        Cookie cookie = new Cookie("refresh_token", "");
+    public Cookie deleteCookie(String cookieName) {
+        Cookie cookie = new Cookie(cookieName, "");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         return cookie;

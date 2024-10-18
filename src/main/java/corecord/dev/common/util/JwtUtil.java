@@ -2,6 +2,7 @@ package corecord.dev.common.util;
 
 import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.token.exception.model.TokenException;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -61,48 +62,46 @@ public class JwtUtil {
                 .compact();
     }
 
-    public boolean isAccessTokenValid(String token) {
-        return isTokenValid(token, "userId");
-    }
-
     public boolean isRegisterTokenValid(String token) {
-        return isTokenValid(token, "providerId");
+        return isTokenValid(token, "providerId", TokenErrorStatus.INVALID_REGISTER_TOKEN);
     }
 
-    private boolean isTokenValid(String token, String claimKey) {
+    public boolean isAccessTokenValid(String token) {
+        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_ACCESS_TOKEN);
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_REFRESH_TOKEN);
+    }
+
+    private boolean isTokenValid(String token, String claimKey, TokenErrorStatus invalidTokenErrorStatus) {
         try {
             var claims = Jwts.parser()
                     .verifyWith(this.getSigningKey())
                     .build()
                     .parseSignedClaims(token);
 
-            // 토큰 만료 여부 확인
             Date expirationDate = claims.getPayload().getExpiration();
             if (expirationDate.before(new Date())) {
-                log.warn("토큰이 만료되었습니다.");
-                return false; // 만료된 토큰
+                log.warn("{}이 만료되었습니다.", invalidTokenErrorStatus.getMessage());
+                throw new TokenException(invalidTokenErrorStatus);
             }
 
-            // 필수 클레임이 있는지 확인
             String claimValue = claims.getPayload().get(claimKey, String.class);
             if (claimValue == null || claimValue.isEmpty()) {
                 log.warn("토큰에 {} 클레임이 없습니다.", claimKey);
-                return false; // 필수 클레임이 없는 경우
+                throw new TokenException(invalidTokenErrorStatus);
             }
 
-            return true; // 유효한 토큰
+            return true;
+
+        } catch (ExpiredJwtException e) {
+            log.warn("토큰이 만료되었습니다: {}", e.getMessage());
+            throw new TokenException(invalidTokenErrorStatus);
         } catch (JwtException e) {
-            log.warn("유효하지 않은 토큰입니다. JWT 예외: {}", e.getMessage());
-            return false;
-        } catch (IllegalArgumentException e) {
-            log.warn("잘못된 토큰 형식입니다. 예외: {}", e.getMessage());
-            return false;
+            log.warn("유효하지 않은 토큰입니다: {}", e.getMessage());
+            throw new TokenException(invalidTokenErrorStatus);
         }
-    }
-
-
-    public String getTokenFromHeader(String authorizationHeader) {
-        return authorizationHeader.substring(7);
     }
 
     public String getProviderIdFromToken(String token) {
@@ -121,7 +120,7 @@ public class JwtUtil {
         }
     }
 
-    public String getUserIdFromAcccessToken(String token) {
+    public String getUserIdFromAccessToken(String token) {
         try {
             return Jwts.parser()
                     .verifyWith(this.getSigningKey())

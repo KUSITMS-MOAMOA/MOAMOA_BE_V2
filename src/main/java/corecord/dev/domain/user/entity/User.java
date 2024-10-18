@@ -24,12 +24,14 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String nickName;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private Status status;
 
     @Column
     private Integer tmpChat;
 
     @Column
     private Integer tmpMemo;
+
 }

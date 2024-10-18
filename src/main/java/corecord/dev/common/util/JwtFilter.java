@@ -22,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (token != null && jwtUtil.isAccessTokenValid(token)) {
-            String userId = jwtUtil.getUserIdFromAcccessToken(token).toString();
+            String userId = jwtUtil.getUserIdFromAccessToken(token).toString();
             Authentication authToken = new UsernamePasswordAuthenticationToken(
                     userId, // principal로 userId 사용
                     null,  // credentials는 필요 없으므로 null
