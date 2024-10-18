@@ -1,6 +1,7 @@
 package corecord.dev.domain.folder.entity;
 
 import corecord.dev.common.base.BaseEntity;
+import corecord.dev.domain.record.entity.Record;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,4 +22,7 @@ public class Folder extends BaseEntity {
 
     @Column(nullable = false, length = 15)
     private String title;
+
+    @OneToOne(mappedBy = "folder")
+    private Record record;
 }

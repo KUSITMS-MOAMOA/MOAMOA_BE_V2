@@ -1,6 +1,6 @@
 package corecord.dev.domain.chat.entity;
 
-import corecord.dev.domain.record.entity.Record;
+import corecord.dev.common.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chat {
+public class Chat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +20,9 @@ public class Chat {
     private Long chatId;
 
     @Column(nullable = false)
-    private Integer author;
+    private Integer author; // 0(user), 1(ai)
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String content;
 
     @ManyToOne

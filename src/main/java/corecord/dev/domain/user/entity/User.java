@@ -26,4 +26,10 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String status;
+
+    @Column
+    private Integer tmpChat;
+
+    @Column
+    private Integer tmpMemo;
 }
