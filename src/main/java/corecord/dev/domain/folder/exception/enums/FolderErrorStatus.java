@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public class FolderErrorStatus implements BaseErrorStatus {
+public enum FolderErrorStatus implements BaseErrorStatus {
+    DUPLICATED_FOLDER_TITLE(HttpStatus.BAD_REQUEST, "E0400_DUPLICATED_TITLE", "이미 존재하는 폴더 명입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -31,7 +31,7 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
     }
 
     // FolderException 처리
-    @ExceptionHandler(TokenException.class)
+    @ExceptionHandler(FolderException.class)
     public ResponseEntity<ApiResponse<Void>> handleFolderException(FolderException e) {
         log.warn(">>>>>>>>FolderException: {}", e.getFolderErrorStatus().getMessage());
         return ApiResponse.error(e.getFolderErrorStatus());
