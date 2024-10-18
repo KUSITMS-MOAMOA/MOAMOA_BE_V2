@@ -24,14 +24,13 @@ public class FolderController {
         return ApiResponse.success(FolderSuccessStatus.FOLDER_CREATE_SUCCESS, folderResponse);
     }
 
-
     @DeleteMapping("/{folderId}")
     public ResponseEntity<ApiResponse<FolderResponse.FolderDtoList>> deleteFolder(
             @PathVariable(name = "folderId") Long folderId
     ) {
         FolderResponse.FolderDtoList folderResponse = folderService.deleteFolder(folderId);
 
-        return ApiResponse.success(FolderSuccessStatus.FOLDER_CREATE_SUCCESS, folderResponse);
+        return ApiResponse.success(FolderSuccessStatus.FOLDER_DELETE_SUCCESS, folderResponse);
     }
 
     @GetMapping("")
@@ -39,7 +38,16 @@ public class FolderController {
     ) {
         FolderResponse.FolderDtoList folderResponse = folderService.getFolderList();
 
-        return ApiResponse.success(FolderSuccessStatus.FOLDER_CREATE_SUCCESS, folderResponse);
+        return ApiResponse.success(FolderSuccessStatus.FOLDER_GET_SUCCESS, folderResponse);
+    }
+
+    @PatchMapping("")
+    public ResponseEntity<ApiResponse<FolderResponse.FolderDtoList>> updateFolder(
+            @RequestBody FolderRequest.FolderUpdateDto folderDto
+    ) {
+        FolderResponse.FolderDtoList folderResponse = folderService.updateFolder(folderDto);
+
+        return ApiResponse.success(FolderSuccessStatus.FOLDER_UPDATE_SUCCESS, folderResponse);
     }
 
 

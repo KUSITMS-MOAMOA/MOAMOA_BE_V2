@@ -49,6 +49,23 @@ public class FolderService {
     }
 
     /*
+     * folderId를 받아, 해당 folder의 title을 수정
+     * @param folderDto
+     * @return
+     */
+    @Transactional
+    public FolderResponse.FolderDtoList updateFolder(FolderRequest.FolderUpdateDto folderDto) {
+        Folder folder = findFolderById(folderDto.getFolderId());
+
+        validateDuplicatedFolderTitle(folderDto.getTitle());
+        validateTitleLength(folderDto.getTitle());
+
+        folder.updateTitle(folderDto.getTitle());
+
+        return getFolderList();
+    }
+
+    /*
      * 생성일 오름차순으로 폴더 리스트를 조회
      * @return
      */
@@ -62,6 +79,13 @@ public class FolderService {
     private void validateDuplicatedFolderTitle(String title) {
         if (folderRepository.existsByTitle(title)) {
             throw new FolderException(FolderErrorStatus.DUPLICATED_FOLDER_TITLE);
+        }
+    }
+
+    // title 글자 수 검사
+    private void validateTitleLength(String title) {
+        if (title.length() > 15) {
+            throw new FolderException(FolderErrorStatus.OVERFLOW_FOLDER_TITLE);
         }
     }
 

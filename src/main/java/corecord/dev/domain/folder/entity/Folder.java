@@ -25,4 +25,8 @@ public class Folder extends BaseEntity {
 
     @OneToOne(mappedBy = "folder")
     private Record record;
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
 }
