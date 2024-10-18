@@ -12,6 +12,7 @@ public class FolderResponse {
     @Builder @Getter
     @AllArgsConstructor @Data
     public static class FolderDto {
+        private Long folderId;
         private String title;
     }
 

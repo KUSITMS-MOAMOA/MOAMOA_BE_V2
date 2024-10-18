@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
 
-    @Query("SELECT new corecord.dev.domain.folder.dto.response.FolderResponse$FolderDto(f.title) " +
+    @Query("SELECT new corecord.dev.domain.folder.dto.response.FolderResponse$FolderDto(f.folderId, f.title) " +
             "FROM Folder f " +
             "ORDER BY f.createdAt")
     List<FolderResponse.FolderDto> findFolderDtoList();

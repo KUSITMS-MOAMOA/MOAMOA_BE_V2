@@ -32,6 +32,28 @@ public class FolderService {
         Folder folder = FolderConverter.toFolderEntity(folderDto.getTitle());
         folderRepository.save(folder);
 
+        return getFolderList();
+    }
+
+    /*
+     * folderId를 통해 folder을 삭제
+     * @param folderId
+     * @return
+     */
+    @Transactional
+    public FolderResponse.FolderDtoList deleteFolder(Long folderId) {
+        Folder folder = findFolderById(folderId);
+        folderRepository.delete(folder);
+
+        return getFolderList();
+    }
+
+    /*
+     * 생성일 오름차순으로 폴더 리스트를 조회
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public FolderResponse.FolderDtoList getFolderList() {
         List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList();
         return FolderConverter.toFolderDtoList(folderList);
     }
@@ -41,5 +63,10 @@ public class FolderService {
         if (folderRepository.existsByTitle(title)) {
             throw new FolderException(FolderErrorStatus.DUPLICATED_FOLDER_TITLE);
         }
+    }
+
+    private Folder findFolderById(Long folderId) {
+        return folderRepository.findById(folderId)
+                .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
     }
 }
