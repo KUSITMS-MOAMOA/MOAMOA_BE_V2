@@ -2,6 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.folder.exception.model.FolderException;
 import corecord.dev.domain.token.exception.model.TokenException;
 import corecord.dev.domain.user.exception.model.UserException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,13 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleTokenException(TokenException e) {
         log.warn(">>>>>>>>TokenException: {}", e.getTokenErrorStatus().getMessage());
         return ApiResponse.error(e.getTokenErrorStatus());
+    }
+
+    // FolderException 처리
+    @ExceptionHandler(FolderException.class)
+    public ResponseEntity<ApiResponse<Void>> handleFolderException(FolderException e) {
+        log.warn(">>>>>>>>FolderException: {}", e.getFolderErrorStatus().getMessage());
+        return ApiResponse.error(e.getFolderErrorStatus());
     }
 
     // GeneralException 처리
