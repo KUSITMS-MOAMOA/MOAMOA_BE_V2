@@ -27,4 +27,11 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
+
+    @Column
+    private Long tmpChat;
+
+    @Column
+    private Long tmpMemo;
+
 }
