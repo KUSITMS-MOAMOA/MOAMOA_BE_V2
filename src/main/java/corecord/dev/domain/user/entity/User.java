@@ -29,9 +29,9 @@ public class User extends BaseEntity {
     private Status status;
 
     @Column
-    private Integer tmpChat;
+    private Long tmpChat;
 
     @Column
-    private Integer tmpMemo;
+    private Long tmpMemo;
 
 }
