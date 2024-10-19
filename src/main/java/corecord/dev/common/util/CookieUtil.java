@@ -31,8 +31,8 @@ public class CookieUtil {
 
         return ResponseCookie.from(tokenName, token)
                 .httpOnly(true)
-                .secure(false) // 배포 시 true로 설정
-//                .sameSite("None")
+                .secure(true) // 배포 시 true로 설정
+                .sameSite("None")
                 .path("/")
                 .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
