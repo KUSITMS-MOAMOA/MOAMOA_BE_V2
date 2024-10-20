@@ -5,10 +5,11 @@ import corecord.dev.common.util.JwtUtil;
 import corecord.dev.domain.token.converter.TokenConverter;
 import corecord.dev.domain.token.dto.response.TokenResponse;
 import corecord.dev.domain.token.entity.RefreshToken;
+import corecord.dev.domain.token.entity.TmpToken;
 import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.token.exception.model.TokenException;
 import corecord.dev.domain.token.repository.RefreshTokenRepository;
-import corecord.dev.domain.user.exception.model.UserException;
+import corecord.dev.domain.token.repository.TmpTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -21,47 +22,48 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class TokenService {
+
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+    private final TmpTokenRepository tmpTokenRepository;
 
-    public void test(HttpServletResponse response, String registerToken) {
-        // registerToken 유효성 검증
-        if(!jwtUtil.isRegisterTokenValid(registerToken)) {
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        }
+    @Transactional
+    public TokenResponse.AccessTokenResponse issueTokens(HttpServletResponse response, String tmpToken) {
+        // 임시 토큰 유효성 검증
+        TmpToken tmpTokenEntity = validateTmpToken(tmpToken);
+        tmpTokenRepository.delete(tmpTokenEntity);
 
-        // registerToken에서 providerId 추출
-        String providerId = jwtUtil.getProviderIdFromToken(registerToken);
-        log.info("providerId: {}", providerId);
+        // 새 RefreshToken 발급 및 저장
+        Long userId = Long.parseLong(jwtUtil.getUserIdFromTmpToken(tmpToken));
+        String refreshToken = jwtUtil.generateRefreshToken(userId);
+        RefreshToken newRefreshToken = RefreshToken.of(refreshToken, userId);
+        refreshTokenRepository.save(newRefreshToken);
 
-        // 배포환경 쿠키 발급 테스트
-        String tmpRefreshToken = "000tmpRefreshToken000";
-        ResponseCookie tmpRefreshTokenCookie = cookieUtil.createTokenCookie("registerToken", tmpRefreshToken);
+        // 쿠키에 RefreshToken 추가
+        setCookie(response, "refreshToken", refreshToken);
 
-        // 쿠키 생성
-        response.addHeader("Set-Cookie", tmpRefreshTokenCookie.toString());
+        // 새 AccessToken 발급
+        String accessToken = jwtUtil.generateAccessToken(userId);
+        return TokenConverter.toAccessTokenResponse(accessToken);
     }
 
     @Transactional
     public TokenResponse.AccessTokenResponse reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        // RefreshToken 추출 및 유효성 검증
         String refreshToken = getRefreshTokenFromCookie(request);
 
-        // RefreshToken이 유효한지 확인
-        Long userId = Long.parseLong(jwtUtil.getUserIdFromRefreshToken(refreshToken));
+        // RefreshToken 유효성 검증
         validateRefreshToken(refreshToken);
 
         // 새 AccessToken 발급
+        Long userId = Long.parseLong(jwtUtil.getUserIdFromRefreshToken(refreshToken));
         String newAccessToken = jwtUtil.generateAccessToken(userId);
 
-        // AccessToken 쿠키 생성
-        setAccessTokenCookie(response, newAccessToken);
-
+        // 쿠키에 AccessToken 추가
+        setCookie(response, "accessToken", newAccessToken);
         return TokenConverter.toAccessTokenResponse(newAccessToken);
     }
 
-    // 쿠키에서 RefreshToken 가져오기
     private String getRefreshTokenFromCookie(HttpServletRequest request) {
         String refreshToken = cookieUtil.getCookieValue(request, "refreshToken");
         if (refreshToken == null) {
@@ -70,23 +72,26 @@ public class TokenService {
         return refreshToken;
     }
 
-    // RefreshToken 검증
     private void validateRefreshToken(String refreshToken) {
-        RefreshToken existingRefreshToken = getExistingRefreshToken(refreshToken);
-        if (!existingRefreshToken.getRefreshToken().equals(refreshToken) || !jwtUtil.isRefreshTokenValid(refreshToken)) {
+        if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
             throw new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN);
         }
-    }
 
-    // DB에서 RefreshToken 확인
-    private RefreshToken getExistingRefreshToken(String refreshToken) {
-        return refreshTokenRepository.findByRefreshToken(refreshToken)
+        refreshTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new TokenException(TokenErrorStatus.REFRESH_TOKEN_NOT_FOUND));
+
     }
 
-    // AccessToken 쿠키 생성 및 응답 헤더에 추가
-    private void setAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken);
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+    private TmpToken validateTmpToken(String tmpToken) {
+        if (!jwtUtil.isTmpTokenValid(tmpToken)) {
+            throw new TokenException(TokenErrorStatus.INVALID_TMP_TOKEN);
+        }
+        return tmpTokenRepository.findByTmpToken(tmpToken)
+                .orElseThrow(() -> new TokenException(TokenErrorStatus.TMP_TOKEN_NOT_FOUND));
+    }
+
+    private void setCookie(HttpServletResponse response, String tokenName, String tokenValue) {
+        ResponseCookie cookie = cookieUtil.createTokenCookie(tokenName, tokenValue);
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
