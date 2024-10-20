@@ -37,7 +37,7 @@ public class TokenService {
 
         // 배포환경 쿠키 발급 테스트
         String tmpRefreshToken = "000tmpRefreshToken000";
-        ResponseCookie tmpRefreshTokenCookie = cookieUtil.createTokenCookie("tmpRefreshToken", tmpRefreshToken);
+        ResponseCookie tmpRefreshTokenCookie = cookieUtil.createTokenCookie("registerToken", tmpRefreshToken);
 
         // 쿠키 생성
         response.addHeader("Set-Cookie", tmpRefreshTokenCookie.toString());
