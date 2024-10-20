@@ -8,19 +8,40 @@ import corecord.dev.domain.token.entity.RefreshToken;
 import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.token.exception.model.TokenException;
 import corecord.dev.domain.token.repository.RefreshTokenRepository;
+import corecord.dev.domain.user.exception.model.UserException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
+
+    public void test(HttpServletResponse response, String registerToken) {
+        // registerToken 유효성 검증
+        if(!jwtUtil.isRegisterTokenValid(registerToken)) {
+            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
+        }
+
+        // registerToken에서 providerId 추출
+        String providerId = jwtUtil.getProviderIdFromToken(registerToken);
+        log.info("providerId: {}", providerId);
+
+        // 배포환경 쿠키 발급 테스트
+        String tmpRefreshToken = "000tmpRefreshToken000";
+        ResponseCookie tmpRefreshTokenCookie = cookieUtil.createTokenCookie("tmpRefreshToken", tmpRefreshToken);
+
+        // 쿠키 생성
+        response.addHeader("Set-Cookie", tmpRefreshTokenCookie.toString());
+    }
 
     @Transactional
     public TokenResponse.AccessTokenResponse reissueAccessToken(HttpServletRequest request, HttpServletResponse response) {

@@ -8,9 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/token")
@@ -25,5 +23,30 @@ public class TokenController {
     ) {
         TokenResponse.AccessTokenResponse accessTokenResponse = tokenService.reissueAccessToken(request, response);
         return ApiResponse.success(TokenSuccessStatus.REISSUE_ACCESS_TOKEN_SUCCESS, accessTokenResponse);
+    }
+
+    @GetMapping("/cookie/test")
+    public ResponseEntity<ApiResponse<String>> test(
+            HttpServletResponse response,
+            @RequestHeader("registerToken") String registerToken
+    ) {
+        tokenService.test(response, registerToken);
+        return ApiResponse.success(TokenSuccessStatus.SUCCESS_TEST);
+    }
+
+    @PostMapping("/cookie/test")
+    public ResponseEntity<ApiResponse<String>> testPost(
+            HttpServletResponse response,
+            @RequestBody String registerToken
+    ) {
+        tokenService.test(response, registerToken);
+        return ApiResponse.success(TokenSuccessStatus.SUCCESS_TEST);
+    }
+
+    @GetMapping("/cookie")
+    public ResponseEntity<ApiResponse<String>> testGetCookie(
+            @CookieValue(value = "tmpRefreshToken", required = false) String tmpRefreshToken
+    ) {
+        return ApiResponse.success(TokenSuccessStatus.SUCCESS_TEST, tmpRefreshToken);
     }
 }

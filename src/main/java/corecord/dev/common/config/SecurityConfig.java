@@ -36,7 +36,7 @@ public class SecurityConfig {
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
-    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/api/token/access-token", "/actuator/health"};
+    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/api/token/access-token", "/actuator/health", "/api/token/**"};
     private final String[] allowedUrls = Stream.concat(Arrays.stream(swaggerUrls), Arrays.stream(authUrls))
             .toArray(String[]::new);
 
