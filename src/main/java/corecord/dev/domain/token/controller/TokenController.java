@@ -45,8 +45,9 @@ public class TokenController {
 
     @GetMapping("/cookie")
     public ResponseEntity<ApiResponse<String>> testGetCookie(
-            @CookieValue(value = "tmpRefreshToken", required = false) String tmpRefreshToken
+            @CookieValue(value = "registerToken", required = false) String tmpRefreshToken
     ) {
+        System.out.println(tmpRefreshToken);
         return ApiResponse.success(TokenSuccessStatus.SUCCESS_TEST, tmpRefreshToken);
     }
 }
