@@ -29,10 +29,10 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse.UserRegisterDto>> registerUser(
             HttpServletResponse response,
-            HttpServletRequest request,
+            @RequestHeader("registerToken") String registerToken,
             @RequestBody UserRequest.UserRegisterDto userRegisterDto
             ) {
-        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, request, userRegisterDto);
+        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, registerToken, userRegisterDto);
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 }
