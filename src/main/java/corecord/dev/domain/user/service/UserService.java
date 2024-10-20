@@ -34,10 +34,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public UserResponse.UserRegisterDto registerUser(HttpServletResponse response, HttpServletRequest request, UserRequest.UserRegisterDto userRegisterDto) {
-        // 쿠키에서 registerToken 가져오기
-        String registerToken = getRegisterTokenFromCookie(request);
-
+    public UserResponse.UserRegisterDto registerUser(HttpServletResponse response, String registerToken, UserRequest.UserRegisterDto userRegisterDto) {
         // registerToken 유효성 검증
         validRegisterToken(registerToken);
 
@@ -53,22 +50,9 @@ public class UserService {
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
         saveRefreshToken(refreshToken, savedUser);
 
-        // registerToken 쿠키 삭제
-        addDeleteCookieHeader(response, "registerToken");
-
-        // 새 RefreshToken 및 AccessToken 쿠키 설정
+        // 새 RefreshToken 쿠키 설정
         setTokenCookies(response, refreshToken, savedUser);
-
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
-    }
-
-    // 쿠키에서 registerToken 가져오기
-    private String getRegisterTokenFromCookie(HttpServletRequest request) {
-        String registerToken = cookieUtil.getCookieValue(request, "registerToken");
-        if (registerToken == null) {
-            throw new TokenException(TokenErrorStatus.REGISTER_TOKEN_NOT_FOUND);
-        }
-        return registerToken;
     }
 
     // registerToken 유효성 검증
@@ -89,16 +73,6 @@ public class UserService {
         // RefreshToken 쿠키 추가
         ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-
-        // AccessToken 쿠키 추가
-        String accessToken = jwtUtil.generateAccessToken(user.getUserId());
-        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken);
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-    }
-
-    // 쿠키 삭제 헤더 추가
-    private void addDeleteCookieHeader(HttpServletResponse response, String cookieName) {
-        response.addCookie(cookieUtil.deleteCookie(cookieName));
     }
 
     // user 정보 유효성 검증
