@@ -17,134 +17,141 @@ import java.util.Date;
 @Slf4j
 @Component
 public class JwtUtil {
+
     @Value("${jwt.secret}")
     private String SECRET_KEY;
+
     @Value("${jwt.register-token.expiration-time}")
     private long REGISTER_TOKEN_EXPIRATION_TIME;
+
     @Value("${jwt.access-token.expiration-time}")
     private long ACCESS_TOKEN_EXPIRATION_TIME;
+
     @Value("${jwt.refresh-token.expiration-time}")
     private long REFRESH_TOKEN_EXPIRATION_TIME;
 
+    // SecretKey 생성
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // JWT 토큰 생성 공통 로직
+    private String createToken(String claimKey, String claimValue, long expirationTime) {
+        return Jwts.builder()
+                .claim(claimKey, claimValue)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    // 액세스 토큰 생성
     public String generateAccessToken(Long userId) {
         log.info("액세스 토큰이 발행되었습니다.");
-        return Jwts.builder()
-                .claim("userId", userId.toString())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
-                .signWith(this.getSigningKey())
-                .compact();
+        return createToken("userId", userId.toString(), ACCESS_TOKEN_EXPIRATION_TIME);
     }
 
+    // 리프레쉬 토큰 생성
     public String generateRefreshToken(Long userId) {
         log.info("리프레쉬 토큰이 발행되었습니다.");
-        return Jwts.builder()
-                .claim("userId", userId.toString())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
-                .signWith(this.getSigningKey())
-                .compact();
+        return createToken("userId", userId.toString(), REFRESH_TOKEN_EXPIRATION_TIME);
     }
 
-
+    // 레지스터 토큰 생성
     public String generateRegisterToken(String providerId) {
         log.info("레지스터 토큰이 발행되었습니다.");
-        return Jwts.builder()
-                .claim("providerId", providerId)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + REGISTER_TOKEN_EXPIRATION_TIME))
-                .signWith(this.getSigningKey())
-                .compact();
+        return createToken("providerId", providerId, REGISTER_TOKEN_EXPIRATION_TIME);
     }
 
-    public boolean isRegisterTokenValid(String token) {
-        return isTokenValid(token, "providerId", TokenErrorStatus.INVALID_REGISTER_TOKEN);
+    // 임시 토큰 생성
+    public String generateTmpToken(Long userId) {
+        log.info("임시 토큰이 발행되었습니다.");
+        return createToken("userId", userId.toString(), 3600000);
     }
 
-    public boolean isAccessTokenValid(String token) {
-        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_ACCESS_TOKEN);
-    }
-
-    public boolean isRefreshTokenValid(String token) {
-        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_REFRESH_TOKEN);
-    }
-
-    private boolean isTokenValid(String token, String claimKey, TokenErrorStatus invalidTokenErrorStatus) {
+    // 토큰 검증 공통 로직
+    private boolean isTokenValid(String token, String claimKey, TokenErrorStatus errorStatus) {
         try {
             var claims = Jwts.parser()
                     .verifyWith(this.getSigningKey())
                     .build()
                     .parseSignedClaims(token);
 
-            Date expirationDate = claims.getPayload().getExpiration();
-            if (expirationDate.before(new Date())) {
-                log.warn("{}이 만료되었습니다.", invalidTokenErrorStatus.getMessage());
-                throw new TokenException(invalidTokenErrorStatus);
+            if (claims.getPayload().getExpiration().before(new Date())) {
+                log.warn("{}이 만료되었습니다.", errorStatus.getMessage());
+                throw new TokenException(errorStatus);
             }
 
             String claimValue = claims.getPayload().get(claimKey, String.class);
             if (claimValue == null || claimValue.isEmpty()) {
                 log.warn("토큰에 {} 클레임이 없습니다.", claimKey);
-                throw new TokenException(invalidTokenErrorStatus);
+                throw new TokenException(errorStatus);
             }
 
             return true;
 
         } catch (ExpiredJwtException e) {
             log.warn("토큰이 만료되었습니다: {}", e.getMessage());
-            throw new TokenException(invalidTokenErrorStatus);
-        } catch (JwtException e) {
+            throw new TokenException(errorStatus);
+        } catch (JwtException | IllegalArgumentException e) {
             log.warn("유효하지 않은 토큰입니다: {}", e.getMessage());
-            throw new TokenException(invalidTokenErrorStatus);
+            throw new TokenException(errorStatus);
         }
     }
 
+    // 레지스터 토큰 유효성 검증
+    public boolean isRegisterTokenValid(String token) {
+        return isTokenValid(token, "providerId", TokenErrorStatus.INVALID_REGISTER_TOKEN);
+    }
+
+    // 액세스 토큰 유효성 검증
+    public boolean isAccessTokenValid(String token) {
+        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_ACCESS_TOKEN);
+    }
+
+    // 리프레쉬 토큰 유효성 검증
+    public boolean isRefreshTokenValid(String token) {
+        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_REFRESH_TOKEN);
+    }
+
+    // 임시 토큰 유효성 검증
+    public boolean isTmpTokenValid(String token) {
+        return isTokenValid(token, "userId", TokenErrorStatus.INVALID_TMP_TOKEN);
+    }
+
+    // 토큰에서 클레임 추출 공통 로직
+    private String getClaimFromToken(String token, String claimKey, TokenErrorStatus errorStatus) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(this.getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .get(claimKey, String.class);
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new TokenException(errorStatus);
+        }
+    }
+
+    // 레지스터 토큰에서 providerId 추출
     public String getProviderIdFromToken(String token) {
-        try {
-            log.info("토큰 파싱");
-            log.info("token: {}", token);
-            return Jwts.parser()
-                    .verifyWith(this.getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("providerId", String.class);
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        }
+        return getClaimFromToken(token, "providerId", TokenErrorStatus.INVALID_REGISTER_TOKEN);
     }
 
+    // 액세스 토큰에서 userId 추출
     public String getUserIdFromAccessToken(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(this.getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("userId", String.class);
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new TokenException(TokenErrorStatus.INVALID_ACCESS_TOKEN);
-        }
+        return getClaimFromToken(token, "userId", TokenErrorStatus.INVALID_ACCESS_TOKEN);
     }
 
+    // 리프레쉬 토큰에서 userId 추출
     public String getUserIdFromRefreshToken(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(this.getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload()
-                    .get("userId", String.class);
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN);
-        }
+        return getClaimFromToken(token, "userId", TokenErrorStatus.INVALID_REFRESH_TOKEN);
+    }
+
+    // 임시 토큰에서 userId 추출
+    public String getUserIdFromTmpToken(String token) {
+        return getClaimFromToken(token, "userId", TokenErrorStatus.INVALID_TMP_TOKEN);
     }
 }
