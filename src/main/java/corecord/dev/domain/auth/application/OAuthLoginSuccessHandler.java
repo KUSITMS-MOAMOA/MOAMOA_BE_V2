@@ -64,7 +64,8 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("기존 유저입니다. 임시 토큰을 발급합니다.");
         // 기존 리프레쉬 토큰, 쿠키 삭제
         deleteByUserId(user.getUserId());
-        response.addCookie(cookieUtil.deleteCookie("refreshToken"));
+        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
         // 임시 토큰 생성
         String tmpToken = jwtUtil.generateTmpToken(user.getUserId());
