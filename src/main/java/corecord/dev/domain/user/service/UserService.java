@@ -1,5 +1,7 @@
 package corecord.dev.domain.user.service;
 
+import corecord.dev.common.exception.GeneralException;
+import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
 import corecord.dev.domain.token.entity.RefreshToken;
@@ -9,6 +11,7 @@ import corecord.dev.domain.token.repository.RefreshTokenRepository;
 import corecord.dev.domain.user.converter.UserConverter;
 import corecord.dev.domain.user.dto.request.UserRequest;
 import corecord.dev.domain.user.dto.response.UserResponse;
+import corecord.dev.domain.user.entity.Status;
 import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.exception.enums.UserErrorStatus;
 import corecord.dev.domain.user.exception.model.UserException;
@@ -40,7 +43,7 @@ public class UserService {
         validRegisterToken(registerToken);
 
         // user 정보 유효성 검증
-        validateUserRegisterInfo(userRegisterDto);
+        validateUserInfo(userRegisterDto.getNickName());
 
         // 새로운 유저 생성
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
@@ -83,6 +86,24 @@ public class UserService {
 //        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 //    }
 
+    // 유저 정보 수정
+    @Transactional
+    public void updateUser(Long userId, UserRequest.UserUpdateDto userUpdateDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+
+        if(userUpdateDto.getNickName() != null) {
+            validateUserInfo(userUpdateDto.getNickName());
+            user.setNickName(userUpdateDto.getNickName());
+        }
+
+        if(userUpdateDto.getStatus() != null) {
+            user.setStatus(Status.getStatus(userUpdateDto.getStatus()));
+        }
+
+        userRepository.save(user);
+    }
+
     // registerToken 유효성 검증
     private void validRegisterToken(String registerToken) {
         if (!jwtUtil.isRegisterTokenValid(registerToken)) {
@@ -104,8 +125,7 @@ public class UserService {
     }
 
     // user 정보 유효성 검증
-    private void validateUserRegisterInfo(UserRequest.UserRegisterDto userRegisterDto) {
-        String nickName = userRegisterDto.getNickName();
+    private void validateUserInfo(String nickName) {
         if (nickName == null || nickName.isEmpty() || nickName.length() > 10) {
             throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
         }
