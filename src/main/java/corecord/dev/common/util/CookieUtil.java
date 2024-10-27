@@ -37,10 +37,13 @@ public class CookieUtil {
         return null;
     }
 
-    public Cookie deleteCookie(String cookieName) {
-        Cookie cookie = new Cookie(cookieName, "");
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        return cookie;
+    public ResponseCookie deleteCookie(String cookieName) {
+        return ResponseCookie.from(cookieName, "")
+                .httpOnly(true)
+                .secure(true) // 배포 시 true로 설정
+                .sameSite("None")
+                .path("/")
+                .maxAge(0)
+                .build();
     }
 }
