@@ -13,7 +13,6 @@ import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.exception.enums.UserErrorStatus;
 import corecord.dev.domain.user.exception.model.UserException;
 import corecord.dev.domain.user.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -58,6 +57,7 @@ public class UserService {
     }
 
     // 로그아웃
+    @Transactional
     public void logoutUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
         // Redis 안에 RefreshToken 삭제
         Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
@@ -67,6 +67,21 @@ public class UserService {
         ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
+//
+//    // 유저 삭제
+//    @Transactional
+//    public void deleteUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
+//        // 유저 삭제
+//        userRepository.deleteById(userId);
+//
+//        // Redis 안에 RefreshToken 삭제
+//        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
+//        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+//
+//        // RefreshToken 쿠키 삭제
+//        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+//        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+//    }
 
     // registerToken 유효성 검증
     private void validRegisterToken(String registerToken) {
