@@ -13,6 +13,7 @@ import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.exception.enums.UserErrorStatus;
 import corecord.dev.domain.user.exception.model.UserException;
 import corecord.dev.domain.user.repository.UserRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -53,6 +55,17 @@ public class UserService {
         // 새 RefreshToken 쿠키 설정
         setTokenCookies(response, refreshToken, savedUser);
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
+    }
+
+    // 로그아웃
+    public void logoutUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
+        // Redis 안에 RefreshToken 삭제
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+
+        // RefreshToken 쿠키 삭제
+        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
     // registerToken 유효성 검증

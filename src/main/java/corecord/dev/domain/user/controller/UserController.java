@@ -35,4 +35,14 @@ public class UserController {
         UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, registerToken, userRegisterDto);
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logoutUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @UserId Long userId
+    ) {
+        userService.logoutUser(request, response, userId);
+        return ApiResponse.success(UserSuccessStatus.USER_LOGOUT_SUCCESS);
+    }
 }
