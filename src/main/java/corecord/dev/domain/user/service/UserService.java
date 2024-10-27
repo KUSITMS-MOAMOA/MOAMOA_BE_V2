@@ -104,6 +104,27 @@ public class UserService {
         userRepository.save(user);
     }
 
+    // 유저 정보 조회
+    @Transactional
+    public UserResponse.UserInfoDto getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+
+        int recordCount = getRecordCount(user);
+        return UserConverter.toUserInfoDto(user, recordCount);
+    }
+
+    private static int getRecordCount(User user) {
+        int recordCount = user.getRecords().size();
+        if (user.getTmpChat() != null) {
+            recordCount--;
+        }
+        if (user.getTmpMemo() != null) {
+            recordCount--;
+        }
+        return recordCount;
+    }
+
     // registerToken 유효성 검증
     private void validRegisterToken(String registerToken) {
         if (!jwtUtil.isRegisterTokenValid(registerToken)) {

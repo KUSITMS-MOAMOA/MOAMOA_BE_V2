@@ -24,4 +24,12 @@ public class UserConverter {
                 .build();
     }
 
+    public static UserResponse.UserInfoDto toUserInfoDto(User user, int recordCount) {
+        return UserResponse.UserInfoDto.builder()
+                .recordCount(recordCount)
+                .nickname(user.getNickName())
+                .status(user.getStatus().getValue())
+                .build();
+    }
+
 }
