@@ -44,6 +44,6 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "folder_id", nullable = true)
     private Folder folder;
 
-    @OneToOne(mappedBy = "record")
+    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private Analysis analysis;
 }
