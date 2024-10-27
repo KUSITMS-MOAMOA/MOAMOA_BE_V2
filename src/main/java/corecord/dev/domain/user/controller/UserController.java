@@ -55,4 +55,13 @@ public class UserController {
 //        userService.deleteUser(request, response, userId);
 //        return ApiResponse.success(UserSuccessStatus.USER_DELETE_SUCCESS);
 //    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<String>> updateUser(
+            @UserId Long userId,
+            @RequestBody UserRequest.UserUpdateDto userUpdateDto
+    ) {
+        userService.updateUser(userId, userUpdateDto);
+        return ApiResponse.success(UserSuccessStatus.USER_UPDATE_SUCCESS);
+    }
 }

@@ -8,4 +8,10 @@ public class UserRequest {
         private String nickName;
         private String status;
     }
+
+    @Data
+    public static class UserUpdateDto {
+        private String nickName;
+        private String status;
+    }
 }

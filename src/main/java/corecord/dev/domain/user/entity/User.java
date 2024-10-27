@@ -2,10 +2,7 @@ package corecord.dev.domain.user.entity;
 
 import corecord.dev.common.base.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -21,9 +18,11 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String providerId;
 
+    @Setter
     @Column(nullable = false)
     private String nickName;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
