@@ -15,4 +15,13 @@ public class UserResponse {
         private String status;
         private String accessToken;
     }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    public static class UserInfoDto {
+        private int recordCount;
+        private String nickname;
+        private String status;
+    }
 }

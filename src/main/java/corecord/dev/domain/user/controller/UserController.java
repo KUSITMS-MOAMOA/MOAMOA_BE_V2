@@ -64,4 +64,12 @@ public class UserController {
         userService.updateUser(userId, userUpdateDto);
         return ApiResponse.success(UserSuccessStatus.USER_UPDATE_SUCCESS);
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<UserResponse.UserInfoDto>> getUserInfo(
+            @UserId Long userId
+    ) {
+        UserResponse.UserInfoDto userInfoDto = userService.getUserInfo(userId);
+        return ApiResponse.success(UserSuccessStatus.GET_USER_INFO_SUCCESS, userInfoDto);
+    }
 }
