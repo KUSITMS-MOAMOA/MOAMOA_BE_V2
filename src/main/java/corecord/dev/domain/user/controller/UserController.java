@@ -45,4 +45,14 @@ public class UserController {
         userService.logoutUser(request, response, userId);
         return ApiResponse.success(UserSuccessStatus.USER_LOGOUT_SUCCESS);
     }
+//
+//    @DeleteMapping
+//    public ResponseEntity<ApiResponse<String>> deleteUser(
+//            HttpServletRequest request,
+//            HttpServletResponse response,
+//            @UserId Long userId
+//    ) {
+//        userService.deleteUser(request, response, userId);
+//        return ApiResponse.success(UserSuccessStatus.USER_DELETE_SUCCESS);
+//    }
 }
