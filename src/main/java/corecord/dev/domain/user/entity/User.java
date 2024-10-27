@@ -1,6 +1,8 @@
 package corecord.dev.domain.user.entity;
 
 import corecord.dev.common.base.BaseEntity;
+import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.record.entity.Record;
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,6 +40,12 @@ public class User extends BaseEntity {
     private Long tmpMemo;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Record> records = new ArrayList<>();
+    private List<Record> records;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRooms;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ability> abilities;
 
 }
