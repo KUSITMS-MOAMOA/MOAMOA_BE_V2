@@ -15,8 +15,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     @Query("SELECT new corecord.dev.domain.folder.dto.response.FolderResponse$FolderDto(f.folderId, f.title) " +
             "FROM Folder f " +
-            "WHERE f.user =: user " +
-            "ORDER BY f.createdAt")
+            "WHERE f.user = :user " +
+            "ORDER BY f.createdAt desc ")
     List<FolderResponse.FolderDto> findFolderDtoList(@Param(value = "user") User user);
 
     boolean existsByTitle(String title);
