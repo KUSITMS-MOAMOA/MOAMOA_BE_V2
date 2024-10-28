@@ -29,7 +29,7 @@ public class RecordService {
     private final UserRepository userRepository;
 
     /*
-     *  user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
+     * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
      * @param userId, recordDto
      * @return
      */
@@ -50,6 +50,22 @@ public class RecordService {
         return RecordConverter.toMemoRecordDto(record);
     }
 
+    /*
+     * recordId를 받아 MEMO ver. 경험 기록의 상세 정보를 반환
+     * @param userId, recordId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecordResponse.MemoRecordDto getMemoRecordDetail(Long userId, Long recordId) {
+        User user = findUserById(userId);
+        Record record = findRecordById(recordId);
+
+        // User-Record 권한 유효성 검증
+        validIsUserAuthorizedForRecord(user, record);
+
+        return RecordConverter.toMemoRecordDto(record);
+    }
+
     private void validTextLength(String title, String content) {
         if (title.length() > 15) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
@@ -60,6 +76,12 @@ public class RecordService {
         }
     }
 
+    // user-record 권한 검사
+    private void validIsUserAuthorizedForRecord(User user, Record record) {
+        if (!record.getUser().equals(user))
+            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
+    }
+
     private Folder findFolderById(Long folderId) {
         return folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
@@ -68,5 +90,10 @@ public class RecordService {
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+    }
+
+    private Record findRecordById(Long recordId) {
+        return recordRepository.findById(recordId)
+                .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
 }
