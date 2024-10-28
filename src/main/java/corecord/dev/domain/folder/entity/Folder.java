@@ -2,6 +2,7 @@ package corecord.dev.domain.folder.entity;
 
 import corecord.dev.common.base.BaseEntity;
 import corecord.dev.domain.record.entity.Record;
+import corecord.dev.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,10 @@ public class Folder extends BaseEntity {
 
     @OneToOne(mappedBy = "folder")
     private Record record;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public void updateTitle(String title) {
         this.title = title;
