@@ -40,7 +40,7 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "chat_room_id", nullable = true)
     private ChatRoom chatRoom;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "folder_id", nullable = true)
     private Folder folder;
 
