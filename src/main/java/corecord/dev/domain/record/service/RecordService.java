@@ -66,14 +66,64 @@ public class RecordService {
         return RecordConverter.toMemoRecordDto(record);
     }
 
-    private void validTextLength(String title, String content) {
-        if (title.length() > 15) {
-            throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
+    /*
+     * title, content를 받아 Record 객체를 생성한 후, recordId를 User.tmpMemo에 저장
+     * @param userId, tmpMemoRecordDto
+     */
+    @Transactional
+    public void createTmpMemoRecord(Long userId, RecordRequest.TmpMemoRecordDto tmpMemoRecordDto) {
+        User user = findUserById(userId);
+        String title = tmpMemoRecordDto.getTitle();
+        String content = tmpMemoRecordDto.getContent();
+
+        // User의 임시 메모 저장 유무 확인
+        validHasUserTmpMemo(user);
+
+        // 제목, 본문 글자 수 검사
+        validTextLength(title, content);
+
+        // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
+        Record record = RecordConverter.toMemoRecordEntity(title, content, user, null);
+        Record tmpRecord = recordRepository.save(record);
+        user.updateTmpMemo(tmpRecord.getRecordId());
+    }
+
+
+    /*
+     * user의 임시 저장된 메모 기록이 있다면 해당 Record row와 tmpMemo 필드 정보를 제거한 후 저장된 데이터를 반환
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public RecordResponse.TmpMemoRecordDto getTmpMemoRecord(Long userId) {
+        User user = findUserById(userId);
+        Long tmpMemoRecordId = user.getTmpMemo();
+
+        // 임시 저장 내역이 없는 경우 isExist=false 반환
+        if (tmpMemoRecordId == null) {
+            return RecordConverter.toNotExistingTmpMemoRecordDto();
         }
 
-        if (content.length() > 500) {
+        // 임시 저장 내역이 있는 경우 결과 조회
+        Record tmpMemoRecord = findRecordById(tmpMemoRecordId);
+
+        // 기존 데이터 제거 후 결과 반환
+        user.deleteTmpMemo();
+        recordRepository.delete(tmpMemoRecord);
+        return RecordConverter.toExistingTmpMemoRecordDto(tmpMemoRecord);
+    }
+
+    private void validHasUserTmpMemo(User user) {
+        if (user.getTmpMemo() != null)
+            throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
+    }
+
+    private void validTextLength(String title, String content) {
+        if (title != null && title.length() > 15)
+            throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
+
+        if (content != null && content.length() > 500)
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
-        }
     }
 
     // user-record 권한 검사

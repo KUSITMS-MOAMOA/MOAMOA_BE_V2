@@ -18,4 +18,13 @@ public class RecordResponse {
         private String createdAt;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class TmpMemoRecordDto {
+        private Boolean isExist;
+        private String title;
+        private String content;
+    }
 }
