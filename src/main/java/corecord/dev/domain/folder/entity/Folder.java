@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -24,8 +26,8 @@ public class Folder extends BaseEntity {
     @Column(nullable = false, length = 15)
     private String title;
 
-    @OneToOne(mappedBy = "folder")
-    private Record record;
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Record> records;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
