@@ -39,10 +39,9 @@ public class UserController {
     @GetMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logoutUser(
             HttpServletRequest request,
-            HttpServletResponse response,
-            @UserId Long userId
+            HttpServletResponse response
     ) {
-        userService.logoutUser(request, response, userId);
+        userService.logoutUser(request, response);
         return ApiResponse.success(UserSuccessStatus.USER_LOGOUT_SUCCESS);
     }
 

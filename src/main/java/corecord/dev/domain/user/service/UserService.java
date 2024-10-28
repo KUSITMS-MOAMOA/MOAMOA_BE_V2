@@ -55,20 +55,26 @@ public class UserService {
         saveRefreshToken(refreshToken, savedUser);
 
         // 새 RefreshToken 쿠키 설정
-        setTokenCookies(response, refreshToken, savedUser);
+        setTokenCookies(response, refreshToken);
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
     }
 
     // 로그아웃
     @Transactional
-    public void logoutUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
-        // Redis 안에 RefreshToken 삭제
-        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
-        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+    public void logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        // RefreshToken 삭제
+        deleteRefreshTokenInRedis(request);
+        deleteRefreshTokenCookie(response);
+    }
 
-        // RefreshToken 쿠키 삭제
+    private void deleteRefreshTokenCookie(HttpServletResponse response) {
         ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+    }
+
+    private void deleteRefreshTokenInRedis(HttpServletRequest request) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
     }
 
     // 유저 삭제
@@ -77,20 +83,15 @@ public class UserService {
         // 유저 삭제
         userRepository.deleteById(userId);
 
-        // Redis 안에 RefreshToken 삭제
-        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
-        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
-
-        // RefreshToken 쿠키 삭제
-        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+        // RefreshToken 삭제
+        deleteRefreshTokenInRedis(request);
+        deleteRefreshTokenCookie(response);
     }
 
     // 유저 정보 수정
     @Transactional
     public void updateUser(Long userId, UserRequest.UserUpdateDto userUpdateDto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+        User user = getUser(userId);
 
         if(userUpdateDto.getNickName() != null) {
             validateUserInfo(userUpdateDto.getNickName());
@@ -100,15 +101,17 @@ public class UserService {
         if(userUpdateDto.getStatus() != null) {
             user.setStatus(Status.getStatus(userUpdateDto.getStatus()));
         }
+    }
 
-        userRepository.save(user);
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 
     // 유저 정보 조회
     @Transactional
     public UserResponse.UserInfoDto getUserInfo(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+        User user = getUser(userId);
 
         int recordCount = getRecordCount(user);
         return UserConverter.toUserInfoDto(user, recordCount);
@@ -139,7 +142,7 @@ public class UserService {
     }
 
     // 토큰 쿠키 설정
-    private void setTokenCookies(HttpServletResponse response, String refreshToken, User user) {
+    private void setTokenCookies(HttpServletResponse response, String refreshToken) {
         // RefreshToken 쿠키 추가
         ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
