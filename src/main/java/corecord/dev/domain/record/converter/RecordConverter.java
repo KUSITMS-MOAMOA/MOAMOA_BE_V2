@@ -11,7 +11,7 @@ public class RecordConverter {
         return Record.builder()
                 .type(RecordType.MEMO)
                 .title(title)
-                // TODO: USER MAPPING
+                .user(user)
                 .content(content)
                 .folder(folder)
                 .build();
@@ -23,6 +23,7 @@ public class RecordConverter {
                 .title(record.getTitle())
                 .content(record.getContent())
                 .folder(record.getFolder().getTitle())
+                .createdAt(record.getCreatedAtFormatted())
                 .build();
     }
 }

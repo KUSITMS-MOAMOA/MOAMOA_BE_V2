@@ -15,6 +15,7 @@ public class RecordResponse {
         private String title;
         private String content;
         private String folder;
+        private String createdAt;
     }
 
 }

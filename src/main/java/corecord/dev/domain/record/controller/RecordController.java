@@ -1,6 +1,7 @@
 package corecord.dev.domain.record.controller;
 
 import corecord.dev.common.response.ApiResponse;
+import corecord.dev.common.web.UserId;
 import corecord.dev.domain.record.constant.RecordSuccessStatus;
 import corecord.dev.domain.record.dto.request.RecordRequest;
 import corecord.dev.domain.record.dto.response.RecordResponse;
@@ -20,11 +21,10 @@ public class RecordController {
 
     @PostMapping("/memo")
     public ResponseEntity<ApiResponse<RecordResponse.MemoRecordDto>> createMemoRecord(
+            @UserId Long userId,
             @RequestBody RecordRequest.MemoRecordDto memoRecordDto
     ) {
-        // TODO: USER MAPPING
-        RecordResponse.MemoRecordDto recordResponse = recordService.createMemoRecord(memoRecordDto);
-
+        RecordResponse.MemoRecordDto recordResponse = recordService.createMemoRecord(userId, memoRecordDto);
         return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_CREATE_SUCCESS, recordResponse);
     }
 }

@@ -1,5 +1,7 @@
 package corecord.dev.domain.record.service;
 
+import corecord.dev.common.exception.GeneralException;
+import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.folder.exception.enums.FolderErrorStatus;
 import corecord.dev.domain.folder.exception.model.FolderException;
@@ -11,6 +13,8 @@ import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.record.exception.enums.RecordErrorStatus;
 import corecord.dev.domain.record.exception.model.RecordException;
 import corecord.dev.domain.record.repository.RecordRepository;
+import corecord.dev.domain.user.entity.User;
+import corecord.dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,30 +26,47 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecordService {
     private final RecordRepository recordRepository;
     private final FolderRepository folderRepository;
+    private final UserRepository userRepository;
 
+    /*
+     *  user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
+     * @param userId, recordDto
+     * @return
+     */
     @Transactional
-    public RecordResponse.MemoRecordDto createMemoRecord(RecordRequest.MemoRecordDto recordDto) {
+    public RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.MemoRecordDto recordDto) {
+        User user = findUserById(userId);
         String title = recordDto.getTitle();
         String content = recordDto.getContent();
         Folder folder = findFolderById(recordDto.getFolderId());
 
-        validateTitleLength(title);
+        // 제목, 본문 글자 수 검사
+        validTextLength(title, content);
 
-        // TODO: USER MAPPING
-        Record record = RecordConverter.toMemoRecordEntity(title, content, null, folder);
+        // record(memo) 객체 생성 및 연관관계 설정
+        Record record = RecordConverter.toMemoRecordEntity(title, content, user, folder);
         recordRepository.save(record);
 
         return RecordConverter.toMemoRecordDto(record);
     }
 
-    private void validateTitleLength(String title) {
+    private void validTextLength(String title, String content) {
         if (title.length() > 15) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
+        }
+
+        if (content.length() > 500) {
+            throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
         }
     }
 
     private Folder findFolderById(Long folderId) {
         return folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 }
