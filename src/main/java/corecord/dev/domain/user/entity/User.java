@@ -1,11 +1,14 @@
 package corecord.dev.domain.user.entity;
 
 import corecord.dev.common.base.BaseEntity;
+import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.chat.entity.ChatRoom;
+import corecord.dev.domain.record.entity.Record;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,9 +24,11 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String providerId;
 
+    @Setter
     @Column(nullable = false)
     private String nickName;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
@@ -33,5 +38,14 @@ public class User extends BaseEntity {
 
     @Column
     private Long tmpMemo;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Record> records;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatRoom> chatRooms;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Ability> abilities;
 
 }

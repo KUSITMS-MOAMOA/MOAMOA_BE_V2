@@ -35,4 +35,40 @@ public class UserController {
         UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, registerToken, userRegisterDto);
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logoutUser(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        userService.logoutUser(request, response);
+        return ApiResponse.success(UserSuccessStatus.USER_LOGOUT_SUCCESS);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<String>> deleteUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @UserId Long userId
+    ) {
+        userService.deleteUser(request, response, userId);
+        return ApiResponse.success(UserSuccessStatus.USER_DELETE_SUCCESS);
+    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<String>> updateUser(
+            @UserId Long userId,
+            @RequestBody UserRequest.UserUpdateDto userUpdateDto
+    ) {
+        userService.updateUser(userId, userUpdateDto);
+        return ApiResponse.success(UserSuccessStatus.USER_UPDATE_SUCCESS);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<UserResponse.UserInfoDto>> getUserInfo(
+            @UserId Long userId
+    ) {
+        UserResponse.UserInfoDto userInfoDto = userService.getUserInfo(userId);
+        return ApiResponse.success(UserSuccessStatus.GET_USER_INFO_SUCCESS, userInfoDto);
+    }
 }

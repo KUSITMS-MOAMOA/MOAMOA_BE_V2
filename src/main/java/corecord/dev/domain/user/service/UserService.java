@@ -1,5 +1,7 @@
 package corecord.dev.domain.user.service;
 
+import corecord.dev.common.exception.GeneralException;
+import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
 import corecord.dev.domain.token.entity.RefreshToken;
@@ -9,6 +11,7 @@ import corecord.dev.domain.token.repository.RefreshTokenRepository;
 import corecord.dev.domain.user.converter.UserConverter;
 import corecord.dev.domain.user.dto.request.UserRequest;
 import corecord.dev.domain.user.dto.response.UserResponse;
+import corecord.dev.domain.user.entity.Status;
 import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.exception.enums.UserErrorStatus;
 import corecord.dev.domain.user.exception.model.UserException;
@@ -21,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -39,7 +43,7 @@ public class UserService {
         validRegisterToken(registerToken);
 
         // user 정보 유효성 검증
-        validateUserRegisterInfo(userRegisterDto);
+        validateUserInfo(userRegisterDto.getNickName());
 
         // 새로운 유저 생성
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
@@ -51,8 +55,77 @@ public class UserService {
         saveRefreshToken(refreshToken, savedUser);
 
         // 새 RefreshToken 쿠키 설정
-        setTokenCookies(response, refreshToken, savedUser);
+        setTokenCookies(response, refreshToken);
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
+    }
+
+    // 로그아웃
+    @Transactional
+    public void logoutUser(HttpServletRequest request, HttpServletResponse response) {
+        // RefreshToken 삭제
+        deleteRefreshTokenInRedis(request);
+        deleteRefreshTokenCookie(response);
+    }
+
+    private void deleteRefreshTokenCookie(HttpServletResponse response) {
+        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+    }
+
+    private void deleteRefreshTokenInRedis(HttpServletRequest request) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+    }
+
+    // 유저 삭제
+    @Transactional
+    public void deleteUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
+        // 유저 삭제
+        userRepository.deleteById(userId);
+
+        // RefreshToken 삭제
+        deleteRefreshTokenInRedis(request);
+        deleteRefreshTokenCookie(response);
+    }
+
+    // 유저 정보 수정
+    @Transactional
+    public void updateUser(Long userId, UserRequest.UserUpdateDto userUpdateDto) {
+        User user = getUser(userId);
+
+        if(userUpdateDto.getNickName() != null) {
+            validateUserInfo(userUpdateDto.getNickName());
+            user.setNickName(userUpdateDto.getNickName());
+        }
+
+        if(userUpdateDto.getStatus() != null) {
+            user.setStatus(Status.getStatus(userUpdateDto.getStatus()));
+        }
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+    }
+
+    // 유저 정보 조회
+    @Transactional
+    public UserResponse.UserInfoDto getUserInfo(Long userId) {
+        User user = getUser(userId);
+
+        int recordCount = getRecordCount(user);
+        return UserConverter.toUserInfoDto(user, recordCount);
+    }
+
+    private static int getRecordCount(User user) {
+        int recordCount = user.getRecords().size();
+        if (user.getTmpChat() != null) {
+            recordCount--;
+        }
+        if (user.getTmpMemo() != null) {
+            recordCount--;
+        }
+        return recordCount;
     }
 
     // registerToken 유효성 검증
@@ -69,15 +142,14 @@ public class UserService {
     }
 
     // 토큰 쿠키 설정
-    private void setTokenCookies(HttpServletResponse response, String refreshToken, User user) {
+    private void setTokenCookies(HttpServletResponse response, String refreshToken) {
         // RefreshToken 쿠키 추가
         ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
     // user 정보 유효성 검증
-    private void validateUserRegisterInfo(UserRequest.UserRegisterDto userRegisterDto) {
-        String nickName = userRegisterDto.getNickName();
+    private void validateUserInfo(String nickName) {
         if (nickName == null || nickName.isEmpty() || nickName.length() > 10) {
             throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
         }
