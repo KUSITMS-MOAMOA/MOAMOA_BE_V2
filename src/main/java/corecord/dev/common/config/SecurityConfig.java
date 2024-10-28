@@ -67,9 +67,8 @@ public class SecurityConfig {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
             response.setStatus(errorStatus.getHttpStatus().value());
-
-            response.getWriter()
-                    .write(mapper.writeValueAsString(ApiResponse.error(errorStatus)));
+            ApiResponse<Object> errorResponse = ApiResponse.error(ErrorStatus.UNAUTHORIZED).getBody();
+            response.getWriter().write(mapper.writeValueAsString(errorResponse));
         };
     }
 
