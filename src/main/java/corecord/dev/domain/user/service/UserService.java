@@ -45,8 +45,11 @@ public class UserService {
         // user 정보 유효성 검증
         validateUserInfo(userRegisterDto.getNickName());
 
-        // 새로운 유저 생성
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
+        // 이미 존재하는 유저인지 확인
+        checkExistUser(providerId);
+
+        // 새로운 유저 생성
         User newUser = UserConverter.toUserEntity(userRegisterDto, providerId);
         User savedUser = userRepository.save(newUser);
 
@@ -57,6 +60,12 @@ public class UserService {
         // 새 RefreshToken 쿠키 설정
         setTokenCookies(response, refreshToken);
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
+    }
+
+    private void checkExistUser(String providerId) {
+        if (userRepository.existsByProviderId(providerId)) {
+            throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
+        }
     }
 
     // 로그아웃
