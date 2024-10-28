@@ -1,5 +1,7 @@
 package corecord.dev.domain.folder.service;
 
+import corecord.dev.common.exception.GeneralException;
+import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.folder.converter.FolderConverter;
 import corecord.dev.domain.folder.dto.request.FolderRequest;
 import corecord.dev.domain.folder.dto.response.FolderResponse;
@@ -7,6 +9,8 @@ import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.folder.exception.enums.FolderErrorStatus;
 import corecord.dev.domain.folder.exception.model.FolderException;
 import corecord.dev.domain.folder.repository.FolderRepository;
+import corecord.dev.domain.user.entity.User;
+import corecord.dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,78 +23,106 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FolderService {
     private final FolderRepository folderRepository;
+    private final UserRepository userRepository;
 
     /*
-     * 폴더명(title)을 request로 받아, 새로운 폴더를 생성
-     * @param folderDto
+     * 폴더명(title)을 request로 받아, 새로운 폴더를 생성 후 생성 순 풀더 리스트 반환
+     * @param userId, folderDto
      * @return
      */
     @Transactional
-    public FolderResponse.FolderDtoList createFolder(FolderRequest.FolderDto folderDto) {
-        validateDuplicatedFolderTitle(folderDto.getTitle());
+    public FolderResponse.FolderDtoList createFolder(Long userId, FolderRequest.FolderDto folderDto) {
+        User user = findUserById(userId);
+        String title = folderDto.getTitle();
 
-        Folder folder = FolderConverter.toFolderEntity(folderDto.getTitle());
+        // 폴더명 유효성 검증
+        validDuplicatedFolderTitleAndLength(title);
+
+        // folder 객체 생성 및 User 연관관계 설정
+        Folder folder = FolderConverter.toFolderEntity(title, user);
         folderRepository.save(folder);
 
-        return getFolderList();
+        return getFolderList(userId);
     }
 
     /*
-     * folderId를 통해 folder을 삭제
-     * @param folderId
+     * folderId를 받아 folder를 삭제한 후 생성 순 폴더 리스트 반환
+     * @param userId, folderId
      * @return
      */
     @Transactional
-    public FolderResponse.FolderDtoList deleteFolder(Long folderId) {
+    public FolderResponse.FolderDtoList deleteFolder(Long userId, Long folderId) {
+        User user = findUserById(userId);
         Folder folder = findFolderById(folderId);
+
+        // User-Folder 권한 유효성 검증
+        validIsUserAuthorizedForFolder(user, folder);
+
         folderRepository.delete(folder);
 
-        return getFolderList();
+        return getFolderList(userId);
     }
 
     /*
      * folderId를 받아, 해당 folder의 title을 수정
-     * @param folderDto
+     * @param userId, folderDto
      * @return
      */
     @Transactional
-    public FolderResponse.FolderDtoList updateFolder(FolderRequest.FolderUpdateDto folderDto) {
+    public FolderResponse.FolderDtoList updateFolder(Long userId, FolderRequest.FolderUpdateDto folderDto) {
+        User user = findUserById(userId);
         Folder folder = findFolderById(folderDto.getFolderId());
+        String title = folderDto.getTitle();
 
-        validateDuplicatedFolderTitle(folderDto.getTitle());
-        validateTitleLength(folderDto.getTitle());
+        // 폴더명 유효성 검증
+        validDuplicatedFolderTitleAndLength(title);
 
-        folder.updateTitle(folderDto.getTitle());
+        // User-Folder 권한 유효성 검증
+        validIsUserAuthorizedForFolder(user, folder);
 
-        return getFolderList();
+        folder.updateTitle(title);
+
+        return getFolderList(userId);
     }
 
     /*
      * 생성일 오름차순으로 폴더 리스트를 조회
+     * @param userId
      * @return
      */
     @Transactional(readOnly = true)
-    public FolderResponse.FolderDtoList getFolderList() {
-        List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList();
+    public FolderResponse.FolderDtoList getFolderList(Long userId) {
+        User user = findUserById(userId);
+
+        List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList(user);
         return FolderConverter.toFolderDtoList(folderList);
     }
 
-    // 폴더명 중복 검사
-    private void validateDuplicatedFolderTitle(String title) {
+    private void validDuplicatedFolderTitleAndLength(String title) {
+        // 폴더명 글자 수 검사
+        if (title.length() > 15) {
+            throw new FolderException(FolderErrorStatus.OVERFLOW_FOLDER_TITLE);
+        }
+
+        // 폴더명 중복 검사
         if (folderRepository.existsByTitle(title)) {
             throw new FolderException(FolderErrorStatus.DUPLICATED_FOLDER_TITLE);
         }
     }
 
-    // title 글자 수 검사
-    private void validateTitleLength(String title) {
-        if (title.length() > 15) {
-            throw new FolderException(FolderErrorStatus.OVERFLOW_FOLDER_TITLE);
-        }
+    // user-folder 권한 검사
+    private void validIsUserAuthorizedForFolder(User user, Folder folder) {
+        if (!folder.getUser().equals(user))
+            throw new FolderException(FolderErrorStatus.USER_FOLDER_UNAUTHORIZED);
     }
 
     private Folder findFolderById(Long folderId) {
         return folderRepository.findById(folderId)
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
+    }
+
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 }
