@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
@@ -49,6 +50,21 @@ public class AnalysisService {
         validIsUserAuthorizedForAnalysis(user, analysis);
 
         return AnalysisConverter.toAnalysisDto(analysis);
+    }
+
+    /*
+     * analysisId를 받아 역량 분석, 경험 기록 데이터를 제거
+     * @param userId, analysisId
+     */
+    @Transactional
+    public void deleteAnalysis(Long userId, Long analysisId) {
+        User user = findUserById(userId);
+        Analysis analysis = findAnalysisById(analysisId);
+
+        // User-Analysis 권한 유효성 검증
+        validIsUserAuthorizedForAnalysis(user, analysis);
+
+        analysisRepository.delete(analysis);
     }
 
     private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {

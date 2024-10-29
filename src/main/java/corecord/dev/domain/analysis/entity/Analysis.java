@@ -25,7 +25,7 @@ public class Analysis extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String comment;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "record_id", nullable = false)
     private Record record;
 
