@@ -22,11 +22,8 @@ public class Analysis extends BaseEntity {
     @Column(nullable = false)
     private Long analysisId;
 
-    @Column(nullable = false)
-    private int count; // min=1, max=3
-
     @Column(nullable = false, length = 500)
-    private String suggestion;
+    private String comment;
 
     @OneToOne
     @JoinColumn(name = "record_id", nullable = false)
