@@ -29,7 +29,7 @@ public class Record extends BaseEntity {
     @Column(length = 15)
     private String title;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 200)
     private String content;
 
     @ManyToOne

@@ -2,6 +2,7 @@ package corecord.dev.domain.record.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.analysis.service.AnalysisService;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.folder.exception.enums.FolderErrorStatus;
 import corecord.dev.domain.folder.exception.model.FolderException;
@@ -27,6 +28,7 @@ public class RecordService {
     private final RecordRepository recordRepository;
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
+    private final AnalysisService analysisService;
 
     /*
      * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
@@ -46,6 +48,9 @@ public class RecordService {
         // record(memo) 객체 생성 및 연관관계 설정
         Record record = RecordConverter.toMemoRecordEntity(title, content, user, folder);
         recordRepository.save(record);
+
+        // 역량 분석 레포트 생성
+        analysisService.getAnalysis(record);
 
         return RecordConverter.toMemoRecordDto(record);
     }
@@ -71,7 +76,7 @@ public class RecordService {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
         }
 
-        if (content.length() > 500) {
+        if (content.length() > 200) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
         }
     }
