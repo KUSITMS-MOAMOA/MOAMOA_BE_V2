@@ -26,4 +26,20 @@ public class RecordConverter {
                 .createdAt(record.getCreatedAtFormatted())
                 .build();
     }
+
+    public static RecordResponse.TmpMemoRecordDto toExistingTmpMemoRecordDto(Record record) {
+        return RecordResponse.TmpMemoRecordDto.builder()
+                .isExist(true)
+                .title(record.getTitle())
+                .content(record.getContent())
+                .build();
+    }
+
+    public static RecordResponse.TmpMemoRecordDto toNotExistingTmpMemoRecordDto() {
+        return RecordResponse.TmpMemoRecordDto.builder()
+                .isExist(false)
+                .title(null)
+                .content(null)
+                .build();
+    }
 }

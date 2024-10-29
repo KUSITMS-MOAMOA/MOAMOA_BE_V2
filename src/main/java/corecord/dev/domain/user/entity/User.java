@@ -51,4 +51,11 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Folder> folders;
 
+    public void updateTmpMemo(Long tmpMemo) {
+        this.tmpMemo = tmpMemo;
+    }
+
+    public void deleteTmpMemo(){
+        this.tmpMemo = null;
+    }
 }
