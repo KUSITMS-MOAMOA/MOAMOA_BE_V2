@@ -37,11 +37,11 @@ public class AnalysisService {
         // TODO: CLOVA STUDIO API 호출
 
         // Analysis 객체 생성 및 저장
-
         // TMP Analysis
         Analysis analysis = AnalysisConverter.toAnalysis("Comment", record);
         analysisRepository.save(analysis);
 
+        // Ability 객체 생성 및 저장
         // TMP Ability
         Ability ability1 = AnalysisConverter.toAbility(Keyword.COMMUNICATION,"Communication Skill", analysis, user);
         Ability ability2 = AnalysisConverter.toAbility(Keyword.ADAPTABILITY,"Adaptability", analysis, user);
