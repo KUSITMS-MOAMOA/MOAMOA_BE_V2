@@ -33,12 +33,22 @@ public class AnalysisService {
 
 
     @Transactional
-    public void createAnalysis(Record record) {
-
-        // CLOVA STUDIO API 호출
+    public void createAnalysis(Record record, User user) {
+        // TODO: CLOVA STUDIO API 호출
 
         // Analysis 객체 생성 및 저장
 
+        // TMP Analysis
+        Analysis analysis = AnalysisConverter.toAnalysis("Comment", record);
+        analysisRepository.save(analysis);
+
+        // TMP Ability
+        Ability ability1 = AnalysisConverter.toAbility(Keyword.COMMUNICATION,"Communication Skill", analysis, user);
+        Ability ability2 = AnalysisConverter.toAbility(Keyword.ADAPTABILITY,"Adaptability", analysis, user);
+        Ability ability3 = AnalysisConverter.toAbility(Keyword.JUDGEMENT_SKILL,"Judgement Skill", analysis, user);
+        abilityRepository.save(ability1);
+        abilityRepository.save(ability2);
+        abilityRepository.save(ability3);
     }
 
     /*
