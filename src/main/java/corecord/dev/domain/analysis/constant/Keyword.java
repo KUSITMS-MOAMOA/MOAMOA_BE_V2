@@ -22,4 +22,13 @@ public enum Keyword {
         return value;
     }
 
+    public static Keyword getName(String value){
+        for (Keyword keyword : Keyword.values()) {
+            if (keyword.getValue().equals(value)) {
+                return keyword;
+            }
+        }
+        return null;
+    }
+
 }

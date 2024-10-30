@@ -46,4 +46,9 @@ public class Record extends BaseEntity {
 
     @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
     private Analysis analysis;
+
+    public void updateContent(String content) {
+        if (content != null && !content.isEmpty())
+            this.content = content;
+    }
 }

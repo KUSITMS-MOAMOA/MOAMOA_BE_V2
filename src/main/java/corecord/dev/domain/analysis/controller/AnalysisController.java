@@ -3,6 +3,7 @@ package corecord.dev.domain.analysis.controller;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.web.UserId;
 import corecord.dev.domain.analysis.constant.AnalysisSuccessStatus;
+import corecord.dev.domain.analysis.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.service.AnalysisService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,15 @@ public class AnalysisController {
     ) {
         AnalysisResponse.AnalysisDto analysisResponse = analysisService.getAnalysis(userId, analysisId);
         return ApiResponse.success(AnalysisSuccessStatus.ANALYSIS_GET_SUCCESS, analysisResponse);
+    }
+
+    @PatchMapping("")
+    public ResponseEntity<ApiResponse<AnalysisResponse.AnalysisDto>> updateAnalysis(
+            @UserId Long userId,
+            @RequestBody AnalysisRequest.AnalysisUpdateDto analysisUpdateDto
+    ) {
+        AnalysisResponse.AnalysisDto analysisResponse = analysisService.updateAnalysis(userId, analysisUpdateDto);
+        return ApiResponse.success(AnalysisSuccessStatus.ANALYSIS_UPDATE_SUCCESS, analysisResponse);
     }
 
     @DeleteMapping("/{analysisId}")
