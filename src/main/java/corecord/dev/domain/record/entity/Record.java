@@ -51,4 +51,8 @@ public class Record extends BaseEntity {
         if (content != null && !content.isEmpty())
             this.content = content;
     }
+
+    public void updateFolder(Folder folder) {
+        this.folder = folder;
+    }
 }

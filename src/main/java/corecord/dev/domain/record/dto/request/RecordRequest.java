@@ -20,4 +20,12 @@ public class RecordRequest {
         @NotBlank(message = "임시 저장할 내용을 입력해주세요.")
         private String content;
     }
+
+    @Data
+    public static class UpdateFolderDto {
+        @NotBlank(message = "변경할 경험 기록의 id를 입력해주세요.")
+        private Long recordId;
+        @NotBlank(message = "변경할 폴더를 입력해주세요.")
+        private String folder;
+    }
 }

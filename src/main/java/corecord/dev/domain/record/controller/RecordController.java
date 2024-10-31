@@ -69,4 +69,13 @@ public class RecordController {
         return ApiResponse.success(RecordSuccessStatus.KEYWORD_RECORD_LIST_GET_SUCCESS, recordResponse);
     }
 
+    @PatchMapping("/folder")
+    public ResponseEntity<ApiResponse<String>> updateRecordForFolder(
+//            @UserId Long userId,
+            @RequestBody RecordRequest.UpdateFolderDto updateFolderDto
+    ) {
+        recordService.updateFolder(1L, updateFolderDto);
+        return ApiResponse.success(RecordSuccessStatus.RECORD_FOLDER_UPDATE_SUCCESS);
+    }
+
 }

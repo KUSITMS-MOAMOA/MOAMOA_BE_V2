@@ -160,6 +160,19 @@ public class RecordService {
         return RecordConverter.toKeywordRecordListDto(recordList);
     }
 
+    /*
+     * record가 속한 폴더를 변경합니다
+     * @param userId, updateFolderDto
+     */
+    @Transactional
+    public void updateFolder(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
+        User user = findUserById(userId);
+        Record record = findRecordById(updateFolderDto.getRecordId());
+        Folder folder = findFolderByTitle(user, updateFolderDto.getFolder());
+
+        record.updateFolder(folder);
+    }
+
     private void validHasUserTmpMemo(User user) {
         if (user.getTmpMemo() != null)
             throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
