@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class Analysis extends BaseEntity {
     @JoinColumn(name = "record_id", nullable = false)
     private Record record;
 
+    @BatchSize(size = 3)
     @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ability> abilityList;
 }
