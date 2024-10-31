@@ -23,7 +23,7 @@ public class BaseEntity {
     private LocalDateTime updatedAt;
 
     public String getCreatedAtFormatted() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
         return createdAt.format(formatter);
     }
 }

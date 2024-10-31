@@ -2,6 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.folder.exception.model.FolderException;
 import corecord.dev.domain.record.exception.model.RecordException;
 import corecord.dev.domain.token.exception.model.TokenException;
@@ -43,6 +44,12 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e) {
         log.warn(">>>>>>>>RecordException: {}", e.getRecordErrorStatus().getMessage());
         return ApiResponse.error(e.getRecordErrorStatus());
+    }
+
+    @ExceptionHandler(AnalysisException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAnalysisException(AnalysisException e) {
+        log.warn(">>>>>>>>AnalysisException: {}", e.getAnalysisErrorStatus().getMessage());
+        return ApiResponse.error(e.getAnalysisErrorStatus());
     }
 
     // GeneralException 처리

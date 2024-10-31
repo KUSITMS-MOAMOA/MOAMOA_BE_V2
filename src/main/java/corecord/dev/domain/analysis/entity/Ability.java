@@ -36,4 +36,9 @@ public class Ability extends BaseEntity {
     @JoinColumn(name = "analysis_id", nullable = false)
     private Analysis analysis;
 
+    public void updateContent(String content) {
+        if (content != null && !content.isEmpty()) {
+            this.content = content;
+        }
+    }
 }
