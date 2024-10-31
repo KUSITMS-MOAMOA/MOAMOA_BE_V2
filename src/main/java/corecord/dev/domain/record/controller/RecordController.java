@@ -71,10 +71,10 @@ public class RecordController {
 
     @PatchMapping("/folder")
     public ResponseEntity<ApiResponse<String>> updateRecordForFolder(
-//            @UserId Long userId,
+            @UserId Long userId,
             @RequestBody RecordRequest.UpdateFolderDto updateFolderDto
     ) {
-        recordService.updateFolder(1L, updateFolderDto);
+        recordService.updateFolder(userId, updateFolderDto);
         return ApiResponse.success(RecordSuccessStatus.RECORD_FOLDER_UPDATE_SUCCESS);
     }
 
