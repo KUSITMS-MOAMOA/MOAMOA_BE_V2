@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
@@ -18,6 +19,13 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
             "WHERE f.user = :user " +
             "ORDER BY f.createdAt desc ")
     List<FolderResponse.FolderDto> findFolderDtoList(@Param(value = "user") User user);
+
+    @Query("SELECT f " +
+            "FROM Folder f " +
+            "WHERE f.title = :title AND f.user = :user ")
+    Optional<Folder> findFolderByTitle(
+            @Param(value = "title") String title,
+            @Param(value = "user") User user);
 
     boolean existsByTitle(String title);
 }

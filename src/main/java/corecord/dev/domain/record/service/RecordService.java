@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -118,6 +120,28 @@ public class RecordService {
         return RecordConverter.toExistingTmpMemoRecordDto(tmpMemoRecord);
     }
 
+    /*
+     * 폴더별 경험 기록 리스트를 반환합니다. folder의 default value는 'all'입니다.
+     * @param userId, folderName
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecordResponse.RecordListDto getRecordList(Long userId, String folderName) {
+        User user = findUserById(userId);
+        List<Record> recordList;
+
+        // 임시 저장 기록 제외 Record List 최신 생성 순 조회
+        if (folderName.equals("all")) {
+            recordList = getRecordList(user);
+        } else {
+            Folder folder = findFolderByTitle(user, folderName);
+            recordList = getRecordListByFolder(user, folder);
+        }
+
+        return RecordConverter.toRecordListDto(folderName, recordList);
+    }
+
+
     private void validHasUserTmpMemo(User user) {
         if (user.getTmpMemo() != null)
             throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
@@ -143,6 +167,11 @@ public class RecordService {
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
     }
 
+    private Folder findFolderByTitle(User user, String title) {
+        return folderRepository.findFolderByTitle(title, user)
+                .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
+    }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
@@ -152,4 +181,13 @@ public class RecordService {
         return recordRepository.findById(recordId)
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
+
+    private List<Record> getRecordListByFolder(User user, Folder folder) {
+        return recordRepository.findRecordsByFolder(folder, user);
+    }
+
+    private List<Record> getRecordList(User user) {
+        return recordRepository.findRecords(user);
+    }
+
 }

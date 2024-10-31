@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.List;
+
 public class RecordResponse {
     @Builder
     @Getter
@@ -26,5 +28,25 @@ public class RecordResponse {
         private Boolean isExist;
         private String title;
         private String content;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class RecordDto {
+        private Long recordId;
+        private String title;
+        private List<String> keywordList;
+        private String createdAt;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class RecordListDto {
+        private String folder;
+        private List<RecordDto> recordDtoList;
     }
 }

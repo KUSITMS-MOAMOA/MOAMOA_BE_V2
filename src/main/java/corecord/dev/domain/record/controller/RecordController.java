@@ -51,4 +51,13 @@ public class RecordController {
         return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_TMP_GET_SUCCESS, recordResponse);
     }
 
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecordList(
+        @UserId Long userId,
+        @RequestParam(name = "folder", defaultValue = "all") String folder
+    ) {
+        RecordResponse.RecordListDto recordResponse = recordService.getRecordList(userId, folder);
+        return ApiResponse.success(RecordSuccessStatus.RECORD_LIST_GET_SUCCESS, recordResponse);
+    }
+
 }
