@@ -36,6 +36,7 @@ public class RecordResponse {
     @Data
     public static class RecordDto {
         private Long recordId;
+        private String folder;
         private String title;
         private List<String> keywordList;
         private String createdAt;

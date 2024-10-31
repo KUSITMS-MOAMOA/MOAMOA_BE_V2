@@ -55,6 +55,7 @@ public class RecordConverter {
 
         return RecordResponse.RecordDto.builder()
                 .recordId(record.getRecordId())
+                .folder(record.getFolder().getTitle())
                 .title(record.getTitle())
                 .keywordList(keywordList)
                 .createdAt(record.getCreatedAtFormatted())
