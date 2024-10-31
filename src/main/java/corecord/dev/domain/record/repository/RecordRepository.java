@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Record, Long> {
@@ -44,7 +45,13 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "AND a.keyword = :keyword " +
             "AND r.folder is not null " + // 임시 저장 기록 제외
             "ORDER BY r.createdAt DESC") // 최근 생성 순 정렬
-    List<Record> findRecordByKeyword(
+    List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
             @Param(value = "user") User user);
+
+    @Query("SELECT r FROM Record r " +
+            "JOIN FETCH r.analysis a " +
+            "JOIN FETCH r.folder f " +
+            "WHERE r.recordId = :id")
+    Optional<Record> findRecordById(@Param(value = "id") Long id);
 }

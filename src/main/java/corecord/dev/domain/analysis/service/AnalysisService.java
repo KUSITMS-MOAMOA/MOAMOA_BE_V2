@@ -133,7 +133,7 @@ public class AnalysisService {
     }
 
     private Analysis findAnalysisById(Long analysisId) {
-        return analysisRepository.findById(analysisId)
+        return analysisRepository.findAnalysisById(analysisId)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.ANALYSIS_NOT_FOUND));
     }
 }
