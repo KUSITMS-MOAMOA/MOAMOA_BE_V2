@@ -40,11 +40,11 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "chat_room_id", nullable = true)
     private ChatRoom chatRoom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id", nullable = true)
     private Folder folder;
 
-    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Analysis analysis;
 
     public void updateContent(String content) {
