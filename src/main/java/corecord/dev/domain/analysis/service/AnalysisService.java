@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @Transactional(readOnly = true)
@@ -106,6 +107,19 @@ public class AnalysisService {
         analysisRepository.delete(analysis);
     }
 
+    /*
+     * user의 역량 키워드 리스트를 반환
+     * @param userId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public AnalysisResponse.KeywordListDto getKeywordList(Long userId) {
+        User user = findUserById(userId);
+        List<String> keywordList = findKeywordList(user);
+
+        return AnalysisConverter.toKeywordListDto(keywordList);
+    }
+
     private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
         if (!analysis.getRecord().getUser().equals(user))
             throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
@@ -125,6 +139,12 @@ public class AnalysisService {
                 .filter(ability -> ability.getKeyword().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD));
+    }
+
+    private List<String> findKeywordList(User user) {
+        return analysisRepository.getKeywordList(user).stream()
+                .map(Keyword::getValue)
+                .toList();
     }
 
     private User findUserById(Long userId) {

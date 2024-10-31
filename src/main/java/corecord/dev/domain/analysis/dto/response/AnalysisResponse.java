@@ -31,4 +31,12 @@ public class AnalysisResponse {
         private String comment;
         private String createdAt;
     }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class KeywordListDto {
+        private List<String> keywordList;
+    }
 }
