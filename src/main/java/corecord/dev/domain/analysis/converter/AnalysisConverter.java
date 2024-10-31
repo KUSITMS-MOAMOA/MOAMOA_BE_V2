@@ -51,4 +51,10 @@ public class AnalysisConverter {
                 .createdAt(analysis.getCreatedAtFormatted())
                 .build();
     }
+
+    public static AnalysisResponse.KeywordListDto toKeywordListDto(List<String> keywordList) {
+        return AnalysisResponse.KeywordListDto.builder()
+                .keywordList(keywordList)
+                .build();
+    }
 }

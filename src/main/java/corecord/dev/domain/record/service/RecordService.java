@@ -196,7 +196,7 @@ public class RecordService {
     }
 
     private Record findRecordById(Long recordId) {
-        return recordRepository.findById(recordId)
+        return recordRepository.findRecordById(recordId)
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
 
@@ -209,7 +209,7 @@ public class RecordService {
     }
 
     private List<Record> getRecordListByKeyword(User user, Keyword keyword) {
-        return recordRepository.findRecordByKeyword(keyword, user);
+        return recordRepository.findRecordsByKeyword(keyword, user);
     }
 
     private Keyword getKeyword(String keywordValue) {
