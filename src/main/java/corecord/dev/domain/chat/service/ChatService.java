@@ -38,16 +38,17 @@ public class ChatService {
         chatRoomRepository.save(chatRoom);
 
         // 첫번째 채팅 생성 - "안녕하세요! {nickName}님! {nickName}님의 경험이 궁금해요. {nickName}님의 경험을 들려주세요!"
-        createFirstChat(user, chatRoom);
+        Chat firstChat = createFirstChat(user, chatRoom);
 
-        return ChatConverter.toChatRoomDto(chatRoom);
+        return ChatConverter.toChatRoomDto(chatRoom, firstChat);
     }
 
-    private void createFirstChat(User user, ChatRoom chatRoom) {
+    private Chat createFirstChat(User user, ChatRoom chatRoom) {
         String nickName = user.getNickName();
         String firstChatContent = String.format("안녕하세요! %s님! %s님의 경험이 궁금해요. %s님의 경험을 들려주세요!", nickName, nickName, nickName);
         Chat chat = ChatConverter.toChatEntity(1, firstChatContent, chatRoom);
         chatRepository.save(chat);
+        return chat;
     }
 
     private User findUserById(Long userId) {

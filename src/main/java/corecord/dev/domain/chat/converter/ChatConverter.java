@@ -7,10 +7,10 @@ import corecord.dev.domain.user.entity.User;
 
 public class ChatConverter {
 
-    public static ChatResponse.ChatRoomDto toChatRoomDto(ChatRoom chatRoom) {
+    public static ChatResponse.ChatRoomDto toChatRoomDto(ChatRoom chatRoom, Chat firstChat) {
         return ChatResponse.ChatRoomDto.builder()
                 .chatRoomId(chatRoom.getChatRoomId())
-                .firstChat(chatRoom.getChatList().get(0).getContent())
+                .firstChat(firstChat.getContent())
                 .build();
     }
 
