@@ -33,4 +33,22 @@ public class RecordController {
         RecordResponse.MemoRecordDto recordResponse = recordService.getMemoRecordDetail(userId, recordId);
         return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_DETAIL_GET_SUCCESS, recordResponse);
     }
+
+    @PostMapping("/memo/tmp")
+    public ResponseEntity<ApiResponse<String>> saveTmpMemoRecord(
+            @UserId Long userId,
+            @RequestBody RecordRequest.TmpMemoRecordDto tmpMemoRecordDto
+    ) {
+        recordService.createTmpMemoRecord(userId, tmpMemoRecordDto);
+        return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_TMP_CREATE_SUCCESS);
+    }
+
+    @GetMapping("/memo/tmp")
+    public ResponseEntity<ApiResponse<RecordResponse.TmpMemoRecordDto>> getTmpMemoRecord(
+            @UserId Long userId
+    ) {
+        RecordResponse.TmpMemoRecordDto recordResponse = recordService.getTmpMemoRecord(userId);
+        return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_TMP_GET_SUCCESS, recordResponse);
+    }
+
 }
