@@ -52,12 +52,21 @@ public class RecordController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecordList(
+    public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecordListByFolder(
         @UserId Long userId,
         @RequestParam(name = "folder", defaultValue = "all") String folder
     ) {
         RecordResponse.RecordListDto recordResponse = recordService.getRecordList(userId, folder);
         return ApiResponse.success(RecordSuccessStatus.RECORD_LIST_GET_SUCCESS, recordResponse);
+    }
+
+    @GetMapping("/keyword")
+    public ResponseEntity<ApiResponse<RecordResponse.KeywordRecordListDto>> getRecordListByKeyword(
+            @UserId Long userId,
+            @RequestParam(name = "keyword") String keyword
+    ) {
+        RecordResponse.KeywordRecordListDto recordResponse = recordService.getKeywordRecordList(userId, keyword);
+        return ApiResponse.success(RecordSuccessStatus.KEYWORD_RECORD_LIST_GET_SUCCESS, recordResponse);
     }
 
 }

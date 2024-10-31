@@ -35,7 +35,7 @@ public class RecordResponse {
     @AllArgsConstructor
     @Data
     public static class RecordDto {
-        private Long recordId;
+        private Long analysisId;
         private String folder;
         private String title;
         private List<String> keywordList;
@@ -49,5 +49,25 @@ public class RecordResponse {
     public static class RecordListDto {
         private String folder;
         private List<RecordDto> recordDtoList;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class KeywordRecordDto {
+        private Long analysisId;
+        private String folder;
+        private String title;
+        private String content;
+        private String createdAt;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class KeywordRecordListDto {
+        private List<KeywordRecordDto> recordDtoList;
     }
 }

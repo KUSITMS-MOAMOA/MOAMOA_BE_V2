@@ -54,7 +54,7 @@ public class RecordConverter {
                 .toList();
 
         return RecordResponse.RecordDto.builder()
-                .recordId(record.getRecordId())
+                .analysisId(record.getAnalysis().getAnalysisId())
                 .folder(record.getFolder().getTitle())
                 .title(record.getTitle())
                 .keywordList(keywordList)
@@ -70,6 +70,29 @@ public class RecordConverter {
         return RecordResponse.RecordListDto.builder()
                 .folder(folder)
                 .recordDtoList(recordDtoList)
+                .build();
+    }
+
+    public static RecordResponse.KeywordRecordDto toKeywordRecordDto(Record record) {
+        String content = record.getContent();
+        String truncatedContent = content.length() > 30 ? content.substring(0, 30) : content;
+
+        return RecordResponse.KeywordRecordDto.builder()
+                .analysisId(record.getAnalysis().getAnalysisId())
+                .folder(record.getFolder().getTitle())
+                .title(record.getTitle())
+                .content(truncatedContent)
+                .createdAt(record.getCreatedAtFormatted())
+                .build();
+    }
+
+    public static RecordResponse.KeywordRecordListDto toKeywordRecordListDto(List<Record> recordList) {
+        List<RecordResponse.KeywordRecordDto> keywordRecordDtoList = recordList.stream()
+                .map(RecordConverter::toKeywordRecordDto)
+                .toList();
+
+        return RecordResponse.KeywordRecordListDto.builder()
+                .recordDtoList(keywordRecordDtoList)
                 .build();
     }
 }

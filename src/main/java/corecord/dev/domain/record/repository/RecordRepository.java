@@ -1,5 +1,6 @@
 package corecord.dev.domain.record.repository;
 
+import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.user.entity.User;
@@ -33,4 +34,17 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "AND r.folder is not null " + // 임시 저장 기록 제외
             "ORDER BY r.createdAt DESC") // 최근 생성 순 정렬
     List<Record> findRecords(@Param(value = "user") User user);
+
+
+    @Query("SELECT r FROM Ability a " +
+            "JOIN a.analysis an " +
+            "JOIN an.record r " +
+            "JOIN FETCH r.folder f " +
+            "WHERE a.user = :user " +
+            "AND a.keyword = :keyword " +
+            "AND r.folder is not null " + // 임시 저장 기록 제외
+            "ORDER BY r.createdAt DESC") // 최근 생성 순 정렬
+    List<Record> findRecordByKeyword(
+            @Param(value = "keyword")Keyword keyword,
+            @Param(value = "user") User user);
 }

@@ -2,6 +2,9 @@ package corecord.dev.domain.record.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.analysis.constant.Keyword;
+import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
+import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.analysis.service.AnalysisService;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.folder.exception.enums.FolderErrorStatus;
@@ -141,6 +144,21 @@ public class RecordService {
         return RecordConverter.toRecordListDto(folderName, recordList);
     }
 
+    /*
+     * keyword를 받아 해당 키워드를 가진 역량 분석 정보와 경험 기록 정보를 반환
+     * @param userId, keywordValue
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue) {
+        User user = findUserById(userId);
+
+        // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
+        Keyword keyword = getKeyword(keywordValue);
+        List<Record> recordList = getRecordListByKeyword(user, keyword);
+
+        return RecordConverter.toKeywordRecordListDto(recordList);
+    }
 
     private void validHasUserTmpMemo(User user) {
         if (user.getTmpMemo() != null)
@@ -190,4 +208,14 @@ public class RecordService {
         return recordRepository.findRecords(user);
     }
 
+    private List<Record> getRecordListByKeyword(User user, Keyword keyword) {
+        return recordRepository.findRecordByKeyword(keyword, user);
+    }
+
+    private Keyword getKeyword(String keywordValue) {
+        Keyword keyword = Keyword.getName(keywordValue);
+        if (keyword == null)
+            throw new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD);
+        return keyword;
+    }
 }
