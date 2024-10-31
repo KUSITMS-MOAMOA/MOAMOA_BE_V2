@@ -129,6 +129,7 @@ public class RecordService {
 
         if (content != null && content.length() > 200) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
+        }
     }
 
     // user-record 권한 검사
