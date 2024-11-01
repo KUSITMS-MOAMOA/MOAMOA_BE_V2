@@ -4,6 +4,7 @@ import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.record.repository.RecordRepository;
 import corecord.dev.domain.token.entity.RefreshToken;
 import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.token.exception.model.TokenException;
@@ -35,6 +36,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
     private final UserRepository userRepository;
+    private final RecordRepository recordRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
@@ -62,28 +64,12 @@ public class UserService {
         return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
     }
 
-    private void checkExistUser(String providerId) {
-        if (userRepository.existsByProviderId(providerId)) {
-            throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
-        }
-    }
-
     // 로그아웃
     @Transactional
     public void logoutUser(HttpServletRequest request, HttpServletResponse response) {
         // RefreshToken 삭제
         deleteRefreshTokenInRedis(request);
         deleteRefreshTokenCookie(response);
-    }
-
-    private void deleteRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-    }
-
-    private void deleteRefreshTokenInRedis(HttpServletRequest request) {
-        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
-        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
     }
 
     // 유저 삭제
@@ -112,11 +98,6 @@ public class UserService {
         }
     }
 
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
-    }
-
     // 유저 정보 조회
     @Transactional
     public UserResponse.UserInfoDto getUserInfo(Long userId) {
@@ -126,8 +107,8 @@ public class UserService {
         return UserConverter.toUserInfoDto(user, recordCount);
     }
 
-    private static int getRecordCount(User user) {
-        int recordCount = user.getRecords().size();
+    private int getRecordCount(User user) {
+        int recordCount = recordRepository.getRecordCount(user);
         if (user.getTmpChat() != null) {
             recordCount--;
         }
@@ -135,13 +116,6 @@ public class UserService {
             recordCount--;
         }
         return recordCount;
-    }
-
-    // registerToken 유효성 검증
-    private void validRegisterToken(String registerToken) {
-        if (!jwtUtil.isRegisterTokenValid(registerToken)) {
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        }
     }
 
     // RefreshToken 저장
@@ -157,6 +131,22 @@ public class UserService {
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }
 
+    private void deleteRefreshTokenCookie(HttpServletResponse response) {
+        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
+        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+    }
+
+    private void deleteRefreshTokenInRedis(HttpServletRequest request) {
+        Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
+        refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
+    }
+
+    private void checkExistUser(String providerId) {
+        if (userRepository.existsByProviderId(providerId)) {
+            throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
+        }
+    }
+
     // user 정보 유효성 검증
     private void validateUserInfo(String nickName) {
         if (nickName == null || nickName.isEmpty() || nickName.length() > 10) {
@@ -168,5 +158,17 @@ public class UserService {
         if (!Pattern.matches(nicknamePattern, nickName)) {
             throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
         }
+    }
+
+    // registerToken 유효성 검증
+    private void validRegisterToken(String registerToken) {
+        if (!jwtUtil.isRegisterTokenValid(registerToken)) {
+            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
+        }
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 }

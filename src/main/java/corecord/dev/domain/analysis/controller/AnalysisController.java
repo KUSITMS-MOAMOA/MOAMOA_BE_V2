@@ -43,4 +43,11 @@ public class AnalysisController {
         return ApiResponse.success(AnalysisSuccessStatus.ANALYSIS_DELETE_SUCCESS);
     }
 
+    @GetMapping("/keyword")
+    public ResponseEntity<ApiResponse<AnalysisResponse.KeywordListDto>> getKeywordList(
+            @UserId Long userId
+    ) {
+        AnalysisResponse.KeywordListDto analysisResponse = analysisService.getKeywordList(userId);
+        return ApiResponse.success(AnalysisSuccessStatus.KEYWORD_LIST_GET_SUCCESS, analysisResponse);
+    }
 }
