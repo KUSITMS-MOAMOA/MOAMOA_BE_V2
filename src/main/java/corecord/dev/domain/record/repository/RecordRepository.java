@@ -54,4 +54,9 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.folder f " +
             "WHERE r.recordId = :id")
     Optional<Record> findRecordById(@Param(value = "id") Long id);
+
+    @Query("SELECT COUNT(r) " +
+            "FROM Record r " +
+            "WHERE r.user = :user")
+    int getRecordCount(@Param(value = "user") User user);
 }

@@ -98,7 +98,6 @@ public class RecordService {
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
 
-
     /*
      * user의 임시 저장된 메모 기록이 있다면 해당 Record row와 tmpMemo 필드 정보를 제거한 후 저장된 데이터를 반환
      * @param userId
@@ -158,6 +157,19 @@ public class RecordService {
         List<Record> recordList = getRecordListByKeyword(user, keyword);
 
         return RecordConverter.toKeywordRecordListDto(recordList);
+    }
+
+    /*
+     * record가 속한 폴더를 변경
+     * @param userId, updateFolderDto
+     */
+    @Transactional
+    public void updateFolder(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
+        User user = findUserById(userId);
+        Record record = findRecordById(updateFolderDto.getRecordId());
+        Folder folder = findFolderByTitle(user, updateFolderDto.getFolder());
+
+        record.updateFolder(folder);
     }
 
     private void validHasUserTmpMemo(User user) {
