@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.List;
+
 public class ChatResponse {
 
     @Builder
@@ -24,4 +26,25 @@ public class ChatResponse {
         private Long chatId;
         private String content;
     }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatListDto {
+        private List<ChatDetailDto> chats;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatDetailDto {
+        private Long chatId;
+        private String author;
+        private String content;
+        private String created_at;
+    }
+
+
 }

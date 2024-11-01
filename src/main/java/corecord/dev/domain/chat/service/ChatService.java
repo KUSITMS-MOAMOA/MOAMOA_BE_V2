@@ -72,6 +72,20 @@ public class ChatService {
         return ChatConverter.toChatDto(aiChat);
     }
 
+    /*
+     * user의 채팅방의 채팅 목록을 반환
+     * @param userId
+     * @param chatRoomId
+     * @return chatListDto
+     */
+    public ChatResponse.ChatListDto getChatList(Long userId, Long chatRoomId) {
+        User user = findUserById(userId);
+        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+        List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
+
+        return ChatConverter.toChatListDto(chatList);
+    }
+
     private String createAiAnswer(ChatRoom chatRoom, String userInput) {
         List<Chat> chatHistory = chatRepository.findByChatRoomOrderByChatId(chatRoom);
         ClovaRequest clovaRequest = ClovaRequest.createRequest(chatHistory, userInput);
@@ -86,7 +100,7 @@ public class ChatService {
     private Chat createFirstChat(User user, ChatRoom chatRoom) {
         String nickName = user.getNickName();
         String firstChatContent = String.format("안녕하세요! %s님! %s님의 경험이 궁금해요. %s님의 경험을 들려주세요!", nickName, nickName, nickName);
-        Chat chat = ChatConverter.toChatEntity(1, firstChatContent, chatRoom);
+        Chat chat = ChatConverter.toChatEntity(0, firstChatContent, chatRoom);
         chatRepository.save(chat);
         return chat;
     }

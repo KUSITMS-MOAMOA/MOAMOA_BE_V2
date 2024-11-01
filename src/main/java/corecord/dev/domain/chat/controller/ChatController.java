@@ -37,4 +37,12 @@ public class ChatController {
         return ApiResponse.success(ChatSuccessStatus.CHAT_CREATE_SUCCESS, chatResponse);
     }
 
+    @GetMapping("/{chatRoomId}")
+    public ResponseEntity<ApiResponse<ChatResponse.ChatListDto>> getChatList(
+            @UserId Long userId,
+            @PathVariable(name = "chatRoomId") Long chatRoomId
+    ) {
+        ChatResponse.ChatListDto chatListDto = chatService.getChatList(userId, chatRoomId);
+        return ApiResponse.success(ChatSuccessStatus.GET_CHAT_SUCCESS, chatListDto);
+    }
 }
