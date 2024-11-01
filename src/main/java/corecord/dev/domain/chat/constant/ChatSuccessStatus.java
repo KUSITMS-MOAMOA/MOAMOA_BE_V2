@@ -11,7 +11,8 @@ public enum ChatSuccessStatus implements BaseSuccessStatus {
 
     CHAT_ROOM_CREATE_SUCCESS(HttpStatus.CREATED, "S301", "채팅방 생성이 성공적으로 완료되었습니다."),
     CHAT_CREATE_SUCCESS(HttpStatus.CREATED, "S302", "채팅 생성이 성공적으로 완료되었습니다."),
-    GET_CHAT_SUCCESS(HttpStatus.OK, "S303", "채팅 조회가 성공적으로 완료되었습니다.");
+    GET_CHAT_SUCCESS(HttpStatus.OK, "S303", "채팅 조회가 성공적으로 완료되었습니다."),
+    CHAT_DELETE_SUCCESS(HttpStatus.OK, "S304", "채팅 삭제가 성공적으로 완료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

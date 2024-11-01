@@ -45,4 +45,13 @@ public class ChatController {
         ChatResponse.ChatListDto chatListDto = chatService.getChatList(userId, chatRoomId);
         return ApiResponse.success(ChatSuccessStatus.GET_CHAT_SUCCESS, chatListDto);
     }
+
+    @DeleteMapping("/{chatRoomId}")
+    public ResponseEntity<ApiResponse<Void>> deleteChatRoom(
+            @UserId Long userId,
+            @PathVariable(name = "chatRoomId") Long chatRoomId
+    ) {
+        chatService.deleteChatRoom(userId, chatRoomId);
+        return ApiResponse.success(ChatSuccessStatus.CHAT_DELETE_SUCCESS);
+    }
 }

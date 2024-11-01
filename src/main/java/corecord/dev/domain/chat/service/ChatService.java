@@ -86,6 +86,27 @@ public class ChatService {
         return ChatConverter.toChatListDto(chatList);
     }
 
+    /*
+     * user의 채팅방을 삭제
+     * @param userId
+     * @param chatRoomId
+     */
+    @Transactional
+    public void deleteChatRoom(Long userId, Long chatRoomId) {
+        User user = findUserById(userId);
+        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+
+        // 임시 저장된 ChatRoom 인지 확인 후 삭제
+        checkTmpChat(user, chatRoom);
+        chatRoomRepository.delete(chatRoom);
+    }
+
+    private static void checkTmpChat(User user, ChatRoom chatRoom) {
+        if(user.getTmpChat().equals(chatRoom.getChatRoomId())) {
+            user.deleteTmpChat();
+        }
+    }
+
     private String createAiAnswer(ChatRoom chatRoom, String userInput) {
         List<Chat> chatHistory = chatRepository.findByChatRoomOrderByChatId(chatRoom);
         ClovaRequest clovaRequest = ClovaRequest.createRequest(chatHistory, userInput);
