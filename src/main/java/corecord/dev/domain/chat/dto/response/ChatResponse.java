@@ -15,4 +15,13 @@ public class ChatResponse {
         private Long chatRoomId;
         private String firstChat;
     }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatDto {
+        private Long chatId;
+        private String content;
+    }
 }

@@ -27,4 +27,11 @@ public class ChatConverter {
                 .chatRoom(chatRoom)
                 .build();
     }
+
+    public static ChatResponse.ChatDto toChatDto(Chat chat) {
+        return ChatResponse.ChatDto.builder()
+                .chatId(chat.getChatId())
+                .content(chat.getContent())
+                .build();
+    }
 }
