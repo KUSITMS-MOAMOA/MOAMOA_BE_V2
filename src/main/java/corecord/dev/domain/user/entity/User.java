@@ -58,4 +58,8 @@ public class User extends BaseEntity {
     public void deleteTmpMemo(){
         this.tmpMemo = null;
     }
+
+    public void deleteTmpChat(){
+        this.tmpChat = null;
+    }
 }

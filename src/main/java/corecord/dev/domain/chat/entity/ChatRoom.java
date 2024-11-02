@@ -23,7 +23,7 @@ public class ChatRoom extends BaseEntity {
     @Column(nullable = false)
     private Long chatRoomId;
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Chat> chatList;
 
     @OneToOne(mappedBy = "chatRoom")
