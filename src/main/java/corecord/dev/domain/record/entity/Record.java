@@ -50,4 +50,10 @@ public class Record extends BaseEntity {
     public void updateFolder(Folder folder) {
         this.folder = folder;
     }
+
+    public void updateTitle(String title) {
+        if (title != null && !title.isEmpty()) {
+            this.title = title;
+        }
+    }
 }
