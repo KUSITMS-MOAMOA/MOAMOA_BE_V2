@@ -16,6 +16,7 @@ public class RecordRequest {
 
     @Data
     public static class TmpMemoRecordDto {
+        @NotBlank(message = "임시 저장할 기록의 제목을 입력해주세요.")
         private String title;
         @NotBlank(message = "임시 저장할 내용을 입력해주세요.")
         private String content;

@@ -10,8 +10,9 @@ import corecord.dev.domain.user.entity.User;
 import java.util.List;
 
 public class AnalysisConverter {
-    public static Analysis toAnalysis(String comment, Record record) {
+    public static Analysis toAnalysis(String content, String comment, Record record) {
         return Analysis.builder()
+                .content(content)
                 .comment(comment)
                 .record(record)
                 .build();
@@ -45,7 +46,7 @@ public class AnalysisConverter {
                 .analysisId(analysis.getAnalysisId())
                 .recordId(record.getRecordId())
                 .recordTitle(record.getTitle())
-                .recordContent(record.getContent())
+                .recordContent(analysis.getContent())
                 .abilityDtoList(abilityDtoList)
                 .comment(analysis.getComment())
                 .createdAt(analysis.getCreatedAtFormatted())

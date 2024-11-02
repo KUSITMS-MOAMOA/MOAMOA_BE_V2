@@ -25,7 +25,7 @@ public class Ability extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Keyword keyword;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 200)
     private String content;
 
     @ManyToOne

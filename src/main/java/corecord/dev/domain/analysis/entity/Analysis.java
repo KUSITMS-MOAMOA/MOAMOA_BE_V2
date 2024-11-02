@@ -24,6 +24,9 @@ public class Analysis extends BaseEntity {
     private Long analysisId;
 
     @Column(nullable = false, length = 500)
+    private String content;
+
+    @Column(nullable = false, length = 200)
     private String comment;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -33,4 +36,9 @@ public class Analysis extends BaseEntity {
     @BatchSize(size = 3)
     @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Ability> abilityList;
+
+    public void updateContent(String content) {
+        if (content != null && !content.isEmpty())
+            this.content = content;
+    }
 }
