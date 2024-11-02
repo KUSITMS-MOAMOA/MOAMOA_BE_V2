@@ -98,10 +98,14 @@ public class ChatService {
 
         // 임시 저장된 ChatRoom 인지 확인 후 삭제
         checkTmpChat(user, chatRoom);
+        chatRepository.deleteByChatRoomId(chatRoomId);
         chatRoomRepository.delete(chatRoom);
     }
 
     private static void checkTmpChat(User user, ChatRoom chatRoom) {
+        if(user.getTmpChat() == null) {
+            return;
+        }
         if(user.getTmpChat().equals(chatRoom.getChatRoomId())) {
             user.deleteTmpChat();
         }
