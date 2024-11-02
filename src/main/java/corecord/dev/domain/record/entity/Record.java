@@ -29,7 +29,7 @@ public class Record extends BaseEntity {
     @Column(length = 15)
     private String title;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 500)
     private String content;
 
     @ManyToOne
@@ -47,12 +47,13 @@ public class Record extends BaseEntity {
     @OneToOne(mappedBy = "record", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Analysis analysis;
 
-    public void updateContent(String content) {
-        if (content != null && !content.isEmpty())
-            this.content = content;
-    }
-
     public void updateFolder(Folder folder) {
         this.folder = folder;
+    }
+
+    public void updateTitle(String title) {
+        if (title != null && !title.isEmpty()) {
+            this.title = title;
+        }
     }
 }

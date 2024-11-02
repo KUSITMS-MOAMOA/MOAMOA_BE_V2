@@ -39,7 +39,8 @@ public class AnalysisService {
 
         // Analysis 객체 생성 및 저장
         // TMP Analysis
-        Analysis analysis = AnalysisConverter.toAnalysis("Comment", record);
+        // TODO: MEMO라면 CLOVA STUDIO를 이용해 content 요약
+        Analysis analysis = AnalysisConverter.toAnalysis(record.getContent(), "Comment", record);
         analysisRepository.save(analysis);
 
         // Ability 객체 생성 및 저장
@@ -81,9 +82,13 @@ public class AnalysisService {
         // User-Analysis 권한 유효성 검증
         validIsUserAuthorizedForAnalysis(user, analysis);
 
-        // 경험 기록 내용 수정
-        String content = analysisUpdateDto.getRecordContent();
-        analysis.getRecord().updateContent(content);
+        // 경험 기록 제목 수정
+        String title = analysisUpdateDto.getTitle();
+        analysis.getRecord().updateTitle(title);
+
+        // 경험 역량 분석 요약 내용 수정
+        String content = analysisUpdateDto.getContent();
+        analysis.updateContent(content);
 
         // 키워드 경험 내용 수정
         Map<String, String> abilityMap = analysisUpdateDto.getAbilityMap();

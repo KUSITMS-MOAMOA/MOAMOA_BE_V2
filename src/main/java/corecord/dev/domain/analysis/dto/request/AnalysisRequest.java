@@ -11,7 +11,8 @@ public class AnalysisRequest {
     public static class AnalysisUpdateDto {
         @NotBlank(message = "역량 분석 id를 입력해주세요.")
         private Long analysisId;
-        private String recordContent;
+        private String title;
+        private String content;
         private Map<String, String> abilityMap;
     }
 }
