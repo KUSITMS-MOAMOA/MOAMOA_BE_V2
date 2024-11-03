@@ -32,6 +32,12 @@ jobs:
         echo "${{ secrets.CHAT_PROMPT }}" > ./src/main/resources/chat-prompt.txt
       shell: bash
 
+    - name: make chat-summary-prompt.txt
+      run: |
+        touch ./src/main/resources/chat-summary-prompt.txt
+        echo "${{ secrets.CHAT_SUMMARY_PROMPT }}" > ./src/main/resources/chat-summary-prompt.txt
+      shell: bash
+
     - name: 빌드
       run: |
           chmod +x gradlew

@@ -39,3 +39,4 @@ out/
 .DS_Store
 src/main/resources/application-secret.yml
 src/main/resources/chat-prompt.txt
+src/main/resources/chat-summary-prompt.txt
