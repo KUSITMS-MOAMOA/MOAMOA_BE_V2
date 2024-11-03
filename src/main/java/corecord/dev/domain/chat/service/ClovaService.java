@@ -35,6 +35,7 @@ public class ClovaService {
 
     public String generateAiResponse(ClovaRequest clovaRequest) {
         try {
+            log.info("AI 요청: {}", clovaRequest.getMessages());
             String responseBody = webClient.post()
                     .uri(chatHost)
                     .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)

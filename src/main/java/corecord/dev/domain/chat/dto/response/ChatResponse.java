@@ -46,5 +46,14 @@ public class ChatResponse {
         private String created_at;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatSummaryDto {
+        private Long chatRoomId;
+        private String content;
+    }
+
 
 }

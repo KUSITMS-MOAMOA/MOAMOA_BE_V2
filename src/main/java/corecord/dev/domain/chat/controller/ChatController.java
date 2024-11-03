@@ -54,4 +54,13 @@ public class ChatController {
         chatService.deleteChatRoom(userId, chatRoomId);
         return ApiResponse.success(ChatSuccessStatus.CHAT_DELETE_SUCCESS);
     }
+
+    @GetMapping("/{chatRoomId}/summary")
+    public ResponseEntity<ApiResponse<ChatResponse.ChatSummaryDto>> getChatSummary(
+            @UserId Long userId,
+            @PathVariable(name = "chatRoomId") Long chatRoomId
+    ) {
+        ChatResponse.ChatSummaryDto chatSummaryDto = chatService.getChatSummary(userId, chatRoomId);
+        return ApiResponse.success(ChatSuccessStatus.GET_CHAT_SUMMARY_SUCCESS, chatSummaryDto);
+    }
 }

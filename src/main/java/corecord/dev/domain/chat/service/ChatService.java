@@ -66,7 +66,7 @@ public class ChatService {
         chatRepository.save(chat);
 
         // AI 답변 생성
-        String aiAnswer = createAiAnswer(chatRoom, chatDto.getContent());
+        String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent());
         Chat aiChat = chatRepository.save(ChatConverter.toChatEntity(0, aiAnswer, chatRoom));
 
         return ChatConverter.toChatDto(aiChat);
@@ -102,7 +102,43 @@ public class ChatService {
         chatRoomRepository.delete(chatRoom);
     }
 
-    private static void checkTmpChat(User user, ChatRoom chatRoom) {
+    /*
+     * user의 채팅의 요약 정보를 반환
+     * @param userId
+     * @param chatRoomId
+     * @return chatSummaryDto
+     */
+    public ChatResponse.ChatSummaryDto getChatSummary(Long userId, Long chatRoomId) {
+        User user = findUserById(userId);
+        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+        List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
+
+        // 사용자 입력 없이 저장하려는 경우
+        validateChatList(chatList.size() <= 1);
+
+        // 채팅 정보 요약 생성
+        String summary = generateChatSummary(chatList);
+        validateSummaryContent(summary);
+
+        return ChatConverter.toChatSummaryDto(chatRoom, summary);
+    }
+
+    private static void validateChatList(boolean chatList) {
+        if (chatList) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
+    }
+
+    private static void validateSummaryContent(String summary) {
+        validateChatList(summary.equals("NO_RECORD"));
+    }
+
+    private String generateChatSummary(List<Chat> chatList) {
+        ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
+        return clovaService.generateAiResponse(clovaRequest);
+    }
+
+    private void checkTmpChat(User user, ChatRoom chatRoom) {
         if(user.getTmpChat() == null) {
             return;
         }
@@ -111,9 +147,9 @@ public class ChatService {
         }
     }
 
-    private String createAiAnswer(ChatRoom chatRoom, String userInput) {
+    private String createChatAiAnswer(ChatRoom chatRoom, String userInput) {
         List<Chat> chatHistory = chatRepository.findByChatRoomOrderByChatId(chatRoom);
-        ClovaRequest clovaRequest = ClovaRequest.createRequest(chatHistory, userInput);
+        ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
         return clovaService.generateAiResponse(clovaRequest);
     }
 
