@@ -15,7 +15,7 @@ import static corecord.dev.domain.chat.constant.ChatSuccessStatus.CHAT_ROOM_CREA
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat")
+@RequestMapping("/api/records/chat")
 public class ChatController {
     private final ChatService chatService;
 
