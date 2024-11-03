@@ -10,35 +10,23 @@ import java.util.Map;
 
 @Getter
 public class ClovaRequest {
-    private static final double TOP_P = 0.8;
-    private static final int TOP_K = 0;
     private static final int CHAT_MAX_TOKENS = 256;
     private static final int SUMMARY_MAX_TOKENS = 500;
-    private static final double TEMPERATURE = 0.5;
-    private static final double REPEAT_PENALTY = 5.0;
-    private static final boolean INCLUDE_AI_FILTERS = true;
-    private static final int SEED = 0;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
 
     private List<Map<String, String>> messages;
-    private double topP;
-    private int topK;
-    private int maxTokens;
-    private double temperature;
-    private double repeatPenalty;
-    private boolean includeAiFilters;
-    private int seed;
+    private final double topP = 0.8;
+    private final int topK = 0;
+    private final int maxTokens;
+    private final double temperature = 0.5;
+    private final double repeatPenalty = 5.0;
+    private final boolean includeAiFilters = true;
+    private final int seed = 0;
 
     public ClovaRequest(List<Map<String, String>> messages, int max_tokens) {
         this.messages = messages;
-        this.topP = TOP_P;
-        this.topK = TOP_K;
         this.maxTokens = max_tokens;
-        this.temperature = TEMPERATURE;
-        this.repeatPenalty = REPEAT_PENALTY;
-        this.includeAiFilters = INCLUDE_AI_FILTERS;
-        this.seed = SEED;
     }
 
     public static ClovaRequest createChatRequest(List<Chat> chatHistory, String userContent) {
