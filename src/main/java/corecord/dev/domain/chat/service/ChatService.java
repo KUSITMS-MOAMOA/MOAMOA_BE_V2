@@ -123,6 +123,22 @@ public class ChatService {
         return ChatConverter.toChatSummaryDto(chatRoom, summary);
     }
 
+    /*
+     * user의 임시 채팅방과 유무를 반환
+     * @param userId
+     * @return chatTmpDto
+     */
+    @Transactional
+    public ChatResponse.ChatTmpDto getChatTmp(Long userId) {
+        User user = findUserById(userId);
+        if(user.getTmpChat() == null) {
+            return ChatConverter.toNotExistingChatTmpDto();
+        }
+        // 임시 채팅 제거 후 반환
+        user.deleteTmpChat();
+        return ChatConverter.toExistingChatTmpDto(user.getTmpChat());
+    }
+
     private static void validateChatList(boolean chatList) {
         if (chatList) {
             throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);

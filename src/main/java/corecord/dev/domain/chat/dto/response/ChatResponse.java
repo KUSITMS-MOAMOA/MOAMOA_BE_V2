@@ -55,5 +55,14 @@ public class ChatResponse {
         private String content;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatTmpDto {
+        private Long chatRoomId;
+        private boolean isExist;
+    }
+
 
 }
