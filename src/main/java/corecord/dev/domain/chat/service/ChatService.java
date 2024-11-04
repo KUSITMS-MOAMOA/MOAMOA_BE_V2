@@ -135,8 +135,26 @@ public class ChatService {
             return ChatConverter.toNotExistingChatTmpDto();
         }
         // 임시 채팅 제거 후 반환
+        Long chatRoomId = user.getTmpChat();
         user.deleteTmpChat();
-        return ChatConverter.toExistingChatTmpDto(user.getTmpChat());
+        return ChatConverter.toExistingChatTmpDto(chatRoomId);
+    }
+
+    /*
+     * user의 채팅방을 임시 저장
+     * @param userId
+     * @param chatRoomId
+     */
+    @Transactional
+    public void saveChatTmp(Long userId, Long chatRoomId) {
+        User user = findUserById(userId);
+        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+
+        // 이미 임시 저장된 채팅방이 있는 경우
+        if(user.getTmpChat() != null) {
+            throw new ChatException(ChatErrorStatus.TMP_CHAT_EXIST);
+        }
+        user.updateTmpChat(chatRoom.getChatRoomId());
     }
 
     private static void validateChatList(boolean chatList) {

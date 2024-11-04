@@ -71,4 +71,13 @@ public class ChatController {
         ChatResponse.ChatTmpDto chatTmpDto = chatService.getChatTmp(userId);
         return ApiResponse.success(ChatSuccessStatus.GET_CHAT_TMP_SUCCESS, chatTmpDto);
     }
+
+    @PostMapping("/{chatRoomId}/tmp")
+    public ResponseEntity<ApiResponse<Void>> saveChatTmp(
+            @UserId Long userId,
+            @PathVariable(name = "chatRoomId") Long chatRoomId
+    ) {
+        chatService.saveChatTmp(userId, chatRoomId);
+        return ApiResponse.success(ChatSuccessStatus.CREATE_CHAT_TMP_SUCCESS);
+    }
 }
