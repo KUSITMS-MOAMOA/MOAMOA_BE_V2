@@ -11,7 +11,8 @@ public enum ChatErrorStatus implements BaseErrorStatus {
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "E0302_CHAT_ROOM_NOT_FOUND", "존재하지 않는 채팅방입니다."),
     CHAT_AI_RESPONSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0302_CHAT_AI_RESPONSE_ERROR", "AI 응답 생성 중 오류가 발생했습니다."),
     CHAT_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "E0302_CHAT_CLIENT_ERROR", "AI 클라이언트 요청 오류가 발생했습니다."),
-    CHAT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0302_CHAT_SERVER_ERROR", "AI 서버에 오류가 발생했습니다.");
+    CHAT_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0302_CHAT_SERVER_ERROR", "AI 서버에 오류가 발생했습니다."),
+    CREATE_SUMMARY_ERROR(HttpStatus.BAD_REQUEST, "E0305_CREATE_SUMMARY_ERROR", "경험 기록의 내용이 충분하지 않습니다."),;
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -2,7 +2,7 @@ package corecord.dev.domain.chat.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.domain.chat.dto.request.ClovaRequest;
+import corecord.dev.domain.chat.dto.request.ChatSummaryRequest;
 import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;
 import corecord.dev.domain.chat.exception.model.ChatException;
 import lombok.RequiredArgsConstructor;
@@ -16,34 +16,35 @@ import org.springframework.web.reactive.function.client.WebClientException;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ClovaService {
+public class SummaryService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.create();
 
-    @Value("${ncp.chat.host}")
-    private String chatHost;
+    @Value("${ncp.chat-ai.host}")
+    private String chatAiHost;
 
-    @Value("${ncp.chat.api-key}")
-    private String chatApiKey;
+    @Value("${ncp.chat-ai.api-key}")
+    private String chatAiApiKey;
 
-    @Value("${ncp.chat.api-key-primary-val}")
-    private String chatApiKeyPrimaryVal;
+    @Value("${ncp.chat-ai.api-key-primary-val}")
+    private String chatAiApiKeyPrimaryVal;
 
-    @Value("${ncp.chat.request-id}")
-    private String chatRequestId;
+    @Value("${ncp.chat-ai.request-id}")
+    private String chatAiRequestId;
 
-    public String generateAiResponse(ClovaRequest clovaRequest) {
+    public String generateAiResponse(ChatSummaryRequest chatSummaryRequest) {
         try {
-            log.info("AI 요청: {}", clovaRequest.getMessages());
+            log.info("AI 요청: {}", chatSummaryRequest.getText());
+
             String responseBody = webClient.post()
-                    .uri(chatHost)
-                    .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)
-                    .header("X-NCP-APIGW-API-KEY", chatApiKeyPrimaryVal)
-                    .header("X-NCP-CLOVASTUDIO-REQUEST-ID", chatRequestId)
+                    .uri(chatAiHost)
+                    .header("X-NCP-CLOVASTUDIO-API-KEY", chatAiApiKey)
+                    .header("X-NCP-APIGW-API-KEY", chatAiApiKeyPrimaryVal)
+                    .header("X-NCP-CLOVASTUDIO-REQUEST-ID", chatAiRequestId)
                     .header("Content-Type", "application/json; charset=utf-8")
                     .header("Accept", "application/json")
-                    .bodyValue(clovaRequest)
+                    .bodyValue(chatSummaryRequest)
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
                         log.error("클라이언트 오류 발생: 상태 코드 - {}", clientResponse.statusCode());
@@ -69,8 +70,8 @@ public class ClovaService {
     private String parseContentFromResponse(String responseBody) {
         try {
             JsonNode root = objectMapper.readTree(responseBody);
-            JsonNode messageContent = root.path("result").path("message").path("content");
-            return messageContent.asText();
+            JsonNode resultText = root.path("result").path("text");
+            return resultText.asText();
         } catch (Exception e) {
             log.error("응답 파싱 실패", e);
             throw new ChatException(ChatErrorStatus.CHAT_AI_RESPONSE_ERROR);

@@ -52,4 +52,11 @@ public class ChatConverter {
                 .chats(chatList.stream().map(ChatConverter::toChatDetailDto).toList())
                 .build();
     }
+
+    public static ChatResponse.ChatSummaryDto toChatSummaryDto(ChatRoom chatRoom, String content) {
+        return ChatResponse.ChatSummaryDto.builder()
+                .chatRoomId(chatRoom.getChatRoomId())
+                .content(content)
+                .build();
+    }
 }
