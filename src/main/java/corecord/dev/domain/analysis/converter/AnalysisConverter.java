@@ -58,4 +58,10 @@ public class AnalysisConverter {
                 .keywordList(keywordList)
                 .build();
     }
+
+    public static AnalysisResponse.GraphDto toGraphDto(List<AnalysisResponse.KeywordStateDto> keywordStateDtoList) {
+        return AnalysisResponse.GraphDto.builder()
+                .keywordGraph(keywordStateDtoList)
+                .build();
+    }
 }

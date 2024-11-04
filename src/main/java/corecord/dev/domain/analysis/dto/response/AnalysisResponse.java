@@ -1,5 +1,6 @@
 package corecord.dev.domain.analysis.dto.response;
 
+import corecord.dev.domain.analysis.constant.Keyword;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,5 +39,26 @@ public class AnalysisResponse {
     @Data
     public static class KeywordListDto {
         private List<String> keywordList;
+    }
+
+    @Data
+    public static class KeywordStateDto {
+        private String keyword;
+        private Long count;
+        private String percent;
+
+        public KeywordStateDto(Keyword keyword, Long count, Double percent) {
+            this.keyword = keyword.getValue();
+            this.count = count;
+            this.percent = Math.round(percent) + "%";
+        }
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class GraphDto {
+        List<KeywordStateDto> keywordGraph;
     }
 }
