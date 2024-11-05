@@ -4,6 +4,7 @@ import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.entity.Ability;
 import corecord.dev.domain.analysis.entity.Analysis;
+import corecord.dev.domain.record.constant.RecordType;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.user.entity.User;
 
@@ -44,7 +45,9 @@ public class AnalysisConverter {
 
         return AnalysisResponse.AnalysisDto.builder()
                 .analysisId(analysis.getAnalysisId())
+                .chatRoomId(record.getType() == RecordType.CHAT ? record.getChatRoom().getChatRoomId() : null)
                 .recordId(record.getRecordId())
+                .recordType(record.getType())
                 .recordTitle(record.getTitle())
                 .recordContent(analysis.getContent())
                 .abilityDtoList(abilityDtoList)

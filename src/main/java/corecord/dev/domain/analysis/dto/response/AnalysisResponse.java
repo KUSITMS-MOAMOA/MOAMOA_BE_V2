@@ -1,6 +1,7 @@
 package corecord.dev.domain.analysis.dto.response;
 
 import corecord.dev.domain.analysis.constant.Keyword;
+import corecord.dev.domain.record.constant.RecordType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +26,9 @@ public class AnalysisResponse {
     @Data
     public static class AnalysisDto {
         private Long analysisId;
+        private Long chatRoomId;
         private Long recordId;
+        private RecordType recordType;
         private String recordTitle;
         private String recordContent;
         private List<AbilityDto> abilityDtoList;
