@@ -50,4 +50,12 @@ public class AnalysisController {
         AnalysisResponse.KeywordListDto analysisResponse = analysisService.getKeywordList(userId);
         return ApiResponse.success(AnalysisSuccessStatus.KEYWORD_LIST_GET_SUCCESS, analysisResponse);
     }
+
+    @GetMapping("/graph")
+    public ResponseEntity<ApiResponse<AnalysisResponse.GraphDto>> getKeywordGraph(
+            @UserId Long userId
+    ) {
+        AnalysisResponse.GraphDto analysisResponse = analysisService.getKeywordGraph(userId);
+        return ApiResponse.success(AnalysisSuccessStatus.KEYWORD_GRAPH_GET_SUCCESS, analysisResponse);
+    }
 }

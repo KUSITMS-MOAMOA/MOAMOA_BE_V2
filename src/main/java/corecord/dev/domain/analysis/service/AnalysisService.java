@@ -141,7 +141,22 @@ public class AnalysisService {
         return AnalysisConverter.toKeywordListDto(keywordList);
     }
 
-    private String generateAbilityAnalysis(String content) {
+    /*
+     * user의 각 역량 키워드에 대한 개수, 퍼센티지 정보를 반환
+     * @param userId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public AnalysisResponse.GraphDto getKeywordGraph(Long userId) {
+        User user = findUserById(userId);
+
+        // keyword graph 정보 조회
+        List<AnalysisResponse.KeywordStateDto> keywordGraph = findKeywordGraph(user);
+
+        return AnalysisConverter.toGraphDto(keywordGraph);
+    }
+  
+  private String generateAbilityAnalysis(String content) {
         ClovaRequest clovaRequest = ClovaRequest.createAnalysisRequest(content);
         return clovaService.generateAiResponse(clovaRequest);
     }
@@ -190,5 +205,9 @@ public class AnalysisService {
     private Analysis findAnalysisById(Long analysisId) {
         return analysisRepository.findAnalysisById(analysisId)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.ANALYSIS_NOT_FOUND));
+    }
+
+    private List<AnalysisResponse.KeywordStateDto> findKeywordGraph(User user) {
+        return abilityRepository.findKeywordStateDtoList(user);
     }
 }
