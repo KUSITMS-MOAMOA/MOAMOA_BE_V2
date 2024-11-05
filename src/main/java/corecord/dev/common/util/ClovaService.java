@@ -1,10 +1,9 @@
-package corecord.dev.domain.chat.service;
+package corecord.dev.common.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.domain.chat.dto.request.ClovaRequest;
-import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;
-import corecord.dev.domain.chat.exception.model.ChatException;
+import corecord.dev.common.exception.GeneralException;
+import corecord.dev.common.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,12 +47,12 @@ public class ClovaService {
                     .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
                         log.error("클라이언트 오류 발생: 상태 코드 - {}", clientResponse.statusCode());
                         return clientResponse.bodyToMono(String.class)
-                                .map(errorBody -> new ChatException(ChatErrorStatus.CHAT_CLIENT_ERROR));
+                                .map(errorBody -> new GeneralException(ErrorStatus.AI_CLIENT_ERROR));
                     })
                     .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
                         log.error("서버 오류 발생: 상태 코드 - {}", clientResponse.statusCode());
                         return clientResponse.bodyToMono(String.class)
-                                .map(errorBody -> new ChatException(ChatErrorStatus.CHAT_SERVER_ERROR));
+                                .map(errorBody -> new GeneralException(ErrorStatus.AI_SERVER_ERROR));
                     })
                     .bodyToMono(String.class)
                     .block();
@@ -62,7 +61,7 @@ public class ClovaService {
             return parseContentFromResponse(responseBody);
         } catch (WebClientException e) {
             log.error("채팅 AI 응답 생성 실패", e);
-            throw new ChatException(ChatErrorStatus.CHAT_AI_RESPONSE_ERROR);
+            throw new GeneralException(ErrorStatus.AI_RESPONSE_ERROR);
         }
     }
 
@@ -73,7 +72,7 @@ public class ClovaService {
             return messageContent.asText();
         } catch (Exception e) {
             log.error("응답 파싱 실패", e);
-            throw new ChatException(ChatErrorStatus.CHAT_AI_RESPONSE_ERROR);
+            throw new GeneralException(ErrorStatus.AI_RESPONSE_ERROR);
         }
     }
 }
