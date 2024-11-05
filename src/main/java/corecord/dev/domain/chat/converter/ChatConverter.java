@@ -59,4 +59,18 @@ public class ChatConverter {
                 .content(content)
                 .build();
     }
+
+    public static ChatResponse.ChatTmpDto toExistingChatTmpDto(Long chatRoomId) {
+        return ChatResponse.ChatTmpDto.builder()
+                .isExist(true)
+                .chatRoomId(chatRoomId)
+                .build();
+    }
+
+    public static ChatResponse.ChatTmpDto toNotExistingChatTmpDto() {
+        return ChatResponse.ChatTmpDto.builder()
+                .isExist(false)
+                .chatRoomId(null)
+                .build();
+    }
 }

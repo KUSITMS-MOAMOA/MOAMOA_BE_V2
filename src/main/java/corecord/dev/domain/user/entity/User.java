@@ -55,6 +55,10 @@ public class User extends BaseEntity {
         this.tmpMemo = tmpMemo;
     }
 
+    public void updateTmpChat(Long tmpChat) {
+        this.tmpChat = tmpChat;
+    }
+
     public void deleteTmpMemo(){
         this.tmpMemo = null;
     }
