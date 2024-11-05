@@ -1,6 +1,5 @@
-package corecord.dev.domain.chat.dto.request;
+package corecord.dev.common.util;
 
-import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.chat.entity.Chat;
 import lombok.Getter;
 
@@ -12,8 +11,10 @@ import java.util.Map;
 public class ClovaRequest {
     private static final int CHAT_MAX_TOKENS = 256;
     private static final int SUMMARY_MAX_TOKENS = 500;
+    private static final int ABILITY_ANALYSIS_MAX_TOKENS = 500;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
+    private static final String ABILITY_ANALYSIS_SYSTEM_CONTENT = ResourceLoader.getResourceContent("ability-analysis-prompt.txt");
 
     private List<Map<String, String>> messages;
     private final double topP = 0.8;
@@ -74,6 +75,22 @@ public class ClovaRequest {
         ));
 
         return new ClovaRequest(messages, SUMMARY_MAX_TOKENS);
+    }
+
+    public static ClovaRequest createAnalysisRequest(String content) {
+        List<Map<String, String>> messages = new ArrayList<>();
+
+        // 시스템 메세지 추가
+        messages.add(Map.of(
+                "role", "system",
+                "content", ABILITY_ANALYSIS_SYSTEM_CONTENT
+        ));
+
+        messages.add(Map.of(
+                "role", "user",
+                "content", content
+        ));
+        return new ClovaRequest(messages, ABILITY_ANALYSIS_MAX_TOKENS);
     }
 
 }

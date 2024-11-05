@@ -1,10 +1,13 @@
 package corecord.dev.domain.analysis.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.analysis.converter.AnalysisConverter;
 import corecord.dev.domain.analysis.dto.request.AnalysisRequest;
+import corecord.dev.domain.analysis.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.entity.Ability;
 import corecord.dev.domain.analysis.entity.Analysis;
@@ -12,6 +15,8 @@ import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.analysis.repository.AbilityRepository;
 import corecord.dev.domain.analysis.repository.AnalysisRepository;
+import corecord.dev.common.util.ClovaRequest;
+import corecord.dev.common.util.ClovaService;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.record.exception.enums.RecordErrorStatus;
 import corecord.dev.domain.record.exception.model.RecordException;
@@ -31,26 +36,37 @@ public class AnalysisService {
     private final AnalysisRepository analysisRepository;
     private final AbilityRepository abilityRepository;
     private final UserRepository userRepository;
+    private final ClovaService clovaService;
 
 
     @Transactional
     public void createAnalysis(Record record, User user) {
-        // TODO: CLOVA STUDIO API 호출
+        // TODO: MEMO라면 CLOVA STUDIO를 이용해 content 요약
+
+        // CLOVA STUDIO API 호출
+        String apiResponse = generateAbilityAnalysis(record.getContent());
+        AnalysisAiResponse response = parseAnalysisAiResponse(apiResponse);
 
         // Analysis 객체 생성 및 저장
-        // TMP Analysis
-        // TODO: MEMO라면 CLOVA STUDIO를 이용해 content 요약
-        Analysis analysis = AnalysisConverter.toAnalysis(record.getContent(), "Comment", record);
+        Analysis analysis = AnalysisConverter.toAnalysis(record.getContent(), response.getComment(), record);
         analysisRepository.save(analysis);
 
         // Ability 객체 생성 및 저장
-        // TMP Ability
-        Ability ability1 = AnalysisConverter.toAbility(Keyword.COMMUNICATION,"Communication Skill", analysis, user);
-        Ability ability2 = AnalysisConverter.toAbility(Keyword.ADAPTABILITY,"Adaptability", analysis, user);
-        Ability ability3 = AnalysisConverter.toAbility(Keyword.JUDGEMENT_SKILL,"Judgement Skill", analysis, user);
-        abilityRepository.save(ability1);
-        abilityRepository.save(ability2);
-        abilityRepository.save(ability3);
+        int abilityCount = 0;
+        for (Map.Entry<String, String> entry : response.getKeywordList().entrySet()) {
+            Keyword keyword = Keyword.getName(entry.getKey());
+
+            if (keyword == null) continue;
+
+            Ability ability = AnalysisConverter.toAbility(keyword, entry.getValue(), analysis, user);
+            abilityRepository.save(ability);
+            abilityCount++;
+        }
+
+        if (abilityCount < 1 || abilityCount > 3) {
+            throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
+        }
+
     }
 
     /*
@@ -139,6 +155,11 @@ public class AnalysisService {
 
         return AnalysisConverter.toGraphDto(keywordGraph);
     }
+  
+  private String generateAbilityAnalysis(String content) {
+        ClovaRequest clovaRequest = ClovaRequest.createAnalysisRequest(content);
+        return clovaService.generateAiResponse(clovaRequest);
+    }
 
     private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
         if (!analysis.getRecord().getUser().equals(user))
@@ -159,6 +180,15 @@ public class AnalysisService {
                 .filter(ability -> ability.getKeyword().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD));
+    }
+
+    private AnalysisAiResponse parseAnalysisAiResponse(String aiResponse) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.readValue(aiResponse, AnalysisAiResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
+        }
     }
 
     private List<String> findKeywordList(User user) {
