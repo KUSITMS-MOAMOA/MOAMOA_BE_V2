@@ -78,4 +78,12 @@ public class RecordController {
         return ApiResponse.success(RecordSuccessStatus.RECORD_FOLDER_UPDATE_SUCCESS);
     }
 
+    @GetMapping("/recent")
+    public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecentRecordList(
+            @UserId Long userId
+    ) {
+        RecordResponse.RecordListDto recordResponse = recordService.getRecentRecordList(userId);
+        return ApiResponse.success(RecordSuccessStatus.RECENT_RECORD_LIST_GET_SUCCESS, recordResponse);
+    }
+
 }

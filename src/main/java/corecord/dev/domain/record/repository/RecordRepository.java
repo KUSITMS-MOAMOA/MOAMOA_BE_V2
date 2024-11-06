@@ -4,6 +4,7 @@ import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.user.entity.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,6 +49,16 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
             @Param(value = "user") User user);
+
+    @Query("SELECT r FROM Record r " +
+            "JOIN FETCH r.analysis a " +
+            "JOIN FETCH r.folder f " +
+            "JOIN FETCH a.abilityList al " +
+            "WHERE r.user = :user " +
+            "AND r.folder is not null ")  // 임시 저장 기록 제외
+    List<Record> findRecordsOrderByCreatedAt(
+            @Param(value = "user") User user,
+            Pageable pageable);
 
     @Query("SELECT r FROM Record r " +
             "JOIN FETCH r.analysis a " +
