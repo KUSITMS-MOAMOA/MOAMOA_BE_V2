@@ -36,7 +36,7 @@ public class UserController {
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logoutUser(
             HttpServletRequest request,
             HttpServletResponse response
