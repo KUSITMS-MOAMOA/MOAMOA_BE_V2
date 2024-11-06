@@ -17,6 +17,7 @@ public class CookieUtil {
 
     public ResponseCookie createTokenCookie(String tokenName, String token) {
         return ResponseCookie.from(tokenName, token)
+                .domain("corecord.site")
                 .httpOnly(true)
                 .secure(true) // 배포 시 true로 설정
                 .sameSite("None")
