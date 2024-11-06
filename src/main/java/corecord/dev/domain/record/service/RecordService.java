@@ -26,6 +26,9 @@ import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -180,6 +183,21 @@ public class RecordService {
         record.updateFolder(folder);
     }
 
+    /*
+     * 최근 생성된 경험 기록 리스트 3개를 반환
+     * @param userId
+     * @return
+     */
+    public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
+        User user = findUserById(userId);
+
+        // 최근 생성된 3개의 데이터만 조회
+        Pageable pageable = PageRequest.of(0, 3, Sort.by("createdAt").descending());
+        List<Record> recordList = getRecordListOrderByCreatedAt(user, pageable);
+
+        return RecordConverter.toRecordListDto("all", recordList);
+    }
+
     private void validHasUserTmpMemo(User user) {
         if (user.getTmpMemo() != null)
             throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
@@ -226,6 +244,10 @@ public class RecordService {
 
     private List<Record> getRecordList(User user) {
         return recordRepository.findRecords(user);
+    }
+
+    private List<Record> getRecordListOrderByCreatedAt(User user, Pageable pageable) {
+        return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
     }
 
     private List<Record> getRecordListByKeyword(User user, Keyword keyword) {
