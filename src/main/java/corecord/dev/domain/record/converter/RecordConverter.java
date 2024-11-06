@@ -2,6 +2,7 @@ package corecord.dev.domain.record.converter;
 
 import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.record.constant.RecordType;
 import corecord.dev.domain.record.dto.response.RecordResponse;
@@ -18,6 +19,19 @@ public class RecordConverter {
                 .user(user)
                 .content(content)
                 .folder(folder)
+                .type(RecordType.MEMO)
+                .build();
+    }
+
+    public static Record toChatRecordEntity(String title, String content, User user, Folder folder, ChatRoom chatRoom) {
+        return Record.builder()
+                .type(RecordType.CHAT)
+                .title(title)
+                .user(user)
+                .content(content)
+                .folder(folder)
+                .chatRoom(chatRoom)
+                .type(RecordType.CHAT)
                 .build();
     }
 

@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class RecordController {
     private final RecordService recordService;
 
-    @PostMapping("/memo")
+    @PostMapping("")
     public ResponseEntity<ApiResponse<RecordResponse.MemoRecordDto>> createMemoRecord(
             @UserId Long userId,
-            @RequestBody RecordRequest.MemoRecordDto memoRecordDto
+            @RequestBody RecordRequest.RecordDto recordDto
     ) {
-        RecordResponse.MemoRecordDto recordResponse = recordService.createMemoRecord(userId, memoRecordDto);
+        RecordResponse.MemoRecordDto recordResponse = recordService.createMemoRecord(userId, recordDto);
         return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_CREATE_SUCCESS, recordResponse);
     }
 
