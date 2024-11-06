@@ -45,7 +45,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "http://localhost:5173", "https://localhost:5173"
+                "http://localhost:5173", "https://localhost:5173",
                 "https://corecord.site",
                 "https://www.corecord.site",
                 "https://corecord.vercel.app"
