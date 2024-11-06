@@ -6,10 +6,15 @@ import corecord.dev.domain.analysis.constant.Keyword;
 import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.analysis.service.AnalysisService;
+import corecord.dev.domain.chat.entity.ChatRoom;
+import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;
+import corecord.dev.domain.chat.exception.model.ChatException;
+import corecord.dev.domain.chat.repository.ChatRoomRepository;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.folder.exception.enums.FolderErrorStatus;
 import corecord.dev.domain.folder.exception.model.FolderException;
 import corecord.dev.domain.folder.repository.FolderRepository;
+import corecord.dev.domain.record.constant.RecordType;
 import corecord.dev.domain.record.converter.RecordConverter;
 import corecord.dev.domain.record.dto.request.RecordRequest;
 import corecord.dev.domain.record.dto.response.RecordResponse;
@@ -34,6 +39,7 @@ public class RecordService {
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
     private final AnalysisService analysisService;
+    private final ChatRoomRepository chatRoomRepository;
 
     /*
      * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
@@ -41,7 +47,7 @@ public class RecordService {
      * @return
      */
     @Transactional
-    public RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.MemoRecordDto recordDto) {
+    public RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.RecordDto recordDto) {
         User user = findUserById(userId);
         String title = recordDto.getTitle();
         String content = recordDto.getContent();
@@ -50,12 +56,14 @@ public class RecordService {
         // 제목, 본문 글자 수 검사
         validTextLength(title, content);
 
-        // record(memo) 객체 생성 및 연관관계 설정
-        Record record = RecordConverter.toMemoRecordEntity(title, content, user, folder);
+        // 경험 기록 종류에 따른 Record 생성
+        Record record = createRecordBasedOnType(recordDto, user, folder);
+
+        // Record 저장
         recordRepository.save(record);
 
         // 역량 분석 레포트 생성
-        analysisService.createAnalysis(record, user);
+//        analysisService.createAnalysis(record, user);
 
         return RecordConverter.toMemoRecordDto(record);
     }
@@ -229,5 +237,19 @@ public class RecordService {
         if (keyword == null)
             throw new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD);
         return keyword;
+    }
+
+    private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
+        if (recordDto.getRecordType() == RecordType.MEMO) {
+            return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
+        } else {
+            ChatRoom chatRoom = findChatRoomById(recordDto.getChatRoomId(), user);
+            return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
+        }
+    }
+
+    private ChatRoom findChatRoomById(Long chatRoomId, User user) {
+        return chatRoomRepository.findByChatRoomIdAndUser(chatRoomId, user)
+                .orElseThrow(() -> new ChatException(ChatErrorStatus.CHAT_ROOM_NOT_FOUND));
     }
 }
