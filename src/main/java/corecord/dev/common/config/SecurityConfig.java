@@ -36,7 +36,7 @@ public class SecurityConfig {
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
-    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/api/token/access-token", "/actuator/health", "/api/token/**"};
+    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/api/token/access-token", "/actuator/health", "/api/token/**", "/api/token"};
     private final String[] allowedUrls = Stream.concat(Arrays.stream(swaggerUrls), Arrays.stream(authUrls))
             .toArray(String[]::new);
 
@@ -45,7 +45,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "http://localhost:5173",
+                "http://localhost:5173", "https://localhost:5173"
                 "https://corecord.site",
                 "https://www.corecord.site",
                 "https://corecord.vercel.app"
