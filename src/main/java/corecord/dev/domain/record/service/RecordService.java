@@ -63,7 +63,7 @@ public class RecordService {
         recordRepository.save(record);
 
         // 역량 분석 레포트 생성
-//        analysisService.createAnalysis(record, user);
+        analysisService.createAnalysis(record, user);
 
         return RecordConverter.toMemoRecordDto(record);
     }
