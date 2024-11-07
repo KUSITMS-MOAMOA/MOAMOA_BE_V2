@@ -56,4 +56,8 @@ public class Record extends BaseEntity {
             this.title = title;
         }
     }
+
+    public boolean isMemoType() {
+        return this.type == RecordType.MEMO;
+    }
 }

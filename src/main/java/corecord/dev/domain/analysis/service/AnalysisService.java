@@ -41,14 +41,18 @@ public class AnalysisService {
 
     @Transactional
     public void createAnalysis(Record record, User user) {
-        // TODO: MEMO라면 CLOVA STUDIO를 이용해 content 요약
+
+        // MEMO 경험 기록이라면, CLOVA STUDIO를 이용해 요약 진행
+        String content = record.isMemoType()
+                ? generateMemoSummary(record.getContent())
+                : record.getContent();
 
         // CLOVA STUDIO API 호출
-        String apiResponse = generateAbilityAnalysis(record.getContent());
+        String apiResponse = generateAbilityAnalysis(content);
         AnalysisAiResponse response = parseAnalysisAiResponse(apiResponse);
 
         // Analysis 객체 생성 및 저장
-        Analysis analysis = AnalysisConverter.toAnalysis(record.getContent(), response.getComment(), record);
+        Analysis analysis = AnalysisConverter.toAnalysis(content, response.getComment(), record);
         analysisRepository.save(analysis);
 
         // Ability 객체 생성 및 저장
@@ -66,7 +70,6 @@ public class AnalysisService {
         if (abilityCount < 1 || abilityCount > 3) {
             throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
         }
-
     }
 
     /*
@@ -156,8 +159,13 @@ public class AnalysisService {
         return AnalysisConverter.toGraphDto(keywordGraph);
     }
   
-  private String generateAbilityAnalysis(String content) {
+    private String generateAbilityAnalysis(String content) {
         ClovaRequest clovaRequest = ClovaRequest.createAnalysisRequest(content);
+        return clovaService.generateAiResponse(clovaRequest);
+    }
+
+    private String generateMemoSummary(String content) {
+        ClovaRequest clovaRequest = ClovaRequest.createMemoSummaryRequest(content);
         return clovaService.generateAiResponse(clovaRequest);
     }
 
