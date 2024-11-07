@@ -49,6 +49,7 @@ public class RecordResponse {
     public static class RecordListDto {
         private String folder;
         private List<RecordDto> recordDtoList;
+        private boolean hasNext;
     }
 
     @Builder
@@ -69,5 +70,6 @@ public class RecordResponse {
     @Data
     public static class KeywordRecordListDto {
         private List<KeywordRecordDto> recordDtoList;
+        private boolean hasNext;
     }
 }
