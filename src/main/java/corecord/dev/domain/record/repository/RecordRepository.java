@@ -22,7 +22,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
             "WHERE r.user = :user " +
-            "AND r.recordId < :last_record_id " +
+            "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null AND r.folder = :folder "+ // 임시 저장 기록 제외
             "ORDER BY r.createdAt desc ") // 최근 생성 순 정렬
     List<Record> findRecordsByFolder(
@@ -36,7 +36,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
             "WHERE r.user = :user " +
-            "AND r.recordId < :last_record_id " +
+            "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null") // 임시 저장 기록 제외
     List<Record> findRecords(
             @Param(value = "user") User user,
@@ -50,9 +50,8 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.folder f " +
             "WHERE a.user = :user " +
             "AND a.keyword = :keyword " +
-            "AND r.recordId < :last_record_id " +
-            "AND r.folder is not null " + // 임시 저장 기록 제외
-            "ORDER BY r.createdAt DESC") // 최근 생성 순 정렬
+            "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
+            "AND r.folder is not null") // 임시 저장 기록 제외
     List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
             @Param(value = "user") User user,

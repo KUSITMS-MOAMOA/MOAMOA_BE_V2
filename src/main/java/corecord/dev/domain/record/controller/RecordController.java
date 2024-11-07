@@ -55,7 +55,7 @@ public class RecordController {
     public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecordListByFolder(
         @UserId Long userId,
         @RequestParam(name = "folder", defaultValue = "all") String folder,
-        @RequestParam(name = "lastRecordId") Long lastRecordId
+        @RequestParam(name = "lastRecordId", defaultValue = "0") Long lastRecordId
     ) {
         RecordResponse.RecordListDto recordResponse = recordService.getRecordList(userId, folder, lastRecordId);
         return ApiResponse.success(RecordSuccessStatus.RECORD_LIST_GET_SUCCESS, recordResponse);
@@ -65,7 +65,7 @@ public class RecordController {
     public ResponseEntity<ApiResponse<RecordResponse.KeywordRecordListDto>> getRecordListByKeyword(
             @UserId Long userId,
             @RequestParam(name = "keyword") String keyword,
-            @RequestParam(name = "lastRecordId") Long lastRecordId
+            @RequestParam(name = "lastRecordId", defaultValue = "0") Long lastRecordId
     ) {
         RecordResponse.KeywordRecordListDto recordResponse = recordService.getKeywordRecordList(userId, keyword, lastRecordId);
         return ApiResponse.success(RecordSuccessStatus.KEYWORD_RECORD_LIST_GET_SUCCESS, recordResponse);

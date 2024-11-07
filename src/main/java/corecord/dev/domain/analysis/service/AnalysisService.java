@@ -217,7 +217,8 @@ public class AnalysisService {
 
             Ability ability = AnalysisConverter.toAbility(keyword, entry.getValue(), analysis, user);
             abilityRepository.save(ability);
-            analysis.addAbility(ability);
+            if (analysis.getAbilityList() != null)
+                analysis.addAbility(ability);
             abilityCount++;
         }
 
