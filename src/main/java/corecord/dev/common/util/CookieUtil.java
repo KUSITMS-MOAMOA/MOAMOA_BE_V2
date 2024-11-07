@@ -12,17 +12,14 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class CookieUtil {
-    @Value("${jwt.refresh-token.expiration-time}")
-    private long refreshTokenExpirationTime;
-
-    public ResponseCookie createTokenCookie(String tokenName, String token) {
+    public ResponseCookie createTokenCookie(String tokenName, String token, long expirationTime) {
         return ResponseCookie.from(tokenName, token)
                 .domain("corecord.site")
                 .httpOnly(true)
                 .secure(true) // 배포 시 true로 설정
                 .sameSite("None")
                 .path("/")
-                .maxAge(refreshTokenExpirationTime / 1000) // maxAge는 초 단위
+                .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
     }
 
@@ -40,6 +37,7 @@ public class CookieUtil {
 
     public ResponseCookie deleteCookie(String cookieName) {
         return ResponseCookie.from(cookieName, "")
+                .domain("corecord.site")
                 .httpOnly(true)
                 .secure(true) // 배포 시 true로 설정
                 .sameSite("None")

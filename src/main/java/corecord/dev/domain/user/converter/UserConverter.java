@@ -15,12 +15,11 @@ public class UserConverter {
                 .build();
     }
 
-    public static UserResponse.UserRegisterDto toUserRegisterDto(User user, String accessToken) {
-        return UserResponse.UserRegisterDto.builder()
+    public static UserResponse.UserDto toUserDto(User user) {
+        return UserResponse.UserDto.builder()
                 .userId(user.getUserId())
                 .nickname(user.getNickName())
                 .status(user.getStatus().getValue())
-                .accessToken(accessToken)
                 .build();
     }
 

@@ -2,8 +2,8 @@ package corecord.dev.domain.token.controller;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.domain.token.constant.TokenSuccessStatus;
-import corecord.dev.domain.token.dto.response.TokenResponse;
 import corecord.dev.domain.token.service.TokenService;
+import corecord.dev.domain.user.dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,20 +17,20 @@ public class TokenController {
     private final TokenService tokenService;
 
     @GetMapping("/reissue")
-    public ResponseEntity<ApiResponse<TokenResponse.AccessTokenResponse>> reissueAccessToken(
+    public ResponseEntity<ApiResponse<Void>> reissueAccessToken(
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        TokenResponse.AccessTokenResponse accessTokenResponse = tokenService.reissueAccessToken(request, response);
-        return ApiResponse.success(TokenSuccessStatus.REISSUE_ACCESS_TOKEN_SUCCESS, accessTokenResponse);
+        tokenService.reissueAccessToken(request, response);
+        return ApiResponse.success(TokenSuccessStatus.REISSUE_ACCESS_TOKEN_SUCCESS);
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<TokenResponse.AccessTokenResponse>> issueToken(
+    public ResponseEntity<ApiResponse<UserResponse.UserDto>> issueToken(
             HttpServletResponse response,
             @RequestHeader("tmpToken") String tmpToken
     ) {
-        TokenResponse.AccessTokenResponse accessTokenResponse = tokenService.issueTokens(response, tmpToken);
-        return ApiResponse.success(TokenSuccessStatus.ISSUE_TOKENS_SUCCESS, accessTokenResponse);
+        UserResponse.UserDto issueTokenResponse = tokenService.issueTokens(response, tmpToken);
+        return ApiResponse.success(TokenSuccessStatus.ISSUE_TOKENS_SUCCESS, issueTokenResponse);
     }
 }
