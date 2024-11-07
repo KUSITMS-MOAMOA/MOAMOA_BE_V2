@@ -27,12 +27,12 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<UserResponse.UserRegisterDto>> registerUser(
+    public ResponseEntity<ApiResponse<UserResponse.UserDto>> registerUser(
             HttpServletResponse response,
             @RequestHeader("registerToken") String registerToken,
             @RequestBody UserRequest.UserRegisterDto userRegisterDto
             ) {
-        UserResponse.UserRegisterDto registerResponse = userService.registerUser(response, registerToken, userRegisterDto);
+        UserResponse.UserDto registerResponse = userService.registerUser(response, registerToken, userRegisterDto);
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
 

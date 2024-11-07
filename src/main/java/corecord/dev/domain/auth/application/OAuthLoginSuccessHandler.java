@@ -67,6 +67,10 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
 
+        // 액세스 토큰 쿠키 삭제
+        ResponseCookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+
         // 임시 토큰 생성
         String tmpToken = jwtUtil.generateTmpToken(user.getUserId());
         tmpTokenRepository.save(TmpToken.of(tmpToken, user.getUserId()));

@@ -9,11 +9,10 @@ public class UserResponse {
     @Data
     @Builder
     @AllArgsConstructor
-    public static class UserRegisterDto {
+    public static class UserDto {
         private Long userId;
         private String nickname;
         private String status;
-        private String accessToken;
     }
 
     @Data

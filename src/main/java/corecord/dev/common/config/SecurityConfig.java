@@ -3,6 +3,7 @@ package corecord.dev.common.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtFilter;
 import corecord.dev.common.util.JwtUtil;
 import corecord.dev.domain.auth.application.OAuthLoginFailureHandler;
@@ -32,11 +33,12 @@ import java.util.stream.Stream;
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
-    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/api/token/access-token", "/actuator/health", "/api/token/**", "/api/token"};
+    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/actuator/health", "/api/token/**", "/api/token"};
     private final String[] allowedUrls = Stream.concat(Arrays.stream(swaggerUrls), Arrays.stream(authUrls))
             .toArray(String[]::new);
 
@@ -96,7 +98,7 @@ public class SecurityConfig {
                                 .successHandler(oAuthLoginSuccessHandler)
                                 .failureHandler(oAuthLoginFailureHandler)
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(jwtUtil, cookieUtil), UsernamePasswordAuthenticationFilter.class)
         ;
 
         return httpSecurity.build();

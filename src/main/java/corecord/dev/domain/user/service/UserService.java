@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,14 @@ public class UserService {
     private final RecordRepository recordRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Value("${jwt.access-token.expiration-time}")
+    private long accessTokenExpirationTime;
+
+    @Value("${jwt.refresh-token.expiration-time}")
+    private long refreshTokenExpirationTime;
+
     @Transactional
-    public UserResponse.UserRegisterDto registerUser(HttpServletResponse response, String registerToken, UserRequest.UserRegisterDto userRegisterDto) {
+    public UserResponse.UserDto registerUser(HttpServletResponse response, String registerToken, UserRequest.UserRegisterDto userRegisterDto) {
         // registerToken 유효성 검증
         validRegisterToken(registerToken);
 
@@ -59,9 +66,10 @@ public class UserService {
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
         saveRefreshToken(refreshToken, savedUser);
 
-        // 새 RefreshToken 쿠키 설정
-        setTokenCookies(response, refreshToken);
-        return UserConverter.toUserRegisterDto(savedUser, jwtUtil.generateAccessToken(savedUser.getUserId()));
+        // AccessToken 및 RefreshToken 쿠키 설정
+        setTokenCookies(response, "accessToken", jwtUtil.generateAccessToken(savedUser.getUserId()));
+        setTokenCookies(response, "refreshToken", refreshToken);
+        return UserConverter.toUserDto(savedUser);
     }
 
     // 로그아웃
@@ -69,7 +77,7 @@ public class UserService {
     public void logoutUser(HttpServletRequest request, HttpServletResponse response) {
         // RefreshToken 삭제
         deleteRefreshTokenInRedis(request);
-        deleteRefreshTokenCookie(response);
+        deleteTokenCookies(response);
     }
 
     // 유저 삭제
@@ -80,7 +88,7 @@ public class UserService {
 
         // RefreshToken 삭제
         deleteRefreshTokenInRedis(request);
-        deleteRefreshTokenCookie(response);
+        deleteTokenCookies(response);
     }
 
     // 유저 정보 수정
@@ -125,13 +133,19 @@ public class UserService {
     }
 
     // 토큰 쿠키 설정
-    private void setTokenCookies(HttpServletResponse response, String refreshToken) {
-        // RefreshToken 쿠키 추가
-        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken);
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+    private void setTokenCookies(HttpServletResponse response, String tokenName, String token) {
+        if(tokenName.equals("accessToken")) {
+            ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie(tokenName, token, accessTokenExpirationTime);
+            response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        } else {
+            ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie(tokenName, token, refreshTokenExpirationTime);
+            response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+        }
     }
 
-    private void deleteRefreshTokenCookie(HttpServletResponse response) {
+    private void deleteTokenCookies(HttpServletResponse response) {
+        ResponseCookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
+        response.addHeader("Set-Cookie", accessTokenCookie.toString());
         ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
         response.addHeader("Set-Cookie", refreshTokenCookie.toString());
     }

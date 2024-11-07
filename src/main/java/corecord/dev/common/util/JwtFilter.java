@@ -16,10 +16,11 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CookieUtil cookieUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
+        String token = resolveToken(request, "accessToken");
 
         if (token != null && jwtUtil.isAccessTokenValid(token)) {
             String userId = jwtUtil.getUserIdFromAccessToken(token).toString();
@@ -38,15 +39,11 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 특정 경로는 필터링하지 않도록 설정
         String path = request.getRequestURI();
-        return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token/access-token") || path.startsWith("/actuator/health");
+        return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token") || path.startsWith("/actuator/health");
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+    private String resolveToken(HttpServletRequest request, String tokenName) {
+        return cookieUtil.getCookieValue(request, tokenName);
     }
 
 }
