@@ -30,7 +30,7 @@ public class Analysis extends BaseEntity {
     private String comment;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "record_id", nullable = false)
+    @JoinColumn(name = "record_id", nullable = true)
     private Record record;
 
     @BatchSize(size = 3)
@@ -41,4 +41,17 @@ public class Analysis extends BaseEntity {
         if (content != null && !content.isEmpty())
             this.content = content;
     }
+
+    public void updateComment(String comment) {
+        if (!comment.isEmpty()) {
+            this.comment = comment;
+        }
+    }
+
+    public void addAbility(Ability ability) {
+        if (ability != null) {
+            this.abilityList.add(ability);
+        }
+    }
+
 }
