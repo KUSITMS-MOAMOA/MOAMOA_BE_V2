@@ -16,6 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class AnalysisController {
     private final AnalysisService analysisService;
 
+    @PostMapping("/{recordId}")
+    public ResponseEntity<ApiResponse<AnalysisResponse.AnalysisDto>> postAnalysis(
+            @UserId Long userId,
+            @PathVariable(name = "recordId") Long recordId
+    ) {
+        AnalysisResponse.AnalysisDto analysisResponse = analysisService.postAnalysis(userId, recordId);
+        return ApiResponse.success(AnalysisSuccessStatus.ANALYSIS_POST_SUCCESS, analysisResponse);
+    }
+
     @GetMapping("/{analysisId}")
     public ResponseEntity<ApiResponse<AnalysisResponse.AnalysisDto>> getAnalysis(
             @UserId Long userId,
