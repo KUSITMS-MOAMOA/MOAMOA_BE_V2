@@ -93,4 +93,20 @@ public class ClovaRequest {
         return new ClovaRequest(messages, ABILITY_ANALYSIS_MAX_TOKENS);
     }
 
+    public static ClovaRequest createMemoSummaryRequest(String content) {
+        List<Map<String, String>> messages = new ArrayList<>();
+
+        // 시스템 메세지 추가
+        messages.add(Map.of(
+                "role", "system",
+                "content", SUMMARY_SYSTEM_CONTENT
+        ));
+
+        messages.add(Map.of(
+                "role", "user",
+                "content", content
+        ));
+        return new ClovaRequest(messages, SUMMARY_MAX_TOKENS);
+    }
+
 }
