@@ -69,6 +69,7 @@ public class RecordConverter {
 
         return RecordResponse.RecordDto.builder()
                 .analysisId(record.getAnalysis().getAnalysisId())
+                .recordId(record.getRecordId())
                 .folder(record.getFolder().getTitle())
                 .title(record.getTitle())
                 .keywordList(keywordList)
@@ -94,6 +95,7 @@ public class RecordConverter {
 
         return RecordResponse.KeywordRecordDto.builder()
                 .analysisId(record.getAnalysis().getAnalysisId())
+                .recordId(record.getRecordId())
                 .folder(record.getFolder().getTitle())
                 .title(record.getTitle())
                 .content(truncatedContent)
