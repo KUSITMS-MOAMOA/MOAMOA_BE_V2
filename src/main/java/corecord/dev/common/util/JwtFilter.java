@@ -1,6 +1,6 @@
 package corecord.dev.common.util;
 
-import corecord.dev.domain.token.exception.model.TokenException;
+import corecord.dev.domain.auth.exception.model.TokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,7 +1,7 @@
 package corecord.dev.common.util;
 
-import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
-import corecord.dev.domain.token.exception.model.TokenException;
+import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
+import corecord.dev.domain.auth.exception.model.TokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

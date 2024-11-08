@@ -1,4 +1,4 @@
-package corecord.dev.domain.auth.application;
+package corecord.dev.domain.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.response.ApiResponse;
