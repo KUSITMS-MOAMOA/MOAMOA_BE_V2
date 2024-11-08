@@ -27,6 +27,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,7 @@ public class AnalysisService {
 
         // CLOVA STUDIO API 호출
         AnalysisAiResponse response = callClovaStudioApi(content);
+        System.out.println(response);
 
         // Analysis 객체 생성 및 저장
         Analysis analysis = AnalysisConverter.toAnalysis(content, response.getComment(), record);
@@ -227,7 +229,7 @@ public class AnalysisService {
     }
 
     private AnalysisAiResponse callClovaStudioApi(String content) {
-        String apiResponse = generateAbilityAnalysis(content);
+        String apiResponse = generateAbilityAnalysis(content).block();
         AnalysisAiResponse response = parseAnalysisAiResponse(apiResponse);
 
         // 글자 수 validation
@@ -239,7 +241,7 @@ public class AnalysisService {
 
     private String getRecordContent(Record record) {
         String content = record.isMemoType()
-                ? generateMemoSummary(record.getContent())
+                ? generateMemoSummary(record.getContent()).block()
                 : record.getContent();
 
         validAnalysisContentLength(content);
@@ -247,12 +249,12 @@ public class AnalysisService {
         return content;
     }
   
-    private String generateAbilityAnalysis(String content) {
+    private Mono<String> generateAbilityAnalysis(String content) {
         ClovaRequest clovaRequest = ClovaRequest.createAnalysisRequest(content);
         return clovaService.generateAiResponse(clovaRequest);
     }
 
-    private String generateMemoSummary(String content) {
+    private Mono<String> generateMemoSummary(String content) {
         ClovaRequest clovaRequest = ClovaRequest.createMemoSummaryRequest(content);
         return clovaService.generateAiResponse(clovaRequest);
     }

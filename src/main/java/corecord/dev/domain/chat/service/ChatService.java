@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class ChatService {
         chatRepository.save(chat);
 
         // AI 답변 생성
-        String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent());
+        String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent()).toString();
         Chat aiChat = chatRepository.save(ChatConverter.toChatEntity(0, aiAnswer, chatRoom));
 
         return ChatConverter.toChatDto(aiChat);
@@ -170,7 +171,7 @@ public class ChatService {
 
     private String generateChatSummary(List<Chat> chatList) {
         ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
-        return clovaService.generateAiResponse(clovaRequest);
+        return clovaService.generateAiResponse(clovaRequest).block();
     }
 
     private void checkTmpChat(User user, ChatRoom chatRoom) {
@@ -185,7 +186,7 @@ public class ChatService {
     private String createChatAiAnswer(ChatRoom chatRoom, String userInput) {
         List<Chat> chatHistory = chatRepository.findByChatRoomOrderByChatId(chatRoom);
         ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
-        return clovaService.generateAiResponse(clovaRequest);
+        return clovaService.generateAiResponse(clovaRequest).block();
     }
 
     private ChatRoom findChatRoomById(Long chatRoomId, User user) {
