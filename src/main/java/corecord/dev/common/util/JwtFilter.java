@@ -20,10 +20,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request, "accessToken");
+        String token = resolveToken(request);
 
         if (token != null && jwtUtil.isAccessTokenValid(token)) {
-            String userId = jwtUtil.getUserIdFromAccessToken(token).toString();
+            String userId = jwtUtil.getUserIdFromAccessToken(token);
             Authentication authToken = new UsernamePasswordAuthenticationToken(
                     userId, // principal로 userId 사용
                     null,  // credentials는 필요 없으므로 null
@@ -42,8 +42,12 @@ public class JwtFilter extends OncePerRequestFilter {
         return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token") || path.startsWith("/actuator/health");
     }
 
-    private String resolveToken(HttpServletRequest request, String tokenName) {
-        return cookieUtil.getCookieValue(request, tokenName);
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
 }
