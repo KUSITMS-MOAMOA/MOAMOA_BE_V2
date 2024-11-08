@@ -19,7 +19,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -159,14 +158,16 @@ public class ChatService {
         user.updateTmpChat(chatRoom.getChatRoomId());
     }
 
-    private static void validateChatList(boolean chatList) {
-        if (chatList) {
+    private static void validateChatList(boolean checkChatList) {
+        if (!checkChatList) {
             throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
         }
     }
 
     private static void validateSummaryContent(String summary) {
-        validateChatList(summary.equals("NO_RECORD"));
+        if ("NO_RECORD".equals(summary)) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
     }
 
     private String generateChatSummary(List<Chat> chatList) {
