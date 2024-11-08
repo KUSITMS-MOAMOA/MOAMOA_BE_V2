@@ -43,6 +43,7 @@ public class RecordService {
     private final UserRepository userRepository;
     private final AnalysisService analysisService;
     private final ChatRoomRepository chatRoomRepository;
+    private final int listSize = 20;
 
     /*
      * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
@@ -139,19 +140,24 @@ public class RecordService {
      * @return
      */
     @Transactional(readOnly = true)
-    public RecordResponse.RecordListDto getRecordList(Long userId, String folderName) {
+    public RecordResponse.RecordListDto getRecordList(Long userId, String folderName, Long lastRecordId) {
         User user = findUserById(userId);
         List<Record> recordList;
 
         // 임시 저장 기록 제외 Record List 최신 생성 순 조회
         if (folderName.equals("all")) {
-            recordList = getRecordList(user);
+            recordList = findRecordList(user, lastRecordId);
         } else {
             Folder folder = findFolderByTitle(user, folderName);
-            recordList = getRecordListByFolder(user, folder);
+            recordList = findRecordListByFolder(user, folder, lastRecordId);
         }
 
-        return RecordConverter.toRecordListDto(folderName, recordList);
+        // 다음 조회할 데이터가 남아있는지 확인
+        boolean hasNext = recordList.size() == listSize + 1;
+        if (hasNext)
+            recordList = recordList.subList(0, listSize);
+
+        return RecordConverter.toRecordListDto(folderName, recordList, hasNext);
     }
 
     /*
@@ -160,14 +166,19 @@ public class RecordService {
      * @return
      */
     @Transactional(readOnly = true)
-    public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue) {
+    public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue, Long lastRecordId) {
         User user = findUserById(userId);
 
         // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
         Keyword keyword = getKeyword(keywordValue);
-        List<Record> recordList = getRecordListByKeyword(user, keyword);
+        List<Record> recordList = findRecordListByKeyword(user, keyword, lastRecordId);
 
-        return RecordConverter.toKeywordRecordListDto(recordList);
+        // 다음 조회할 데이터가 남아있는지 확인
+        boolean hasNext = recordList.size() == listSize + 1;
+        if (hasNext)
+            recordList = recordList.subList(0, listSize);
+
+        return RecordConverter.toKeywordRecordListDto(recordList, hasNext);
     }
 
     /*
@@ -192,10 +203,9 @@ public class RecordService {
         User user = findUserById(userId);
 
         // 최근 생성된 3개의 데이터만 조회
-        Pageable pageable = PageRequest.of(0, 3, Sort.by("createdAt").descending());
-        List<Record> recordList = getRecordListOrderByCreatedAt(user, pageable);
+        List<Record> recordList = findRecordListOrderByCreatedAt(user);
 
-        return RecordConverter.toRecordListDto("all", recordList);
+        return RecordConverter.toRecordListDto("all", recordList, false);
     }
 
     private void validHasUserTmpMemo(User user) {
@@ -238,20 +248,24 @@ public class RecordService {
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
 
-    private List<Record> getRecordListByFolder(User user, Folder folder) {
-        return recordRepository.findRecordsByFolder(folder, user);
+    private List<Record> findRecordListByFolder(User user, Folder folder, Long lastRecordId) {
+        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
+        return recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
     }
 
-    private List<Record> getRecordList(User user) {
-        return recordRepository.findRecords(user);
+    private List<Record> findRecordList(User user, Long lastRecordId) {
+        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
+        return recordRepository.findRecords(user, lastRecordId, pageable);
     }
 
-    private List<Record> getRecordListOrderByCreatedAt(User user, Pageable pageable) {
+    private List<Record> findRecordListOrderByCreatedAt(User user) {
+        Pageable pageable = PageRequest.of(0, 3, Sort.by("createdAt").descending());
         return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
     }
 
-    private List<Record> getRecordListByKeyword(User user, Keyword keyword) {
-        return recordRepository.findRecordsByKeyword(keyword, user);
+    private List<Record> findRecordListByKeyword(User user, Keyword keyword, Long lastRecordId) {
+        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
+        return recordRepository.findRecordsByKeyword(keyword, user, lastRecordId, pageable);
     }
 
     private Keyword getKeyword(String keywordValue) {

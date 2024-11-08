@@ -36,6 +36,7 @@ public class RecordResponse {
     @Data
     public static class RecordDto {
         private Long analysisId;
+        private Long recordId;
         private String folder;
         private String title;
         private List<String> keywordList;
@@ -49,6 +50,7 @@ public class RecordResponse {
     public static class RecordListDto {
         private String folder;
         private List<RecordDto> recordDtoList;
+        private boolean hasNext;
     }
 
     @Builder
@@ -57,6 +59,7 @@ public class RecordResponse {
     @Data
     public static class KeywordRecordDto {
         private Long analysisId;
+        private Long recordId;
         private String folder;
         private String title;
         private String content;
@@ -69,5 +72,6 @@ public class RecordResponse {
     @Data
     public static class KeywordRecordListDto {
         private List<KeywordRecordDto> recordDtoList;
+        private boolean hasNext;
     }
 }
