@@ -3,9 +3,7 @@ package corecord.dev.common.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.common.util.CookieUtil;
-import corecord.dev.common.util.JwtFilter;
-import corecord.dev.common.util.JwtUtil;
+import corecord.dev.common.util.*;
 import corecord.dev.domain.auth.application.OAuthLoginFailureHandler;
 import corecord.dev.domain.auth.application.OAuthLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,6 +34,8 @@ public class SecurityConfig {
     private final CookieUtil cookieUtil;
     private final OAuthLoginSuccessHandler oAuthLoginSuccessHandler;
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
     private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/actuator/health", "/api/token/**", "/api/token"};
@@ -78,30 +78,28 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity, AuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         httpSecurity
                 .httpBasic(HttpBasicConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .requestCache(AbstractHttpConfigurer::disable)
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer
                                 .authenticationEntryPoint(authenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler)
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .requestCache(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize ->
-                        authorize
-                                .requestMatchers(allowedUrls).permitAll()
-                                .anyRequest().authenticated()
-                )
+                .addFilterBefore(new JwtFilter(jwtUtil, cookieUtil), ExceptionTranslationFilter.class)
                 .oauth2Login(oauth ->
                         oauth
                                 .successHandler(oAuthLoginSuccessHandler)
                                 .failureHandler(oAuthLoginFailureHandler)
                 )
-                .addFilterBefore(new JwtFilter(jwtUtil, cookieUtil), UsernamePasswordAuthenticationFilter.class)
-        ;
-
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .requestMatchers(allowedUrls).permitAll()
+                                .anyRequest().authenticated()
+                );
         return httpSecurity.build();
     }
-
 }
