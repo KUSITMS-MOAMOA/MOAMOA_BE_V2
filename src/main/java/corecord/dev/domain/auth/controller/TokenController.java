@@ -1,8 +1,8 @@
-package corecord.dev.domain.token.controller;
+package corecord.dev.domain.auth.controller;
 
 import corecord.dev.common.response.ApiResponse;
-import corecord.dev.domain.token.constant.TokenSuccessStatus;
-import corecord.dev.domain.token.service.TokenService;
+import corecord.dev.domain.auth.constant.TokenSuccessStatus;
+import corecord.dev.domain.auth.service.TokenService;
 import corecord.dev.domain.user.dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

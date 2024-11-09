@@ -1,4 +1,4 @@
-package corecord.dev.domain.token.exception.enums;
+package corecord.dev.domain.auth.exception.enums;
 
 import corecord.dev.common.base.BaseErrorStatus;
 import lombok.AllArgsConstructor;

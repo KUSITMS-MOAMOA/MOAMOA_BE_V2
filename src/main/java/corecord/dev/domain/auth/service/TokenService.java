@@ -1,15 +1,15 @@
-package corecord.dev.domain.token.service;
+package corecord.dev.domain.auth.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
-import corecord.dev.domain.token.entity.RefreshToken;
-import corecord.dev.domain.token.entity.TmpToken;
-import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
-import corecord.dev.domain.token.exception.model.TokenException;
-import corecord.dev.domain.token.repository.RefreshTokenRepository;
-import corecord.dev.domain.token.repository.TmpTokenRepository;
+import corecord.dev.domain.auth.entity.RefreshToken;
+import corecord.dev.domain.auth.entity.TmpToken;
+import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
+import corecord.dev.domain.auth.exception.model.TokenException;
+import corecord.dev.domain.auth.repository.RefreshTokenRepository;
+import corecord.dev.domain.auth.repository.TmpTokenRepository;
 import corecord.dev.domain.user.converter.UserConverter;
 import corecord.dev.domain.user.dto.response.UserResponse;
 import corecord.dev.domain.user.entity.User;

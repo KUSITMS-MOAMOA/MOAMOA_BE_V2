@@ -1,5 +1,6 @@
 package corecord.dev.common.util;
 
+import corecord.dev.domain.auth.exception.model.TokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,17 +21,26 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = resolveToken(request);
+        try {
+            String accessToken = resolveToken(request);
+            if (accessToken != null && jwtUtil.isAccessTokenValid(accessToken)) {
+                String userId = jwtUtil.getUserIdFromAccessToken(accessToken);
+                Authentication authToken = new UsernamePasswordAuthenticationToken(
+                        userId, // principal로 userId 사용
+                        null,  // credentials는 필요 없으므로 null
+                        null   // authorities는 비워둠 (필요한 경우 권한 추가)
+                );
 
-        if (token != null && jwtUtil.isAccessTokenValid(token)) {
-            String userId = jwtUtil.getUserIdFromAccessToken(token);
-            Authentication authToken = new UsernamePasswordAuthenticationToken(
-                    userId, // principal로 userId 사용
-                    null,  // credentials는 필요 없으므로 null
-                    null   // authorities는 비워둠 (필요한 경우 권한 추가)
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        } catch (TokenException e) {
+            logger.error("JWT Filter Error", e);
+            handleTokenException(response, e);
+            return;
+        } catch (Exception e) {
+            logger.error("JWT Filter Error", e);
+            handleException(response, e);
+            return;
         }
         filterChain.doFilter(request, response);
     }
@@ -50,5 +60,20 @@ public class JwtFilter extends OncePerRequestFilter {
         return null;
     }
 
-}
+    private void handleTokenException(HttpServletResponse response, TokenException e) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"%s\", \"message\": \"%s\"}", e.getTokenErrorStatus(), e.getMessage());
+        response.getWriter().write(jsonResponse);
+    }
 
+    private void handleException(HttpServletResponse response, Exception e) throws IOException {
+        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"E9999\", \"message\": \"%s\"}", e.getMessage());
+        response.getWriter().write(jsonResponse);
+    }
+
+}

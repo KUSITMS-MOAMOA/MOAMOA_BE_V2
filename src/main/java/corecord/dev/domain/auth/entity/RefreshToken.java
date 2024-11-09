@@ -1,4 +1,4 @@
-package corecord.dev.domain.token.entity;
+package corecord.dev.domain.auth.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,18 +7,18 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @Getter
-@RedisHash(value = "tmpToken", timeToLive = 3600000)
+@RedisHash(value = "refreshToken", timeToLive = 604800000)
 @AllArgsConstructor
 @Builder
-public class TmpToken {
+public class RefreshToken {
     @Id
-    private String tmpToken;
+    private String refreshToken;
     private Long userId;
 
     @Builder
-    public static TmpToken of(String tmpToken, Long userId) {
-        return TmpToken.builder()
-                .tmpToken(tmpToken)
+    public static RefreshToken of(String refreshToken, Long userId) {
+        return RefreshToken.builder()
+                .refreshToken(refreshToken)
                 .userId(userId)
                 .build();
     }

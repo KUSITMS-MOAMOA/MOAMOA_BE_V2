@@ -1,5 +1,8 @@
-package corecord.dev.domain.auth.application;
+package corecord.dev.domain.auth.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import corecord.dev.common.response.ApiResponse;
+import corecord.dev.common.status.ErrorStatus;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,10 +18,20 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class OAuthLoginFailureHandler extends SimpleUrlAuthenticationFailureHandler {
+    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        log.error("LOGIN FAILED : {}", exception.getMessage());
-        super.onAuthenticationFailure(request, response, exception);
+        log.error("LOGIN FAILED: {}", exception.getMessage());
+
+        // 응답 설정
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+
+        // 에러 응답 생성
+        ApiResponse<Object> errorResponse = ApiResponse.error(ErrorStatus.UNAUTHORIZED).getBody();
+
+        // 응답에 에러 메시지 작성
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

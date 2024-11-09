@@ -6,7 +6,7 @@ import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.chat.exception.model.ChatException;
 import corecord.dev.domain.folder.exception.model.FolderException;
 import corecord.dev.domain.record.exception.model.RecordException;
-import corecord.dev.domain.token.exception.model.TokenException;
+import corecord.dev.domain.auth.exception.model.TokenException;
 import corecord.dev.domain.user.exception.model.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

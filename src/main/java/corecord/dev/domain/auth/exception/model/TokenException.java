@@ -1,6 +1,6 @@
-package corecord.dev.domain.token.exception.model;
+package corecord.dev.domain.auth.exception.model;
 
-import corecord.dev.domain.token.exception.enums.TokenErrorStatus;
+import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

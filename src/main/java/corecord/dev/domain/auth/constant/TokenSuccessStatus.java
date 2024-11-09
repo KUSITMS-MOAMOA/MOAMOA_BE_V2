@@ -1,4 +1,4 @@
-package corecord.dev.domain.token.constant;
+package corecord.dev.domain.auth.constant;
 
 import corecord.dev.common.base.BaseSuccessStatus;
 import lombok.AllArgsConstructor;
