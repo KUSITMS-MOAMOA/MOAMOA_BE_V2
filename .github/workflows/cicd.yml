@@ -34,8 +34,9 @@ jobs:
 
     - name: make chat-summary-prompt.txt
       run: |
-        touch ./src/main/resources/chat-summary-prompt.txt
-        echo "${{ secrets.CHAT_SUMMARY_PROMPT }}" > ./src/main/resources/chat-summary-prompt.txt
+        cat <<EOF > ./src/main/resources/chat-summary-prompt.txt
+        ${{ secrets.CHAT_SUMMARY_PROMPT }}
+        EOF
       shell: bash
 
     - name: make memo-summary-prompt.txt

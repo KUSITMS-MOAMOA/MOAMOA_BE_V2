@@ -1,10 +1,20 @@
 package corecord.dev.domain.chat.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.analysis.constant.Keyword;
+import corecord.dev.domain.analysis.converter.AnalysisConverter;
+import corecord.dev.domain.analysis.dto.response.AnalysisAiResponse;
+import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.analysis.entity.Analysis;
+import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
+import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.chat.converter.ChatConverter;
 import corecord.dev.domain.chat.dto.request.ChatRequest;
 import corecord.dev.domain.chat.dto.response.ChatResponse;
+import corecord.dev.domain.chat.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.entity.Chat;
 import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;
@@ -19,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -113,13 +124,16 @@ public class ChatService {
         List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
 
         // 사용자 입력 없이 저장하려는 경우
-        validateChatList(chatList.size() <= 1);
+        validateChatList(chatList);
 
         // 채팅 정보 요약 생성
-        String summary = generateChatSummary(chatList);
-        validateSummaryContent(summary);
+        ChatSummaryAiResponse response = generateChatSummary(chatList);
+        log.info(">>>>파싱 끝");
+        log.info(response.getTitle());
+        log.info(response.getContent());
+        validateResponse(response);
 
-        return ChatConverter.toChatSummaryDto(chatRoom, summary);
+        return ChatConverter.toChatSummaryDto(chatRoom, response);
     }
 
     /*
@@ -156,19 +170,41 @@ public class ChatService {
         user.updateTmpChat(chatRoom.getChatRoomId());
     }
 
-    private static void validateChatList(boolean chatList) {
-        if (chatList) {
+    private static void validateResponse(ChatSummaryAiResponse response) {
+        if (response.getTitle().equals("NO_RECORD") || response.getContent().equals("NO_RECORD") || response.getContent().equals("") || response.getTitle().equals("")) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
+
+        if (response.getTitle().length() > 15) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
+
+        if (response.getContent().length() > 500) {
             throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
         }
     }
 
-    private static void validateSummaryContent(String summary) {
-        validateChatList(summary.equals("NO_RECORD"));
+    private static void validateChatList(List<Chat> chatList) {
+        if(chatList.size() <= 1) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
     }
 
-    private String generateChatSummary(List<Chat> chatList) {
+    private ChatSummaryAiResponse generateChatSummary(List<Chat> chatList) {
         ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
-        return clovaService.generateAiResponse(clovaRequest);
+        String response = clovaService.generateAiResponse(clovaRequest);
+        log.info("response: {}", response);
+        return parseChatSummaryResponse(response);
+    }
+
+    private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            log.error(">>>Parsing");
+            return objectMapper.readValue(aiResponse, ChatSummaryAiResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        }
     }
 
     private void checkTmpChat(User user, ChatRoom chatRoom) {
