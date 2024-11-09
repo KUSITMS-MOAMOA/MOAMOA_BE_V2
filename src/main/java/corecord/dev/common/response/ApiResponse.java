@@ -45,4 +45,10 @@ public class ApiResponse<T> {
         return ResponseEntity.status(errorStatus.getHttpStatus())
                 .body(new ApiResponse<>(false, errorStatus.getCode(), errorStatus.getMessage(), data));
     }
+
+    // 에러 응답 (오버라이드 메서드용)
+    public static ResponseEntity<Object> error(BaseErrorStatus errorStatus, String message) {
+        return ResponseEntity.status(errorStatus.getHttpStatus())
+                .body(new ApiResponse<>(false, errorStatus.getCode(), message, null));
+    }
 }
