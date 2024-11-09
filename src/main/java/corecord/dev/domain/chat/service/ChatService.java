@@ -123,14 +123,12 @@ public class ChatService {
         ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
         List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
 
-        // 사용자 입력 없이 저장하려는 경우
+        // 사용자 입력 없이 저장하려는 경우 체크
         validateChatList(chatList);
 
         // 채팅 정보 요약 생성
         ChatSummaryAiResponse response = generateChatSummary(chatList);
-        log.info(">>>>파싱 끝");
-        log.info(response.getTitle());
-        log.info(response.getContent());
+
         validateResponse(response);
 
         return ChatConverter.toChatSummaryDto(chatRoom, response);
@@ -172,38 +170,37 @@ public class ChatService {
 
     private static void validateResponse(ChatSummaryAiResponse response) {
         if (response.getTitle().equals("NO_RECORD") || response.getContent().equals("NO_RECORD") || response.getContent().equals("") || response.getTitle().equals("")) {
-            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+            throw new ChatException(ChatErrorStatus.NO_RECORD);
         }
 
-        if (response.getTitle().length() > 15) {
-            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+        if (response.getTitle().length() > 30) {
+            throw new ChatException(ChatErrorStatus.OVERFLOW_SUMMARY_TITLE);
         }
 
         if (response.getContent().length() > 500) {
-            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+            throw new ChatException(ChatErrorStatus.OVERFLOW_SUMMARY_CONTENT);
         }
     }
 
     private static void validateChatList(List<Chat> chatList) {
         if(chatList.size() <= 1) {
-            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+            throw new ChatException(ChatErrorStatus.NO_RECORD);
         }
     }
 
     private ChatSummaryAiResponse generateChatSummary(List<Chat> chatList) {
         ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
         String response = clovaService.generateAiResponse(clovaRequest);
-        log.info("response: {}", response);
+        log.info("AI 응답: {}", response);
         return parseChatSummaryResponse(response);
     }
 
     private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            log.error(">>>Parsing");
             return objectMapper.readValue(aiResponse, ChatSummaryAiResponse.class);
         } catch (JsonProcessingException e) {
-            throw new ChatException(ChatErrorStatus.CREATE_SUMMARY_ERROR);
+            throw new ChatException(ChatErrorStatus.INVALID_CHAT_SUMMARY);
         }
     }
 
