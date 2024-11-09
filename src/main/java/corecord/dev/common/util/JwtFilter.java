@@ -22,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String accessToken = resolveToken(request);
+            String accessToken = cookieUtil.getCookieValue(request, "accessToken");
             if (accessToken != null && jwtUtil.isAccessTokenValid(accessToken)) {
                 String userId = jwtUtil.getUserIdFromAccessToken(accessToken);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(
@@ -50,14 +50,6 @@ public class JwtFilter extends OncePerRequestFilter {
         // 특정 경로는 필터링하지 않도록 설정
         String path = request.getRequestURI();
         return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token") || path.startsWith("/actuator/health");
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 
     private void handleTokenException(HttpServletResponse response, TokenException e) throws IOException {
