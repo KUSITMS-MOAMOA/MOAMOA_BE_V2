@@ -1,4 +1,4 @@
-package corecord.dev.common.util;
+package corecord.dev.domain.chat.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -2,10 +2,8 @@ package corecord.dev.domain.chat.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.common.util.ClovaService;
 import corecord.dev.domain.chat.converter.ChatConverter;
 import corecord.dev.domain.chat.dto.request.ChatRequest;
-import corecord.dev.common.util.ClovaRequest;
 import corecord.dev.domain.chat.dto.response.ChatResponse;
 import corecord.dev.domain.chat.entity.Chat;
 import corecord.dev.domain.chat.entity.ChatRoom;
