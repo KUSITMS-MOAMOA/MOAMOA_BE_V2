@@ -37,6 +37,12 @@ jobs:
         touch ./src/main/resources/chat-summary-prompt.txt
         echo "${{ secrets.CHAT_SUMMARY_PROMPT }}" > ./src/main/resources/chat-summary-prompt.txt
       shell: bash
+
+    - name: make memo-summary-prompt.txt
+      run: |
+        touch ./src/main/resources/memo-summary-prompt.txt
+        echo "${{ secrets.MEMO_SUMMARY_PROMPT }}" > ./src/main/resources/memo-summary-prompt.txt
+      shell: bash
       
     - name: make ability-analysis-prompt.txt
       run: |
