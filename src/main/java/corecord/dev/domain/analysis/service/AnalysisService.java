@@ -1,7 +1,5 @@
 package corecord.dev.domain.analysis.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.analysis.constant.Keyword;
@@ -15,8 +13,6 @@ import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.analysis.repository.AbilityRepository;
 import corecord.dev.domain.analysis.repository.AnalysisRepository;
-import corecord.dev.common.util.ClovaRequest;
-import corecord.dev.common.util.ClovaService;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.record.exception.enums.RecordErrorStatus;
 import corecord.dev.domain.record.exception.model.RecordException;
@@ -39,8 +35,8 @@ public class AnalysisService {
     private final AbilityRepository abilityRepository;
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
-    private final ClovaService clovaService;
     private final EntityManager entityManager;
+    private final OpenAiService openAiService;
 
 
     /*
@@ -55,8 +51,8 @@ public class AnalysisService {
         // MEMO 경험 기록이라면, CLOVA STUDIO를 이용해 요약 진행
         String content = getRecordContent(record);
 
-        // CLOVA STUDIO API 호출
-        AnalysisAiResponse response = callClovaStudioApi(content);
+        // Open-ai API 호출
+        AnalysisAiResponse response = generateAbilityAnalysis(content);
 
         // Analysis 객체 생성 및 저장
         Analysis analysis = AnalysisConverter.toAnalysis(content, response.getComment(), record);
@@ -81,8 +77,8 @@ public class AnalysisService {
         // MEMO 경험 기록이라면, CLOVA STUDIO를 이용해 요약 진행
         String content = getRecordContent(record);
 
-        // CLOVA STUDIO API 호출
-        AnalysisAiResponse response = callClovaStudioApi(content);
+        // Open-ai API 호출
+        AnalysisAiResponse response = generateAbilityAnalysis(content);
 
         // Analysis 객체 수정
         analysis.updateContent(content);
@@ -227,13 +223,19 @@ public class AnalysisService {
         }
     }
 
-    private AnalysisAiResponse callClovaStudioApi(String content) {
-        String apiResponse = generateAbilityAnalysis(content);
-        AnalysisAiResponse response = parseAnalysisAiResponse(apiResponse);
+    private AnalysisAiResponse generateAbilityAnalysis(String content) {
+        AnalysisAiResponse response = openAiService.generateAbilityAnalysis(content);
 
         // 글자 수 validation
         validAnalysisCommentLength(response.getComment());
         validAnalysisKeywordContentLength(response.getKeywordList());
+
+        return response;
+    }
+
+    private String generateMemoSummary(String content) {
+        String response = openAiService.generateMemoSummary(content);
+        validAnalysisContentLength(response);
 
         return response;
     }
@@ -246,16 +248,6 @@ public class AnalysisService {
         validAnalysisContentLength(content);
 
         return content;
-    }
-  
-    private String generateAbilityAnalysis(String content) {
-        ClovaRequest clovaRequest = ClovaRequest.createAnalysisRequest(content);
-        return clovaService.generateAiResponse(clovaRequest);
-    }
-
-    private String generateMemoSummary(String content) {
-        ClovaRequest clovaRequest = ClovaRequest.createMemoSummaryRequest(content);
-        return clovaService.generateAiResponse(clovaRequest);
     }
 
     private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
@@ -301,15 +293,6 @@ public class AnalysisService {
                 .filter(ability -> ability.getKeyword().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD));
-    }
-
-    private AnalysisAiResponse parseAnalysisAiResponse(String aiResponse) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(aiResponse, AnalysisAiResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
-        }
     }
 
     private void deleteOriginAbilityList(Analysis analysis) {
