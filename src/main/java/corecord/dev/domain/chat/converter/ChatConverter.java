@@ -1,6 +1,7 @@
 package corecord.dev.domain.chat.converter;
 
 import corecord.dev.domain.chat.dto.response.ChatResponse;
+import corecord.dev.domain.chat.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.entity.Chat;
 import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.user.entity.User;
@@ -53,10 +54,11 @@ public class ChatConverter {
                 .build();
     }
 
-    public static ChatResponse.ChatSummaryDto toChatSummaryDto(ChatRoom chatRoom, String content) {
+    public static ChatResponse.ChatSummaryDto toChatSummaryDto(ChatRoom chatRoom, ChatSummaryAiResponse response) {
         return ChatResponse.ChatSummaryDto.builder()
                 .chatRoomId(chatRoom.getChatRoomId())
-                .content(content)
+                .title(response.getTitle())
+                .content(response.getContent())
                 .build();
     }
 

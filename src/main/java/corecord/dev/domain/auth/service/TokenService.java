@@ -60,6 +60,7 @@ public class TokenService {
 
         // 새 AccessToken 발급
         String accessToken = jwtUtil.generateAccessToken(userId);
+        log.info("AccessToken: {}", accessToken);
 
         // 쿠키에 AccessToken 및 RefreshToken 추가
         setTokenCookies(response, "refreshToken", refreshToken);
@@ -92,6 +93,7 @@ public class TokenService {
 
         // 쿠키에 새 AccessToken 추가
         setTokenCookies(response, "accessToken", newAccessToken);
+        log.info("AccessToken: {}", newAccessToken);
 
         User user = findUserById(userId);
         return UserConverter.toUserDto(user);

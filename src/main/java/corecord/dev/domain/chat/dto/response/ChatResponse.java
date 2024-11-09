@@ -52,6 +52,7 @@ public class ChatResponse {
     @Data
     public static class ChatSummaryDto {
         private Long chatRoomId;
+        private String title;
         private String content;
     }
 
