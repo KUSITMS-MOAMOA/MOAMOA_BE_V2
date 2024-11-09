@@ -6,6 +6,7 @@ import corecord.dev.domain.record.constant.RecordSuccessStatus;
 import corecord.dev.domain.record.dto.request.RecordRequest;
 import corecord.dev.domain.record.dto.response.RecordResponse;
 import corecord.dev.domain.record.service.RecordService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class RecordController {
     @PostMapping("/memo/tmp")
     public ResponseEntity<ApiResponse<String>> saveTmpMemoRecord(
             @UserId Long userId,
-            @RequestBody RecordRequest.TmpMemoRecordDto tmpMemoRecordDto
+            @RequestBody @Valid RecordRequest.TmpMemoRecordDto tmpMemoRecordDto
     ) {
         recordService.createTmpMemoRecord(userId, tmpMemoRecordDto);
         return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_TMP_CREATE_SUCCESS);
@@ -74,7 +75,7 @@ public class RecordController {
     @PatchMapping("/folder")
     public ResponseEntity<ApiResponse<String>> updateRecordForFolder(
             @UserId Long userId,
-            @RequestBody RecordRequest.UpdateFolderDto updateFolderDto
+            @RequestBody @Valid RecordRequest.UpdateFolderDto updateFolderDto
     ) {
         recordService.updateFolder(userId, updateFolderDto);
         return ApiResponse.success(RecordSuccessStatus.RECORD_FOLDER_UPDATE_SUCCESS);

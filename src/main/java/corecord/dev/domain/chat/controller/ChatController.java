@@ -7,6 +7,7 @@ import corecord.dev.domain.chat.constant.ChatSuccessStatus;
 import corecord.dev.domain.chat.dto.request.ChatRequest;
 import corecord.dev.domain.chat.dto.response.ChatResponse;
 import corecord.dev.domain.chat.service.ChatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class ChatController {
     public ResponseEntity<ApiResponse<ChatResponse.ChatDto>> createChat(
             @UserId Long userId,
             @PathVariable(name = "chatRoomId") Long chatRoomId,
-            @RequestBody ChatRequest.ChatDto chatDto
+            @RequestBody @Valid ChatRequest.ChatDto chatDto
     ) {
         ChatResponse.ChatDto chatResponse = chatService.createChat(userId, chatRoomId, chatDto);
         return ApiResponse.success(ChatSuccessStatus.CHAT_CREATE_SUCCESS, chatResponse);

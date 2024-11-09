@@ -6,6 +6,7 @@ import corecord.dev.domain.folder.constant.FolderSuccessStatus;
 import corecord.dev.domain.folder.dto.request.FolderRequest;
 import corecord.dev.domain.folder.dto.response.FolderResponse;
 import corecord.dev.domain.folder.service.FolderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class FolderController {
     @PostMapping("")
     public ResponseEntity<ApiResponse<FolderResponse.FolderDtoList>> createFolder(
             @UserId Long userId,
-            @RequestBody FolderRequest.FolderDto folderDto
+            @RequestBody @Valid FolderRequest.FolderDto folderDto
     ) {
         FolderResponse.FolderDtoList folderResponse = folderService.createFolder(userId, folderDto);
         return ApiResponse.success(FolderSuccessStatus.FOLDER_CREATE_SUCCESS, folderResponse);
@@ -45,7 +46,7 @@ public class FolderController {
     @PatchMapping("")
     public ResponseEntity<ApiResponse<FolderResponse.FolderDtoList>> updateFolder(
             @UserId Long userId,
-            @RequestBody FolderRequest.FolderUpdateDto folderDto
+            @RequestBody @Valid FolderRequest.FolderUpdateDto folderDto
     ) {
         FolderResponse.FolderDtoList folderResponse = folderService.updateFolder(userId, folderDto);
         return ApiResponse.success(FolderSuccessStatus.FOLDER_UPDATE_SUCCESS, folderResponse);

@@ -6,6 +6,7 @@ import corecord.dev.domain.analysis.constant.AnalysisSuccessStatus;
 import corecord.dev.domain.analysis.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.service.AnalysisService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,7 @@ public class AnalysisController {
     @PatchMapping("")
     public ResponseEntity<ApiResponse<AnalysisResponse.AnalysisDto>> updateAnalysis(
             @UserId Long userId,
-            @RequestBody AnalysisRequest.AnalysisUpdateDto analysisUpdateDto
+            @RequestBody @Valid AnalysisRequest.AnalysisUpdateDto analysisUpdateDto
     ) {
         AnalysisResponse.AnalysisDto analysisResponse = analysisService.updateAnalysis(userId, analysisUpdateDto);
         return ApiResponse.success(AnalysisSuccessStatus.ANALYSIS_UPDATE_SUCCESS, analysisResponse);
