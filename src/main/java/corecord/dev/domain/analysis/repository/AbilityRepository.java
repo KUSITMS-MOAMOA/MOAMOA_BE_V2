@@ -4,6 +4,7 @@ import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.entity.Ability;
 import corecord.dev.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,4 +21,10 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
                 "GROUP BY a.keyword " +
                 "ORDER BY 3 desc ") // 비율 높은 순 정렬
         List<AnalysisResponse.KeywordStateDto> findKeywordStateDtoList(@Param(value = "user") User user);
+
+        @Modifying
+        @Query("DELETE " +
+                "FROM Ability a " +
+                "WHERE a.user.userId IN :userId")
+        void deleteAbilityByUserId(@Param(value = "userId") Long userId);
 }

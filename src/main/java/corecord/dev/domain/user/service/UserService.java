@@ -4,6 +4,9 @@ import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.analysis.repository.AbilityRepository;
+import corecord.dev.domain.analysis.repository.AnalysisRepository;
+import corecord.dev.domain.folder.repository.FolderRepository;
 import corecord.dev.domain.record.repository.RecordRepository;
 import corecord.dev.domain.auth.entity.RefreshToken;
 import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
@@ -39,6 +42,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final FolderRepository folderRepository;
+    private final AnalysisRepository analysisRepository;
+    private final AbilityRepository abilityRepository;
 
     @Value("${jwt.access-token.expiration-time}")
     private long accessTokenExpirationTime;
@@ -83,8 +89,12 @@ public class UserService {
     // 유저 삭제
     @Transactional
     public void deleteUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
-        // 유저 삭제
-        userRepository.deleteById(userId);
+        // 연관된 데이터 삭제
+        abilityRepository.deleteAbilityByUserId(userId);
+        analysisRepository.deleteAnalysisByUserId(userId);
+        recordRepository.deleteRecordByUserId(userId);
+        folderRepository.deleteFolderByUserId(userId);
+        userRepository.deleteUserByUserId(userId);
 
         // RefreshToken 삭제
         deleteRefreshTokenInRedis(request);
