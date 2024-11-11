@@ -4,6 +4,7 @@ import corecord.dev.domain.folder.dto.response.FolderResponse;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,4 +29,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
             @Param(value = "user") User user);
 
     boolean existsByTitle(String title);
+
+    @Modifying
+    @Query("DELETE " +
+            "FROM Folder f " +
+            "WHERE f.user.userId IN :userId")
+    void deleteFolderByUserId(@Param(value = "userId") Long userId);
 }

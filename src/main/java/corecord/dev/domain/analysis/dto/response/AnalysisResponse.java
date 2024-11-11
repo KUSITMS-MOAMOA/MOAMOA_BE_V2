@@ -48,12 +48,12 @@ public class AnalysisResponse {
     public static class KeywordStateDto {
         private String keyword;
         private Long count;
-        private String percent;
+        private Long percent;
 
         public KeywordStateDto(Keyword keyword, Long count, Double percent) {
             this.keyword = keyword.getValue();
             this.count = count;
-            this.percent = Math.round(percent) + "%";
+            this.percent = Math.round(percent);
         }
     }
 

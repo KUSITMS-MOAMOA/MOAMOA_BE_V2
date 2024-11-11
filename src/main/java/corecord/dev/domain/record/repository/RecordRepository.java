@@ -6,6 +6,7 @@ import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.user.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -79,4 +80,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "FROM Record r " +
             "WHERE r.user = :user")
     int getRecordCount(@Param(value = "user") User user);
+
+    @Modifying
+    @Query("DELETE " +
+            "FROM Record r " +
+            "WHERE r.user.userId IN :userId")
+    void deleteRecordByUserId(@Param(value = "userId") Long userId);
 }
