@@ -1,9 +1,10 @@
-package corecord.dev.common.util;
+package corecord.dev.domain.auth.util;
 
 import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.auth.exception.model.TokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
