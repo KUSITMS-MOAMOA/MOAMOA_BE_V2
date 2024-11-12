@@ -42,7 +42,8 @@ public class FolderService {
         Folder folder = FolderConverter.toFolderEntity(title, user);
         folderRepository.save(folder);
 
-        return getFolderList(userId);
+        List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList(user);
+        return FolderConverter.toFolderDtoList(folderList);
     }
 
     /*
@@ -60,7 +61,8 @@ public class FolderService {
 
         folderRepository.delete(folder);
 
-        return getFolderList(userId);
+        List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList(user);
+        return FolderConverter.toFolderDtoList(folderList);
     }
 
     /*
@@ -82,7 +84,8 @@ public class FolderService {
 
         folder.updateTitle(title);
 
-        return getFolderList(userId);
+        List<FolderResponse.FolderDto> folderList = folderRepository.findFolderDtoList(user);
+        return FolderConverter.toFolderDtoList(folderList);
     }
 
     /*
