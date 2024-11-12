@@ -14,7 +14,6 @@ import java.util.List;
 public class RecordConverter {
     public static Record toMemoRecordEntity(String title, String content, User user, Folder folder) {
         return Record.builder()
-                .type(RecordType.MEMO)
                 .title(title)
                 .user(user)
                 .content(content)
@@ -25,7 +24,6 @@ public class RecordConverter {
 
     public static Record toChatRecordEntity(String title, String content, User user, Folder folder, ChatRoom chatRoom) {
         return Record.builder()
-                .type(RecordType.CHAT)
                 .title(title)
                 .user(user)
                 .content(content)
