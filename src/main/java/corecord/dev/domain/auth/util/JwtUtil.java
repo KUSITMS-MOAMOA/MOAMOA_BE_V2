@@ -95,7 +95,7 @@ public class JwtUtil {
         } catch (ExpiredJwtException e) {
             log.warn("토큰이 만료되었습니다: {}", e.getMessage());
             throw new TokenException(errorStatus);
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException | MalformedJwtException e) {
             log.warn("유효하지 않은 토큰입니다: {}", e.getMessage());
             throw new TokenException(errorStatus);
         }
