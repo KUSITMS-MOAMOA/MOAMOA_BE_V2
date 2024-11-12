@@ -4,13 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.analysis.constant.Keyword;
-import corecord.dev.domain.analysis.converter.AnalysisConverter;
-import corecord.dev.domain.analysis.dto.response.AnalysisAiResponse;
-import corecord.dev.domain.analysis.entity.Ability;
-import corecord.dev.domain.analysis.entity.Analysis;
-import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
-import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.chat.converter.ChatConverter;
 import corecord.dev.domain.chat.dto.request.ChatRequest;
 import corecord.dev.domain.chat.dto.response.ChatResponse;
@@ -29,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j

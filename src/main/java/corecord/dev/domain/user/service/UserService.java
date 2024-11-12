@@ -4,7 +4,7 @@ import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.common.util.JwtUtil;
-import corecord.dev.domain.analysis.repository.AbilityRepository;
+import corecord.dev.domain.Ability.repository.AbilityRepository;
 import corecord.dev.domain.analysis.repository.AnalysisRepository;
 import corecord.dev.domain.folder.repository.FolderRepository;
 import corecord.dev.domain.record.repository.RecordRepository;

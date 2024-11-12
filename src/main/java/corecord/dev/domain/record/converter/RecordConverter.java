@@ -1,7 +1,7 @@
 package corecord.dev.domain.record.converter;
 
-import corecord.dev.domain.analysis.constant.Keyword;
-import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.Ability.entity.Keyword;
+import corecord.dev.domain.Ability.entity.Ability;
 import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.folder.entity.Folder;
 import corecord.dev.domain.record.constant.RecordType;

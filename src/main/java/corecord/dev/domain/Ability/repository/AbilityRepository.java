@@ -1,7 +1,8 @@
-package corecord.dev.domain.analysis.repository;
+package corecord.dev.domain.Ability.repository;
 
-import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
-import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.Ability.dto.response.AbilityResponse;
+import corecord.dev.domain.Ability.entity.Ability;
+import corecord.dev.domain.Ability.entity.Keyword;
 import corecord.dev.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,11 +21,19 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
                 "WHERE a.user = :user " +
                 "GROUP BY a.keyword " +
                 "ORDER BY 3 desc ") // 비율 높은 순 정렬
-        List<AnalysisResponse.KeywordStateDto> findKeywordStateDtoList(@Param(value = "user") User user);
+        List<AbilityResponse.KeywordStateDto> findKeywordStateDtoList(@Param(value = "user") User user);
 
         @Modifying
         @Query("DELETE " +
                 "FROM Ability a " +
                 "WHERE a.user.userId IN :userId")
         void deleteAbilityByUserId(@Param(value = "userId") Long userId);
+
+        @Query("SELECT distinct a.keyword AS keyword " + // unique한 keyword list 반환
+                "FROM Ability a " +
+                "JOIN a.analysis ana " +
+                "WHERE a.user = :user " +
+                "GROUP BY a.keyword " +
+                "ORDER BY COUNT(a.keyword) DESC, MAX(ana.createdAt) DESC ") // 개수가 많은 순, 최근 생성 순 정렬
+        List<Keyword> getKeywordList(@Param(value = "user") User user);
 }

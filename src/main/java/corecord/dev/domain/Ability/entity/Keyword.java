@@ -1,4 +1,4 @@
-package corecord.dev.domain.analysis.constant;
+package corecord.dev.domain.Ability.entity;
 
 import lombok.AllArgsConstructor;
 
