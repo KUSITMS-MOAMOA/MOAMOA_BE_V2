@@ -2,7 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.Ability.exception.model.AbilityException;
+import corecord.dev.domain.ability.exception.model.AbilityException;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.auth.exception.model.TokenException;
 import corecord.dev.domain.chat.exception.model.ChatException;

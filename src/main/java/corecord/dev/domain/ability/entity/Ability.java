@@ -1,4 +1,4 @@
-package corecord.dev.domain.Ability.entity;
+package corecord.dev.domain.ability.entity;
 
 import corecord.dev.common.base.BaseEntity;
 import corecord.dev.domain.analysis.entity.Analysis;

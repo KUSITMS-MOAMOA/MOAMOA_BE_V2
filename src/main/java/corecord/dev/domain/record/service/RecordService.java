@@ -2,9 +2,9 @@ package corecord.dev.domain.record.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.Ability.entity.Keyword;
-import corecord.dev.domain.Ability.exception.enums.AbilityErrorStatus;
-import corecord.dev.domain.Ability.exception.model.AbilityException;
+import corecord.dev.domain.ability.entity.Keyword;
+import corecord.dev.domain.ability.exception.enums.AbilityErrorStatus;
+import corecord.dev.domain.ability.exception.model.AbilityException;
 import corecord.dev.domain.analysis.service.AnalysisService;
 import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;

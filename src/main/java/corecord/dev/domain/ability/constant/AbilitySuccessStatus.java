@@ -1,4 +1,4 @@
-package corecord.dev.domain.Ability.constant;
+package corecord.dev.domain.ability.constant;
 
 import corecord.dev.common.base.BaseSuccessStatus;
 import lombok.AllArgsConstructor;

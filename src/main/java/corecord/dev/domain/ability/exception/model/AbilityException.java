@@ -1,6 +1,6 @@
-package corecord.dev.domain.Ability.exception.model;
+package corecord.dev.domain.ability.exception.model;
 
-import corecord.dev.domain.Ability.exception.enums.AbilityErrorStatus;
+import corecord.dev.domain.ability.exception.enums.AbilityErrorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

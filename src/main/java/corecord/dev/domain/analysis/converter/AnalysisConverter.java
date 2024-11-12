@@ -1,7 +1,7 @@
 package corecord.dev.domain.analysis.converter;
 
-import corecord.dev.domain.Ability.converter.AbilityConverter;
-import corecord.dev.domain.Ability.dto.response.AbilityResponse;
+import corecord.dev.domain.ability.converter.AbilityConverter;
+import corecord.dev.domain.ability.dto.response.AbilityResponse;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.entity.Analysis;
 import corecord.dev.domain.record.constant.RecordType;

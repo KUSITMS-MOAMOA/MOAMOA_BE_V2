@@ -1,8 +1,8 @@
-package corecord.dev.domain.Ability.converter;
+package corecord.dev.domain.ability.converter;
 
-import corecord.dev.domain.Ability.dto.response.AbilityResponse;
-import corecord.dev.domain.Ability.entity.Ability;
-import corecord.dev.domain.Ability.entity.Keyword;
+import corecord.dev.domain.ability.dto.response.AbilityResponse;
+import corecord.dev.domain.ability.entity.Ability;
+import corecord.dev.domain.ability.entity.Keyword;
 import corecord.dev.domain.analysis.entity.Analysis;
 import corecord.dev.domain.user.entity.User;
 

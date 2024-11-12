@@ -1,6 +1,6 @@
 package corecord.dev.domain.analysis.dto.response;
 
-import corecord.dev.domain.Ability.dto.response.AbilityResponse;
+import corecord.dev.domain.ability.dto.response.AbilityResponse;
 import corecord.dev.domain.record.constant.RecordType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

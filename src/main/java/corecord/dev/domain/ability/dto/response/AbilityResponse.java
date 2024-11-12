@@ -1,6 +1,6 @@
-package corecord.dev.domain.Ability.dto.response;
+package corecord.dev.domain.ability.dto.response;
 
-import corecord.dev.domain.Ability.entity.Keyword;
+import corecord.dev.domain.ability.entity.Keyword;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
