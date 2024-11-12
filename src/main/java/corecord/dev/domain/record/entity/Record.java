@@ -32,11 +32,11 @@ public class Record extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", nullable = true)
     private ChatRoom chatRoom;
 
