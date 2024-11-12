@@ -2,9 +2,9 @@ package corecord.dev.domain.record.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.analysis.constant.Keyword;
-import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
-import corecord.dev.domain.analysis.exception.model.AnalysisException;
+import corecord.dev.domain.ability.entity.Keyword;
+import corecord.dev.domain.ability.exception.enums.AbilityErrorStatus;
+import corecord.dev.domain.ability.exception.model.AbilityException;
 import corecord.dev.domain.analysis.service.AnalysisService;
 import corecord.dev.domain.chat.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.enums.ChatErrorStatus;
@@ -271,7 +271,7 @@ public class RecordService {
     private Keyword getKeyword(String keywordValue) {
         Keyword keyword = Keyword.getName(keywordValue);
         if (keyword == null)
-            throw new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD);
+            throw new AbilityException(AbilityErrorStatus.INVALID_KEYWORD);
         return keyword;
     }
 

@@ -1,7 +1,7 @@
-package corecord.dev.domain.analysis.entity;
+package corecord.dev.domain.ability.entity;
 
 import corecord.dev.common.base.BaseEntity;
-import corecord.dev.domain.analysis.constant.Keyword;
+import corecord.dev.domain.analysis.entity.Analysis;
 import corecord.dev.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

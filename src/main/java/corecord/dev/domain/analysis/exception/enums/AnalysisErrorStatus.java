@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum AnalysisErrorStatus implements BaseErrorStatus {
-    INVALID_KEYWORD(HttpStatus.BAD_REQUEST, "E400_INVALID_KEYWORD", "역량 분석에 존재하지 않는 키워드입니다."),
     OVERFLOW_ANALYSIS_CONTENT(HttpStatus.BAD_REQUEST, "E0400_OVERFLOW_CONTENT", "경험 기록 내용은 500자 이내여야 합니다."),
     OVERFLOW_ANALYSIS_COMMENT(HttpStatus.BAD_REQUEST, "E0400_OVERFLOW_COMMENT", "경험 기록 코멘트는 200자 이내여야 합니다."),
     OVERFLOW_ANALYSIS_KEYWORD_CONTENT(HttpStatus.BAD_REQUEST, "E0400_OVERFLOW_KEYWORD_CONTENT", "경험 기록 키워드별 내용은 200자 이내여야 합니다."),
