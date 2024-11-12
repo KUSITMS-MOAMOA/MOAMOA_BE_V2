@@ -56,7 +56,7 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"%s\", \"message\": \"%s\"}", e.getTokenErrorStatus(), e.getMessage());
+        String jsonResponse = String.format("{\"isSuccess\": \"false\", \"code\": \"%s\", \"message\": \"%s\"}", e.getTokenErrorStatus().getCode(), e.getMessage());
         response.getWriter().write(jsonResponse);
     }
 
