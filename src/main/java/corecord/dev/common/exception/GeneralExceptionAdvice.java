@@ -2,6 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
+import corecord.dev.domain.Ability.exception.model.AbilityException;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.auth.exception.model.TokenException;
 import corecord.dev.domain.chat.exception.model.ChatException;
@@ -58,10 +59,18 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
         return ApiResponse.error(e.getRecordErrorStatus());
     }
 
+    // AnalysisException 처리
     @ExceptionHandler(AnalysisException.class)
     public ResponseEntity<ApiResponse<Void>> handleAnalysisException(AnalysisException e) {
         log.warn(">>>>>>>>AnalysisException: {}", e.getAnalysisErrorStatus().getMessage());
         return ApiResponse.error(e.getAnalysisErrorStatus());
+    }
+
+    // AbilityException 처리
+    @ExceptionHandler(AbilityException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAbilityException(AbilityException e) {
+        log.warn(">>>>>>>>AbilityException: {}", e.getAbilityErrorStatus().getMessage());
+        return ApiResponse.error(e.getAbilityErrorStatus());
     }
 
     // ChatException 처리
