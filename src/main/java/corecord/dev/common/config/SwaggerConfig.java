@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
                 description = "Kusitms 30th CO:RECORD",
                 version = "v1"),
         servers = {
-                @Server(url = "http://localhost:8080",
+                @Server(url = "https://api.corecord.site",
                         description = "서버 URL"),
         }
 )
