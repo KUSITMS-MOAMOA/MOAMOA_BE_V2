@@ -178,7 +178,7 @@ public class UserService {
         }
 
         // 한글, 영어, 숫자, 공백만 허용
-        String nicknamePattern = "^[a-zA-Z0-9가-힣\\s]*$";
+        String nicknamePattern = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\s]*$";
         if (!Pattern.matches(nicknamePattern, nickName)) {
             throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
         }
