@@ -3,8 +3,8 @@ package corecord.dev.domain.user.service;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
-import corecord.dev.domain.auth.util.JwtUtil;
-import corecord.dev.domain.analysis.repository.AbilityRepository;
+import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.ability.repository.AbilityRepository;
 import corecord.dev.domain.analysis.repository.AnalysisRepository;
 import corecord.dev.domain.folder.repository.FolderRepository;
 import corecord.dev.domain.record.repository.RecordRepository;
@@ -178,7 +178,7 @@ public class UserService {
         }
 
         // 한글, 영어, 숫자, 공백만 허용
-        String nicknamePattern = "^[a-zA-Z0-9가-힣\\s]*$";
+        String nicknamePattern = "^[a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣\s]*$";
         if (!Pattern.matches(nicknamePattern, nickName)) {
             throw new UserException(UserErrorStatus.INVALID_USER_NICKNAME);
         }

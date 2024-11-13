@@ -2,16 +2,18 @@ package corecord.dev.domain.analysis.service;
 
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.analysis.constant.Keyword;
+import corecord.dev.domain.ability.entity.Keyword;
+import corecord.dev.domain.ability.exception.enums.AbilityErrorStatus;
+import corecord.dev.domain.ability.exception.model.AbilityException;
+import corecord.dev.domain.ability.service.AbilityService;
 import corecord.dev.domain.analysis.converter.AnalysisConverter;
 import corecord.dev.domain.analysis.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.dto.response.AnalysisResponse;
-import corecord.dev.domain.analysis.entity.Ability;
+import corecord.dev.domain.ability.entity.Ability;
 import corecord.dev.domain.analysis.entity.Analysis;
 import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.model.AnalysisException;
-import corecord.dev.domain.analysis.repository.AbilityRepository;
 import corecord.dev.domain.analysis.repository.AnalysisRepository;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.record.exception.enums.RecordErrorStatus;
@@ -19,12 +21,10 @@ import corecord.dev.domain.record.exception.model.RecordException;
 import corecord.dev.domain.record.repository.RecordRepository;
 import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 
 @Transactional(readOnly = true)
@@ -32,11 +32,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AnalysisService {
     private final AnalysisRepository analysisRepository;
-    private final AbilityRepository abilityRepository;
     private final UserRepository userRepository;
     private final RecordRepository recordRepository;
-    private final EntityManager entityManager;
     private final OpenAiService openAiService;
+    private final AbilityService abilityService;
 
 
     /*
@@ -59,7 +58,7 @@ public class AnalysisService {
         analysisRepository.save(analysis);
 
         // Ability 객체 생성 및 저장
-        parseAndSaveAbilities(response.getKeywordList(), analysis, user);
+        abilityService.parseAndSaveAbilities(response.getKeywordList(), analysis, user);
 
         return analysis;
     }
@@ -85,10 +84,10 @@ public class AnalysisService {
         analysis.updateComment(response.getComment());
 
         // 기존 Ability 객체 삭제
-        deleteOriginAbilityList(analysis);
+        abilityService.deleteOriginAbilityList(analysis);
 
         // Ability 객체 생성 및 저장
-        parseAndSaveAbilities(response.getKeywordList(), analysis, user);
+        abilityService.parseAndSaveAbilities(response.getKeywordList(), analysis, user);
 
         return analysis;
     }
@@ -174,55 +173,6 @@ public class AnalysisService {
         analysisRepository.delete(analysis);
     }
 
-    /*
-     * user의 역량 키워드 리스트를 반환
-     * @param userId
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public AnalysisResponse.KeywordListDto getKeywordList(Long userId) {
-        User user = findUserById(userId);
-        List<String> keywordList = findKeywordList(user);
-
-        return AnalysisConverter.toKeywordListDto(keywordList);
-    }
-
-    /*
-     * user의 각 역량 키워드에 대한 개수, 퍼센티지 정보를 반환
-     * @param userId
-     * @return
-     */
-    @Transactional(readOnly = true)
-    public AnalysisResponse.GraphDto getKeywordGraph(Long userId) {
-        User user = findUserById(userId);
-
-        // keyword graph 정보 조회
-        List<AnalysisResponse.KeywordStateDto> keywordGraph = findKeywordGraph(user);
-
-        return AnalysisConverter.toGraphDto(keywordGraph);
-    }
-
-    // CLOVA STUDIO를 통해 얻은 키워드 정보 파싱
-    @Transactional
-    public void parseAndSaveAbilities(Map<String, String> keywordList, Analysis analysis, User user) {
-        int abilityCount = 0;
-        for (Map.Entry<String, String> entry : keywordList.entrySet()) {
-            Keyword keyword = Keyword.getName(entry.getKey());
-
-            if (keyword == null) continue;
-
-            Ability ability = AnalysisConverter.toAbility(keyword, entry.getValue(), analysis, user);
-            abilityRepository.save(ability);
-            if (analysis.getAbilityList() != null)
-                analysis.addAbility(ability);
-            abilityCount++;
-        }
-
-        if (abilityCount < 1 || abilityCount > 3) {
-            throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
-        }
-    }
-
     private AnalysisAiResponse generateAbilityAnalysis(String content) {
         AnalysisAiResponse response = openAiService.generateAbilityAnalysis(content);
 
@@ -292,26 +242,7 @@ public class AnalysisService {
         return analysis.getAbilityList().stream()
                 .filter(ability -> ability.getKeyword().equals(key))
                 .findFirst()
-                .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.INVALID_KEYWORD));
-    }
-
-    private void deleteOriginAbilityList(Analysis analysis) {
-        List<Ability> abilityList = analysis.getAbilityList();
-
-        if (!abilityList.isEmpty()) {
-            // 연관된 abilities 삭제
-            abilityRepository.deleteAll(abilityList);
-
-            // Analysis에서 abilities 리스트 비우기
-            analysis.getAbilityList().clear();
-            entityManager.flush();
-        }
-    }
-
-    private List<String> findKeywordList(User user) {
-        return analysisRepository.getKeywordList(user).stream()
-                .map(Keyword::getValue)
-                .toList();
+                .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
     }
 
     private User findUserById(Long userId) {
@@ -327,9 +258,5 @@ public class AnalysisService {
     private Record findRecordById(Long recordId) {
         return recordRepository.findRecordById(recordId)
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
-    }
-
-    private List<AnalysisResponse.KeywordStateDto> findKeywordGraph(User user) {
-        return abilityRepository.findKeywordStateDtoList(user);
     }
 }
