@@ -1,5 +1,6 @@
 package corecord.dev.domain.chat.dto.response;
 
+import corecord.dev.domain.chat.dto.request.ChatRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -65,5 +66,12 @@ public class ChatResponse {
         private boolean isExist;
     }
 
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class ChatsDto {
+        private List<ChatDto> chats;
+    }
 
 }

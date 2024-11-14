@@ -29,12 +29,12 @@ public class ChatController {
     }
 
     @PostMapping("/{chatRoomId}")
-    public ResponseEntity<ApiResponse<ChatResponse.ChatDto>> createChat(
+    public ResponseEntity<ApiResponse<ChatResponse.ChatsDto>> createChat(
             @UserId Long userId,
             @PathVariable(name = "chatRoomId") Long chatRoomId,
             @RequestBody @Valid ChatRequest.ChatDto chatDto
     ) {
-        ChatResponse.ChatDto chatResponse = chatService.createChat(userId, chatRoomId, chatDto);
+        ChatResponse.ChatsDto chatResponse = chatService.createChat(userId, chatRoomId, chatDto);
         return ApiResponse.success(ChatSuccessStatus.CHAT_CREATE_SUCCESS, chatResponse);
     }
 
