@@ -168,7 +168,7 @@ public class ChatService {
     }
 
     private static void checkGuideChat(ChatRoom chatRoom) {
-        if(chatRoom.getChatList().size() != 1) {
+        if(chatRoom.getChatList().size() > 2) {
             throw new ChatException(ChatErrorStatus.INVALID_GUIDE_CHAT);
         }
     }
