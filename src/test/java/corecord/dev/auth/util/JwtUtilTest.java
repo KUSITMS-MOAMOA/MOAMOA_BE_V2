@@ -28,9 +28,13 @@ public class JwtUtilTest {
     private final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24; // 24 hours
     private final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
     private SecretKey key;
+    private Long userId;
+    private String providerId;
 
     @BeforeEach
     void setUp() {
+        userId = 1L;
+        providerId = "testProvider";
         jwtUtil = new JwtUtil();
         ReflectionTestUtils.setField(jwtUtil, "SECRET_KEY", SECRET_KEY);
         ReflectionTestUtils.setField(jwtUtil, "REGISTER_TOKEN_EXPIRATION_TIME", REGISTER_TOKEN_EXPIRE_TIME);
@@ -42,9 +46,6 @@ public class JwtUtilTest {
     @Test
     @DisplayName("액세스 토큰 생성 및 유효성 검사")
     void generateAndValidateAccessToken() {
-        // given
-        Long userId = 1L;
-
         // when
         String accessToken = jwtUtil.generateAccessToken(userId);
 
@@ -64,9 +65,6 @@ public class JwtUtilTest {
     @Test
     @DisplayName("리프레쉬 토큰 생성 및 유효성 검사")
     void generateAndValidateRefreshToken() {
-        // given
-        Long userId = 1L;
-
         // when
         String refreshToken = jwtUtil.generateRefreshToken(userId);
 
@@ -86,9 +84,6 @@ public class JwtUtilTest {
     @Test
     @DisplayName("레지스터 토큰 생성 및 유효성 검사")
     void generateAndValidateRegisterToken() {
-        // given
-        String providerId = "testProvider";
-
         // when
         String registerToken = jwtUtil.generateRegisterToken(providerId);
 
@@ -108,9 +103,6 @@ public class JwtUtilTest {
     @Test
     @DisplayName("임시 토큰 생성 및 유효성 검사")
     void generateAndValidateTmpToken() {
-        // given
-        Long userId = 1L;
-
         // when
         String tmpToken = jwtUtil.generateTmpToken(userId);
 
@@ -131,7 +123,6 @@ public class JwtUtilTest {
     @DisplayName("만료된 액세스 토큰 예외 발생")
     void expiredAccessTokenThrowsException() {
         // given
-        Long userId = 1L;
         String expiredAccessToken = Jwts.builder()
                 .setSubject(userId.toString())
                 .setExpiration(new Date(System.currentTimeMillis() - 1000)) // 이미 만료된 시간 설정
