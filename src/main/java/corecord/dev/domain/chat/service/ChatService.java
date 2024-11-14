@@ -218,7 +218,7 @@ public class ChatService {
 
     private Chat createFirstChat(User user, ChatRoom chatRoom) {
         String nickName = user.getNickName();
-        String firstChatContent = String.format("안녕하세요! %s님! %s님의 경험이 궁금해요. %s님의 경험을 들려주세요!", nickName, nickName, nickName);
+        String firstChatContent = String.format("안녕하세요! %s님 오늘은 어떤 경험을 했나요? 저와 함께 정리해보아요!", nickName);
         Chat chat = ChatConverter.toChatEntity(0, firstChatContent, chatRoom);
         chatRepository.save(chat);
         return chat;
