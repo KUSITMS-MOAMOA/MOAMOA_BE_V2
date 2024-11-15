@@ -174,8 +174,8 @@ public class ChatService {
     }
 
     private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
-        Chat guideChat1 = ChatConverter.toChatEntity(0, "걱정 마세요! 저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
-        Chat guideChat2 = ChatConverter.toChatEntity(0, "오늘은 어떤 경험을 했나요? 상황과 해결한 문제를 말해주세요!", chatRoom);
+        Chat guideChat1 = ChatConverter.toChatEntity(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
+        Chat guideChat2 = ChatConverter.toChatEntity(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
         chatRepository.save(guideChat1);
         chatRepository.save(guideChat2);
         return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
@@ -239,7 +239,7 @@ public class ChatService {
 
     private Chat createFirstChat(User user, ChatRoom chatRoom) {
         String nickName = user.getNickName();
-        String firstChatContent = String.format("안녕하세요! %s님 오늘은 어떤 경험을 했나요? 저와 함께 정리해보아요!", nickName);
+        String firstChatContent = String.format("안녕하세요! %s님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!", nickName);
         Chat chat = ChatConverter.toChatEntity(0, firstChatContent, chatRoom);
         chatRepository.save(chat);
         return chat;
