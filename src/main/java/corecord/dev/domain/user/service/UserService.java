@@ -161,6 +161,11 @@ public class UserService {
     }
 
     private void deleteRefreshTokenInRedis(HttpServletRequest request) {
+        String refreshToken = cookieUtil.getCookieValue(request, "refreshToken");
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            log.info("쿠키에 리프레쉬 토큰 없음");
+            return;
+        }
         Optional<RefreshToken> refreshTokenOptional = refreshTokenRepository.findByRefreshToken(cookieUtil.getCookieValue(request, "refreshToken"));
         refreshTokenOptional.ifPresent(refreshTokenRepository::delete);
     }
