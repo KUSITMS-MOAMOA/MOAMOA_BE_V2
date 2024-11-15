@@ -3,7 +3,7 @@ package corecord.dev.domain.auth.service;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
-import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.auth.util.JwtUtil;
 import corecord.dev.domain.auth.entity.RefreshToken;
 import corecord.dev.domain.auth.entity.TmpToken;
 import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;

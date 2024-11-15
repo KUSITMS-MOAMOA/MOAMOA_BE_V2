@@ -1,7 +1,7 @@
 package corecord.dev.domain.auth.handler;
 
 import corecord.dev.common.util.CookieUtil;
-import corecord.dev.common.util.JwtUtil;
+import corecord.dev.domain.auth.util.JwtUtil;
 import corecord.dev.domain.auth.dto.KakaoUserInfo;
 import corecord.dev.domain.auth.dto.OAuth2UserInfo;
 import corecord.dev.domain.auth.entity.RefreshToken;

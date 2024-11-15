@@ -6,6 +6,8 @@ import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.*;
 import corecord.dev.domain.auth.handler.OAuthLoginFailureHandler;
 import corecord.dev.domain.auth.handler.OAuthLoginSuccessHandler;
+import corecord.dev.domain.auth.util.JwtFilter;
+import corecord.dev.domain.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

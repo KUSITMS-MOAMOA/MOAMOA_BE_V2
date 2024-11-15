@@ -1,9 +1,10 @@
-package corecord.dev.common.util;
+package corecord.dev.domain.auth.util;
 
 import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
 import corecord.dev.domain.auth.exception.model.TokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -94,7 +95,7 @@ public class JwtUtil {
         } catch (ExpiredJwtException e) {
             log.warn("토큰이 만료되었습니다: {}", e.getMessage());
             throw new TokenException(errorStatus);
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (JwtException | MalformedJwtException e) {
             log.warn("유효하지 않은 토큰입니다: {}", e.getMessage());
             throw new TokenException(errorStatus);
         }
