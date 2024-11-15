@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ChatErrorStatus implements BaseErrorStatus {
     CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "E0302_CHAT_ROOM_NOT_FOUND", "존재하지 않는 채팅방입니다."),
+    INVALID_GUIDE_CHAT(HttpStatus.BAD_REQUEST, "E0302_INVALID_GUIDE_CHAT", "가이드 채팅은 처음에만 할 수 있습니다."),
     OVERFLOW_SUMMARY_TITLE(HttpStatus.BAD_REQUEST, "E0305_OVERFLOW_SUMMARY_TITLE", "경험 제목은 30자 이내여야 합니다."),
     OVERFLOW_SUMMARY_CONTENT(HttpStatus.BAD_REQUEST, "E0305_OVERFLOW_SUMMARY_CONTENT", "경험 요약 내용은 500자 이내여야 합니다."),
     INVALID_CHAT_SUMMARY(HttpStatus.BAD_REQUEST, "E0305_INVALID_CHAT_SUMMARY", "채팅 경험 요약 파싱 중 오류가 발생했습니다."),

@@ -39,6 +39,12 @@ public class ChatConverter {
                 .build();
     }
 
+    public static ChatResponse.ChatsDto toChatsDto(List<Chat> chats) {
+        return ChatResponse.ChatsDto.builder()
+                .chats(chats.stream().map(ChatConverter::toChatDto).toList())
+                .build();
+    }
+
     public static ChatResponse.ChatDetailDto toChatDetailDto(Chat chat) {
         return ChatResponse.ChatDetailDto.builder()
                 .chatId(chat.getChatId())

@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,7 +60,7 @@ public class ChatService {
      * @return
      */
     @Transactional
-    public ChatResponse.ChatDto createChat(Long userId, Long chatRoomId, ChatRequest.ChatDto chatDto) {
+    public ChatResponse.ChatsDto createChat(Long userId, Long chatRoomId, ChatRequest.ChatDto chatDto) {
         User user = findUserById(userId);
         ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
 
@@ -67,11 +68,17 @@ public class ChatService {
         Chat chat = ChatConverter.toChatEntity(1, chatDto.getContent(), chatRoom);
         chatRepository.save(chat);
 
+        // 가이드이면 가이드 채팅 생성
+        if(chatDto.isGuide()) {
+            checkGuideChat(chatRoom);
+            return generateGuideChats(chatRoom);
+        }
+
         // AI 답변 생성
         String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent());
         Chat aiChat = chatRepository.save(ChatConverter.toChatEntity(0, aiAnswer, chatRoom));
 
-        return ChatConverter.toChatDto(aiChat);
+        return ChatConverter.toChatsDto(List.of(aiChat));
     }
 
     /*
@@ -160,6 +167,20 @@ public class ChatService {
         user.updateTmpChat(chatRoom.getChatRoomId());
     }
 
+    private static void checkGuideChat(ChatRoom chatRoom) {
+        if(chatRoom.getChatList().size() > 2) {
+            throw new ChatException(ChatErrorStatus.INVALID_GUIDE_CHAT);
+        }
+    }
+
+    private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
+        Chat guideChat1 = ChatConverter.toChatEntity(0, "걱정 마세요! 저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
+        Chat guideChat2 = ChatConverter.toChatEntity(0, "오늘은 어떤 경험을 했나요? 상황과 해결한 문제를 말해주세요!", chatRoom);
+        chatRepository.save(guideChat1);
+        chatRepository.save(guideChat2);
+        return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
+    }
+
     private static void validateResponse(ChatSummaryAiResponse response) {
         if (response.getTitle().equals("NO_RECORD") || response.getContent().equals("NO_RECORD") || response.getContent().equals("") || response.getTitle().equals("")) {
             throw new ChatException(ChatErrorStatus.NO_RECORD);
@@ -218,7 +239,7 @@ public class ChatService {
 
     private Chat createFirstChat(User user, ChatRoom chatRoom) {
         String nickName = user.getNickName();
-        String firstChatContent = String.format("안녕하세요! %s님! %s님의 경험이 궁금해요. %s님의 경험을 들려주세요!", nickName, nickName, nickName);
+        String firstChatContent = String.format("안녕하세요! %s님 오늘은 어떤 경험을 했나요? 저와 함께 정리해보아요!", nickName);
         Chat chat = ChatConverter.toChatEntity(0, firstChatContent, chatRoom);
         chatRepository.save(chat);
         return chat;
