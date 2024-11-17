@@ -242,11 +242,11 @@ class ChatServiceTest {
     }
 
     @Nested
-    @DisplayName("임시 채팅방 저장 테스트")
+    @DisplayName("임시 채팅방 테스트")
     class ChatTmpTests {
 
         @Test
-        @DisplayName("임시 채팅방 저장")
+        @DisplayName("저장 성공")
         void saveChatTmp() {
             // Given
             when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
@@ -261,7 +261,7 @@ class ChatServiceTest {
         }
 
         @Test
-        @DisplayName("임시 채팅방 저장 시 이미 임시 저장된 채팅방이 있을 경우 예외 처리")
+        @DisplayName("이미 임시 저장된 채팅방이 있을 경우 예외 처리")
         void saveChatTmpFailsWhenTmpChatExists() {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
@@ -271,22 +271,22 @@ class ChatServiceTest {
             // When & Then
             assertThrows(ChatException.class, () -> chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId()));
         }
-    }
 
-    @Test
-    @DisplayName("임시 채팅방 조회 테스트")
-    void getChatTmp() {
-        // Given
-        user.updateTmpChat(chatRoom.getChatRoomId());
-        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+        @Test
+        @DisplayName("조회 성공")
+        void getChatTmp() {
+            // Given
+            user.updateTmpChat(chatRoom.getChatRoomId());
+            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
 
-        // When
-        ChatResponse.ChatTmpDto result = chatService.getChatTmp(user.getUserId());
+            // When
+            ChatResponse.ChatTmpDto result = chatService.getChatTmp(user.getUserId());
 
-        // Then
-        assertEquals(result.getChatRoomId(), chatRoom.getChatRoomId());
-        assertTrue(result.isExist());
-        verify(userRepository).findById(user.getUserId());
+            // Then
+            assertEquals(result.getChatRoomId(), chatRoom.getChatRoomId());
+            assertTrue(result.isExist());
+            verify(userRepository).findById(user.getUserId());
+        }
     }
 
     private User createTestUser() {
