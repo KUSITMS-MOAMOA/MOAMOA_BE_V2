@@ -34,7 +34,6 @@ public class ClovaService {
 
     public String generateAiResponse(ClovaRequest clovaRequest) {
         try {
-            log.info("AI 요청: {}", clovaRequest.getMessages());
             String responseBody = webClient.post()
                     .uri(chatHost)
                     .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)
@@ -57,7 +56,6 @@ public class ClovaService {
                     .bodyToMono(String.class)
                     .block();
 
-            log.info("AI 응답: {}", responseBody);
             return parseContentFromResponse(responseBody);
         } catch (WebClientException e) {
             log.error("채팅 AI 응답 생성 실패", e);

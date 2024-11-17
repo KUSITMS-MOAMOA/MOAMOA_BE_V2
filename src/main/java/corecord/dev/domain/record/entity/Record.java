@@ -26,7 +26,7 @@ public class Record extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private RecordType type;
 
-    @Column(length = 15)
+    @Column(length = 50)
     private String title;
 
     @Column(nullable = false, length = 500)

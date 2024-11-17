@@ -204,7 +204,6 @@ public class ChatService {
     private ChatSummaryAiResponse generateChatSummary(List<Chat> chatList) {
         ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
         String response = clovaService.generateAiResponse(clovaRequest);
-        log.info("AI 응답: {}", response);
         return parseChatSummaryResponse(response);
     }
 

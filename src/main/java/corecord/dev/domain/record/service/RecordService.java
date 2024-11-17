@@ -214,7 +214,7 @@ public class RecordService {
     }
 
     private void validTextLength(String title, String content) {
-        if (title != null && title.length() > 15)
+        if (title != null && title.length() > 50)
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
 
         if (content != null && content.length() > 500) {
