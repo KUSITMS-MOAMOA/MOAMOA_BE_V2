@@ -98,7 +98,6 @@ public class AnalysisService {
      * @param recordId
      * @return
      */
-    @Transactional
     public AnalysisResponse.AnalysisDto postAnalysis(Long userId, Long recordId) {
         User user = findUserById(userId);
         Record record = findRecordById(recordId);

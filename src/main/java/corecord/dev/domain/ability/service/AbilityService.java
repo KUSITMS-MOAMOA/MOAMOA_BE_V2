@@ -76,6 +76,7 @@ public class AbilityService {
         }
     }
 
+    @Transactional
     public void deleteOriginAbilityList(Analysis analysis) {
         List<Ability> abilityList = analysis.getAbilityList();
 
