@@ -1,25 +1,38 @@
 package corecord.dev.record.memo.repository;
 
+import corecord.dev.domain.ability.entity.Ability;
+import corecord.dev.domain.ability.entity.Keyword;
+import corecord.dev.domain.ability.repository.AbilityRepository;
+import corecord.dev.domain.analysis.entity.Analysis;
+import corecord.dev.domain.analysis.repository.AnalysisRepository;
 import corecord.dev.domain.folder.entity.Folder;
+import corecord.dev.domain.folder.repository.FolderRepository;
 import corecord.dev.domain.record.constant.RecordType;
 import corecord.dev.domain.record.entity.Record;
 import corecord.dev.domain.record.repository.RecordRepository;
 import corecord.dev.domain.user.entity.Status;
 import corecord.dev.domain.user.entity.User;
+import corecord.dev.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
+@Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MemoRecordRepositoryTest {
     @Autowired
@@ -28,25 +41,32 @@ public class MemoRecordRepositoryTest {
     @Autowired
     RecordRepository recordRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    FolderRepository folderRepository;
+
+    @Autowired
+    AnalysisRepository analysisRepository;
+
+    @Autowired
+    AbilityRepository abilityRepository;
+
     private final Long lastRecordId = 0L;
     private final Pageable pageable = PageRequest.of(0, 5);
-    private final String testTitle = "Test Title";
     private final String testContent = "Test Content";
 
 
     @Test
+    @DisplayName("폴더별 경험 기록 리스트 조회 테스트")
     void findRecordByFolder() {
         // Given
         User user = createUser("Test User");
-        entityManager.persist(user);
-
         Folder folder = createFolder("Test Folder", user);
-        entityManager.persist(folder);
 
-        Record record1 = createRecord("Test Record1", testContent, user, folder);
-        entityManager.persist(record1);
-        Record record2 = createRecord("Test Record2", testContent, user, folder);
-        entityManager.persist(record2);
+        Record record1 = createRecord("Test Record1", user, folder);
+        Record record2 = createRecord("Test Record2", user, folder);
 
         // When
         List<Record> result = recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
@@ -59,30 +79,109 @@ public class MemoRecordRepositoryTest {
         assertThat(result.get(1).getFolder().getFolderId()).isEqualTo(folder.getFolderId());
     }
 
+    @Test
+    @DisplayName("경험 기록이 존재하지 않는 폴더에 대한 리스트 조회 테스트")
+    void findRecordByFolderWhenNoRecordsExist() {
+        // Given
+        User user = createUser("Test User");
+        Folder folder = createFolder("Test Folder", user);
+
+        // When
+        List<Record> result = recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
+
+        // Then
+        assertEquals(result.size(), 0);
+    }
+
+    @Test
+    @DisplayName("메모 경험 기록 조회 테스트")
+    void findMemoRecordDetail() {
+        // Given
+        User user = createUser("Test User");
+        Folder folder = createFolder("Test folder", user);
+        Record record = createRecord("Test Record", user, folder);
+
+        // When
+        Optional<Record> result = recordRepository.findRecordById(record.getRecordId());
+
+        // Then
+        assertTrue(result.isPresent());
+        assertThat(result.get().getTitle()).isEqualTo("Test Record");
+        assertThat(result.get().getRecordId()).isEqualTo(record.getRecordId());
+    }
+
+    @Test
+    @DisplayName("키워드별 경험 기록 조회 테스트")
+    void findMemoRecordListByKeywordTest() {
+        // Given
+        User user = createUser("Test User");
+        Folder folder = createFolder("Test folder", user);
+
+        Record record1 = createRecord("Test Record1", user, folder);
+        Record record2 = createRecord("Test Record2", user, folder);
+
+        // When
+        List<Record> result = recordRepository.findRecordsByKeyword(Keyword.COLLABORATION, user, lastRecordId, pageable);
+
+        // Then
+        assertEquals(result.size(), 2);
+        assertEquals(result.get(0).getTitle(), record1.getTitle());
+        assertEquals(result.get(1).getTitle(), record2.getTitle());
+    }
+
     private User createUser(String nickName) {
-        return User.builder()
+        User user = User.builder()
                 .providerId("Test Provider")
                 .nickName(nickName)
                 .status(Status.GRADUATE_STUDENT)
                 .folders(new ArrayList<>())
                 .build();
+        userRepository.save(user);
+        return user;
     }
 
-    private Record createRecord(String title, String content, User user, Folder folder) {
-        return Record.builder()
+    private Record createRecord(String title, User user, Folder folder) {
+        Record record = Record.builder()
                 .title(title)
-                .content(content)
+                .content(testContent)
                 .user(user)
                 .type(RecordType.MEMO)
                 .folder(folder)
                 .build();
+        recordRepository.save(record);
+        createAnalysis(record, user);
+        return record;
     }
 
     private Folder createFolder(String title, User user) {
-        return Folder.builder()
+        Folder folder = Folder.builder()
                 .title(title)
                 .user(user)
                 .build();
+        folderRepository.save(folder);
+        return folder;
+    }
+
+    private Analysis createAnalysis(Record record, User user) {
+        Analysis analysis = Analysis.builder()
+                .content(testContent)
+                .comment(testContent)
+                .record(record)
+                .build();
+        analysisRepository.save(analysis);
+        createAbility(user, analysis, Keyword.COLLABORATION);
+        return analysis;
+    }
+
+    private Ability createAbility(User user, Analysis analysis, Keyword keyword) {
+        Ability ability = Ability.builder()
+                .keyword(keyword)
+                .content(testContent)
+                .user(user)
+                .analysis(analysis)
+                .build();
+        abilityRepository.save(ability);
+        return ability;
     }
 
 }
