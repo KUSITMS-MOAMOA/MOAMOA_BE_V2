@@ -264,7 +264,7 @@ public class RecordService {
     }
 
     private List<Record> findRecordListOrderByCreatedAt(User user) {
-        Pageable pageable = PageRequest.of(0, 9, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
         return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
     }
 
