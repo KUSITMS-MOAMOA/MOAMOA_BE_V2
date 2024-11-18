@@ -43,7 +43,7 @@ public class RecordService {
     private final UserRepository userRepository;
     private final AnalysisService analysisService;
     private final ChatRoomRepository chatRoomRepository;
-    private final int listSize = 20;
+    private final int listSize = 30;
 
     /*
      * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환
@@ -126,7 +126,7 @@ public class RecordService {
         }
 
         // 임시 저장 내역이 있는 경우 결과 조회
-        Record tmpMemoRecord = findRecordById(tmpMemoRecordId);
+        Record tmpMemoRecord = findTmpRecordById(tmpMemoRecordId);
 
         // 기존 데이터 제거 후 결과 반환
         user.deleteTmpMemo();
@@ -248,6 +248,11 @@ public class RecordService {
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
 
+    private Record findTmpRecordById(Long recordId) {
+        return recordRepository.findById(recordId)
+                .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
+    }
+
     private List<Record> findRecordListByFolder(User user, Folder folder, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
         return recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
@@ -259,7 +264,7 @@ public class RecordService {
     }
 
     private List<Record> findRecordListOrderByCreatedAt(User user) {
-        Pageable pageable = PageRequest.of(0, 3, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
         return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
     }
 
