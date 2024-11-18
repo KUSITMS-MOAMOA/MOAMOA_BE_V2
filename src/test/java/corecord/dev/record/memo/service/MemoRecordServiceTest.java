@@ -54,7 +54,7 @@ public class MemoRecordServiceTest {
     private Folder folder;
 
     private String testTitle = "Test Record";
-    private String testContent = "Test content";
+    private String testContent = "Test".repeat(10);
 
     @BeforeEach
     void setUp() {
@@ -65,7 +65,7 @@ public class MemoRecordServiceTest {
     @DisplayName("메모 경험 기록 생성 테스트")
     void createMemoRecordTest() {
         // Given
-        Record record = createMockRecord(testTitle, user, folder);
+        Record record = createMockRecord(user, folder);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(folderRepository.findById(1L)).thenReturn(Optional.of(folder));
@@ -106,7 +106,7 @@ public class MemoRecordServiceTest {
 
         // When & Then
         RecordRequest.RecordDto request = RecordRequest.RecordDto.builder()
-                .title("Too Long Record Title")
+                .title("a".repeat(51))
                 .content(testContent)
                 .folderId(1L)
                 .recordType(RecordType.MEMO)
@@ -118,10 +118,30 @@ public class MemoRecordServiceTest {
     }
 
     @Test
+    @DisplayName("경험 기록 내용 글자수가 충분하지 않은 경우 예외 발생")
+    void createMemoRecordWithNotEnoughContent() {
+        // Given
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(folderRepository.findById(1L)).thenReturn(Optional.of(folder));
+
+        // When & Then
+        RecordRequest.RecordDto request = RecordRequest.RecordDto.builder()
+                .title(testTitle)
+                .content("Test")
+                .folderId(1L)
+                .recordType(RecordType.MEMO)
+                .build();
+
+        RecordException exception = assertThrows(RecordException.class,
+                () -> recordService.createMemoRecord(1L, request));
+        assertEquals(exception.getRecordErrorStatus(), RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
+    }
+
+    @Test
     @DisplayName("임시 메모 경험 기록 저장 테스트")
     void createTmpMemoRecordTest() {
         // Given
-        Record tmpRecord = createMockRecord(testContent, user, null);
+        Record tmpRecord = createMockRecord(user, null);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(recordRepository.save(any(Record.class))).thenReturn(tmpRecord);
 
@@ -164,7 +184,7 @@ public class MemoRecordServiceTest {
     @DisplayName("임시 메모 경험 기록이 있는 경우 조회 테스트")
     void getTmpMemoRecordTest() {
         // Given
-        Record tmpRecord = createMockRecord(testContent, user, null);
+        Record tmpRecord = createMockRecord(user, null);
         user.updateTmpMemo(1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -220,11 +240,11 @@ public class MemoRecordServiceTest {
                 .build();
     }
 
-    private Record createMockRecord(String content, User user, Folder folder) {
+    private Record createMockRecord(User user, Folder folder) {
         return Record.builder()
                 .recordId(1L)
                 .title(testTitle)
-                .content(content)
+                .content(testContent)
                 .user(user)
                 .type(RecordType.MEMO)
                 .folder(folder)
