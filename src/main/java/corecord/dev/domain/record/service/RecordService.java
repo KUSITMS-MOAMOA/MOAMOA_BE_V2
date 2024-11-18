@@ -217,6 +217,9 @@ public class RecordService {
         if (title != null && title.length() > 50)
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
 
+        if (content != null && content.length() < 30)
+            throw new RecordException(RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
+
         if (content != null && content.length() > 500) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
         }
