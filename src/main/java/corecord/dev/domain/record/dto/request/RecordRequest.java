@@ -2,10 +2,11 @@ package corecord.dev.domain.record.dto.request;
 
 import corecord.dev.domain.record.constant.RecordType;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Data;
 
 public class RecordRequest {
-    @Data
+    @Data @Builder
     public static class RecordDto {
         @NotBlank(message = "제목을 입력해주세요.")
         private String title;
@@ -18,7 +19,7 @@ public class RecordRequest {
         private Long chatRoomId;
     }
 
-    @Data
+    @Data @Builder
     public static class TmpMemoRecordDto {
         @NotBlank(message = "임시 저장할 기록의 제목을 입력해주세요.")
         private String title;
