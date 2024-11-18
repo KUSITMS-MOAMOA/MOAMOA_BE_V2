@@ -13,7 +13,6 @@ import corecord.dev.domain.record.repository.RecordRepository;
 import corecord.dev.domain.user.entity.Status;
 import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,23 +34,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class MemoRecordRepositoryTest {
-    @Autowired
-    EntityManager entityManager;
 
     @Autowired
-    RecordRepository recordRepository;
+    private RecordRepository recordRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    FolderRepository folderRepository;
+    private FolderRepository folderRepository;
 
     @Autowired
-    AnalysisRepository analysisRepository;
+    private AnalysisRepository analysisRepository;
 
     @Autowired
-    AbilityRepository abilityRepository;
+    private AbilityRepository abilityRepository;
 
     private final Long lastRecordId = 0L;
     private final Pageable pageable = PageRequest.of(0, 5);
