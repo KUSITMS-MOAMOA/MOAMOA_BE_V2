@@ -6,10 +6,10 @@ import corecord.dev.domain.ability.converter.AbilityConverter;
 import corecord.dev.domain.ability.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.entity.Ability;
 import corecord.dev.domain.ability.entity.Keyword;
+import corecord.dev.domain.ability.exception.enums.AbilityErrorStatus;
+import corecord.dev.domain.ability.exception.model.AbilityException;
 import corecord.dev.domain.ability.repository.AbilityRepository;
 import corecord.dev.domain.analysis.entity.Analysis;
-import corecord.dev.domain.analysis.exception.enums.AnalysisErrorStatus;
-import corecord.dev.domain.analysis.exception.model.AnalysisException;
 import corecord.dev.domain.user.entity.User;
 import corecord.dev.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -72,7 +72,7 @@ public class AbilityService {
         }
 
         if (abilityCount < 1 || abilityCount > 3) {
-            throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
+            throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
         }
     }
 
