@@ -1,15 +1,15 @@
 package corecord.dev.domain.auth.handler;
 
 import corecord.dev.common.util.CookieUtil;
-import corecord.dev.domain.auth.util.JwtUtil;
-import corecord.dev.domain.auth.dto.KakaoUserInfo;
-import corecord.dev.domain.auth.dto.OAuth2UserInfo;
-import corecord.dev.domain.auth.entity.RefreshToken;
-import corecord.dev.domain.auth.entity.TmpToken;
-import corecord.dev.domain.auth.repository.RefreshTokenRepository;
-import corecord.dev.domain.auth.repository.TmpTokenRepository;
-import corecord.dev.domain.user.entity.User;
-import corecord.dev.domain.user.repository.UserRepository;
+import corecord.dev.domain.auth.jwt.JwtUtil;
+import corecord.dev.domain.auth.domain.dto.KakaoUserInfo;
+import corecord.dev.domain.auth.domain.dto.OAuth2UserInfo;
+import corecord.dev.domain.auth.domain.entity.RefreshToken;
+import corecord.dev.domain.auth.domain.entity.TmpToken;
+import corecord.dev.domain.auth.domain.repository.RefreshTokenRepository;
+import corecord.dev.domain.auth.domain.repository.TmpTokenRepository;
+import corecord.dev.domain.user.domain.entity.User;
+import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
