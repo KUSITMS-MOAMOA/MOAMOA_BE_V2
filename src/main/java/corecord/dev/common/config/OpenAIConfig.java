@@ -9,7 +9,7 @@ public class OpenAIConfig {
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
 
-    @Value("${spring.ai.openai.model}")
+    @Value("${spring.ai.openai.chat.options.model}")
     private String model;
 
 }
