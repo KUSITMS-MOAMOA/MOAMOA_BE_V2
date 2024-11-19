@@ -215,7 +215,7 @@ public class AnalysisService {
     }
 
     private void validAnalysisCommentLength(String comment) {
-        if (comment.isEmpty() || comment.length() > 200)
+        if (comment.isEmpty() || comment.length() > 300)
             throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_COMMENT);
     }
 
@@ -223,7 +223,7 @@ public class AnalysisService {
         for (Map.Entry<String, String> entry : keywordList.entrySet()) {
             String keyContent = entry.getValue();
 
-            if (keyContent.isEmpty() || keyContent.length() > 200)
+            if (keyContent.isEmpty() || keyContent.length() > 300)
                 throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_KEYWORD_CONTENT);
         }
     }

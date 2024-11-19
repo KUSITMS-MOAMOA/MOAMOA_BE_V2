@@ -27,7 +27,7 @@ public class Analysis extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String content;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 300)
     private String comment;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
