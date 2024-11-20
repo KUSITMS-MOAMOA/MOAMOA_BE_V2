@@ -1,8 +1,8 @@
 package corecord.dev.auth.util;
 
-import corecord.dev.domain.auth.util.JwtUtil;
-import corecord.dev.domain.auth.exception.enums.TokenErrorStatus;
-import corecord.dev.domain.auth.exception.model.TokenException;
+import corecord.dev.domain.auth.jwt.JwtUtil;
+import corecord.dev.domain.auth.status.TokenErrorStatus;
+import corecord.dev.domain.auth.exception.TokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

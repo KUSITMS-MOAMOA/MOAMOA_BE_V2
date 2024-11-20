@@ -1,11 +1,12 @@
 package corecord.dev.chat.repository;
 
-import corecord.dev.domain.chat.entity.Chat;
-import corecord.dev.domain.chat.entity.ChatRoom;
-import corecord.dev.domain.chat.repository.ChatRepository;
-import corecord.dev.domain.chat.repository.ChatRoomRepository;
-import corecord.dev.domain.user.entity.User;
-import corecord.dev.domain.user.repository.UserRepository;
+import corecord.dev.domain.chat.domain.entity.Chat;
+import corecord.dev.domain.chat.domain.entity.ChatRoom;
+import corecord.dev.domain.chat.domain.repository.ChatRepository;
+import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
+import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.User;
+import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,7 +84,7 @@ class ChatRepositoryTest {
         User user = User.builder()
                 .providerId("testProvider")
                 .nickName("TestUser")
-                .status(corecord.dev.domain.user.entity.Status.UNIVERSITY_STUDENT)
+                .status(Status.UNIVERSITY_STUDENT)
                 .build();
         userRepository.save(user);
         return user;

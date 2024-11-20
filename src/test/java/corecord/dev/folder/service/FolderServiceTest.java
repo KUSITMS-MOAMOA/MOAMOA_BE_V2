@@ -1,14 +1,14 @@
 package corecord.dev.folder.service;
 
-import corecord.dev.domain.folder.dto.request.FolderRequest;
-import corecord.dev.domain.folder.dto.response.FolderResponse;
-import corecord.dev.domain.folder.entity.Folder;
-import corecord.dev.domain.folder.exception.model.FolderException;
-import corecord.dev.domain.folder.repository.FolderRepository;
-import corecord.dev.domain.folder.service.FolderService;
-import corecord.dev.domain.user.entity.Status;
-import corecord.dev.domain.user.entity.User;
-import corecord.dev.domain.user.repository.UserRepository;
+import corecord.dev.domain.folder.domain.dto.request.FolderRequest;
+import corecord.dev.domain.folder.domain.dto.response.FolderResponse;
+import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.exception.FolderException;
+import corecord.dev.domain.folder.domain.repository.FolderRepository;
+import corecord.dev.domain.folder.application.FolderService;
+import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.User;
+import corecord.dev.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,9 +1,9 @@
 package corecord.dev.folder.repository;
 
-import corecord.dev.domain.folder.entity.Folder;
-import corecord.dev.domain.folder.repository.FolderRepository;
-import corecord.dev.domain.user.entity.Status;
-import corecord.dev.domain.user.entity.User;
+import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.domain.repository.FolderRepository;
+import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.User;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

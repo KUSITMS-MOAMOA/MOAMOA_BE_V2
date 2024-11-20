@@ -1,10 +1,10 @@
 package corecord.dev.chat.repository;
 
-import corecord.dev.domain.chat.entity.ChatRoom;
-import corecord.dev.domain.chat.repository.ChatRoomRepository;
-import corecord.dev.domain.user.entity.Status;
-import corecord.dev.domain.user.entity.User;
-import corecord.dev.domain.user.repository.UserRepository;
+import corecord.dev.domain.chat.domain.entity.ChatRoom;
+import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
+import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.User;
+import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
