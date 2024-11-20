@@ -2,12 +2,15 @@ package corecord.dev.domain.folder.domain.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class FolderRequest {
 
     @Data @Builder
+    @AllArgsConstructor @NoArgsConstructor
     public static class FolderDto {
         @NotBlank(message = "폴더 명을 입력해주세요.")
         private String title;
