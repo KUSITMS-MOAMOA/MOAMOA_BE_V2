@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
-    @EntityGraph(attributePaths = {"record", "user"})
     Optional<ChatRoom> findByChatRoomIdAndUser(Long chatRoomId, User user);
 
     @Modifying
