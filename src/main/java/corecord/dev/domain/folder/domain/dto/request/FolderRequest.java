@@ -17,6 +17,7 @@ public class FolderRequest {
     }
 
     @Data @Builder
+    @AllArgsConstructor @NoArgsConstructor
     public static class FolderUpdateDto {
         @NotNull(message = "수정할 폴더 id를 입력해주세요.")
         private Long folderId;
