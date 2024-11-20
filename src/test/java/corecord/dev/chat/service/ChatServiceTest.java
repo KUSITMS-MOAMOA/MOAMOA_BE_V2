@@ -313,13 +313,7 @@ class ChatServiceTest {
                 .content(content)
                 .chatRoom(chatRoom)
                 .build();
-        try {
-            Field createdAtField = Chat.class.getSuperclass().getDeclaredField("createdAt");
-            createdAtField.setAccessible(true);
-            createdAtField.set(chat, LocalDateTime.now());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        chat.setCreatedAt(LocalDateTime.now());
         return chat;
     }
 }
