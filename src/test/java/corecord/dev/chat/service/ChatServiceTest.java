@@ -1,18 +1,16 @@
 package corecord.dev.chat.service;
 
+import corecord.dev.domain.chat.application.ChatDbService;
+import corecord.dev.domain.chat.application.ChatService;
 import corecord.dev.domain.chat.domain.dto.request.ChatRequest;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.domain.repository.ChatRepository;
-import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
-import corecord.dev.domain.chat.application.ChatService;
-import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
 import corecord.dev.domain.chat.infra.clova.application.ClovaService;
+import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,54 +36,48 @@ class ChatServiceTest {
     private ChatService chatService;
 
     @Mock
-    private ChatRoomRepository chatRoomRepository;
-
-    @Mock
-    private ChatRepository chatRepository;
-
-    @Mock
-    private UserRepository userRepository;
+    private ChatDbService chatDbService;
 
     @Mock
     private ClovaService clovaService;
 
     private User user;
-
     private ChatRoom chatRoom;
 
     @BeforeEach
     void setUp() {
         user = createTestUser();
         chatRoom = createTestChatRoom();
-
     }
 
     @Test
     @DisplayName("채팅방 생성 테스트")
     void createChatRoom() {
         // Given
-        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+        when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+        when(chatDbService.createChatRoom(user)).thenReturn(chatRoom);
+        when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
+                .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
 
         // When
         ChatResponse.ChatRoomDto result = chatService.createChatRoom(user.getUserId());
 
         // Then
-        verify(chatRoomRepository).save(any(ChatRoom.class));
-        verify(chatRepository).save(any(Chat.class));
+        verify(chatDbService).createChatRoom(user);
+        verify(chatDbService).saveChat(0, "안녕하세요! testUser님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!", chatRoom);
         assertEquals(result.getFirstChat(), "안녕하세요! testUser님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!");
     }
 
     @Test
     @DisplayName("채팅 조회 테스트")
-    void getChatList() throws NoSuchFieldException, IllegalAccessException {
+    void getChatList() {
         // Given
         Chat userChat = createTestChat("userChat", 1);
         Chat aiChat = createTestChat("aiChat", 0);
 
-
-        when(chatRepository.findByChatRoomOrderByChatId(chatRoom)).thenReturn(List.of(userChat, aiChat));
-        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-        when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
+        when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+        when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+        when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(List.of(userChat, aiChat));
 
         // When
         ChatResponse.ChatListDto result = chatService.getChatList(user.getUserId(), chatRoom.getChatRoomId());
@@ -109,8 +101,10 @@ class ChatServiceTest {
                     .content("어떤 경험을 말해야 할지 모르겠어요.")
                     .build();
 
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
+                    .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
 
             // When
             ChatResponse.ChatsDto result = chatService.createChat(
@@ -120,7 +114,7 @@ class ChatServiceTest {
             );
 
             // Then
-            verify(chatRepository, times(3)).save(any(Chat.class)); // 사용자 입력 1개, 가이드 2개
+            verify(chatDbService, times(3)).saveChat(anyInt(), anyString(), eq(chatRoom)); // 사용자 입력 1개, 가이드 2개
             assertEquals(result.getChats().size(), 2); // Guide 메시지는 두 개 생성
             assertEquals(result.getChats().get(0).getContent(), "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD");
             assertEquals(result.getChats().get(1).getContent(), "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!");
@@ -134,9 +128,10 @@ class ChatServiceTest {
                     .content("테스트 입력")
                     .build();
 
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
-            when(chatRepository.save(any(Chat.class))).thenAnswer(invocation -> invocation.getArgument(0)); // 저장된 Chat 객체 반환
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
+                    .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
             when(clovaService.generateAiResponse(any(ClovaRequest.class))).thenReturn("AI의 예상 응답");
 
             // When
@@ -147,7 +142,7 @@ class ChatServiceTest {
             );
 
             // Then
-            verify(chatRepository, times(2)).save(any(Chat.class)); // 사용자 입력 1개, AI 응답 1개
+            verify(chatDbService, times(2)).saveChat(anyInt(), anyString(), eq(chatRoom)); // 사용자 입력 1개, AI 응답 1개
             assertEquals(result.getChats().size(), 1);
             assertEquals(result.getChats().getFirst().getContent(), "AI의 예상 응답");
         }
@@ -159,7 +154,7 @@ class ChatServiceTest {
 
         @Test
         @DisplayName("AI 응답 성공 시")
-        void validAiResponse() throws NoSuchFieldException, IllegalAccessException {
+        void validAiResponse() {
             // Given
             List<Chat> chatList = List.of(
                     createTestChat("userChat1", 1),
@@ -167,9 +162,9 @@ class ChatServiceTest {
                     createTestChat("userChat2", 1)
             );
 
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
-            when(chatRepository.findByChatRoomOrderByChatId(chatRoom)).thenReturn(chatList);
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
                     .thenReturn("{\"title\":\"요약 제목\",\"content\":\"요약 내용\"}");
 
@@ -183,16 +178,16 @@ class ChatServiceTest {
 
         @Test
         @DisplayName("AI 응답이 빈 경우")
-        void emptyAiResponse() throws NoSuchFieldException, IllegalAccessException {
+        void emptyAiResponse() {
             // Given
             List<Chat> chatList = List.of(
                     createTestChat("userChat1", 1),
                     createTestChat("aiChat1", 0)
             );
 
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
-            when(chatRepository.findByChatRoomOrderByChatId(chatRoom)).thenReturn(chatList);
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
                     .thenReturn("{\"title\":\"\",\"content\":\"\"}"); // 빈 응답
 
@@ -202,7 +197,7 @@ class ChatServiceTest {
 
         @Test
         @DisplayName("AI 응답이 긴 경우 예외 발생 (제목 50자 초과)")
-        void longAiTitle() throws NoSuchFieldException, IllegalAccessException {
+        void longAiTitle() {
             // Given
             List<Chat> chatList = List.of(
                     createTestChat("userChat1", 1),
@@ -210,9 +205,9 @@ class ChatServiceTest {
             );
 
             String longTitle = "a".repeat(51); // 51자 제목 생성
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
-            when(chatRepository.findByChatRoomOrderByChatId(chatRoom)).thenReturn(chatList);
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
                     .thenReturn(String.format("{\"title\":\"%s\",\"content\":\"정상 내용\"}", longTitle)); // 50자 초과 제목
 
@@ -222,7 +217,7 @@ class ChatServiceTest {
 
         @Test
         @DisplayName("AI 응답이 긴 경우 예외 발생 (내용 500자 초과)")
-        void longAiResponse() throws NoSuchFieldException, IllegalAccessException {
+        void longAiResponse() {
             // Given
             List<Chat> chatList = List.of(
                     createTestChat("userChat1", 1),
@@ -230,9 +225,9 @@ class ChatServiceTest {
             );
 
             String longContent = "a".repeat(501); // 501자 응답 생성
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
-            when(chatRepository.findByChatRoomOrderByChatId(chatRoom)).thenReturn(chatList);
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
                     .thenReturn(String.format("{\"title\":\"정상 제목\",\"content\":\"%s\"}", longContent)); // 500자 초과 내용
 
@@ -249,15 +244,16 @@ class ChatServiceTest {
         @DisplayName("저장 성공")
         void saveChatTmp() {
             // Given
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
 
             // When
             chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId());
 
             // Then
-            assertEquals(user.getTmpChat(), chatRoom.getChatRoomId());
-            verify(userRepository).findById(user.getUserId());
+            verify(chatDbService).findUserById(user.getUserId());
+            verify(chatDbService).findChatRoomById(chatRoom.getChatRoomId(), user);
+            verify(chatDbService).updateUserTmpChat(user, chatRoom.getChatRoomId());
         }
 
         @Test
@@ -265,8 +261,8 @@ class ChatServiceTest {
         void saveChatTmpFailsWhenTmpChatExists() {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
-            when(chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user)).thenReturn(Optional.of(chatRoom));
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
 
             // When & Then
             assertThrows(ChatException.class, () -> chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId()));
@@ -277,7 +273,7 @@ class ChatServiceTest {
         void getChatTmp() {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
-            when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
+            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
 
             // When
             ChatResponse.ChatTmpDto result = chatService.getChatTmp(user.getUserId());
@@ -285,11 +281,11 @@ class ChatServiceTest {
             // Then
             assertEquals(result.getChatRoomId(), chatRoom.getChatRoomId());
             assertTrue(result.isExist());
-            verify(userRepository).findById(user.getUserId());
+            verify(chatDbService).findUserById(user.getUserId());
         }
     }
 
-    private User createTestUser() {
+        private User createTestUser() {
         return User.builder()
                 .userId(1L)
                 .providerId("providerId")
@@ -310,16 +306,14 @@ class ChatServiceTest {
                 .build();
     }
 
-    private Chat createTestChat(String content, int isSystem) throws IllegalAccessException, NoSuchFieldException {
-        Chat chat =  Chat.builder()
+    private Chat createTestChat(String content, int isSystem) {
+        Chat chat = Chat.builder()
                 .chatId(1L)
                 .author(isSystem)
                 .content(content)
                 .chatRoom(chatRoom)
                 .build();
-        Field createdAtField = Chat.class.getSuperclass().getDeclaredField("createdAt");
-        createdAtField.setAccessible(true);
-        createdAtField.set(chat, LocalDateTime.now());
+        chat.setCreatedAt(LocalDateTime.now());
         return chat;
     }
 }
