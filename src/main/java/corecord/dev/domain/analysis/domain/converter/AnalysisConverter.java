@@ -31,6 +31,7 @@ public class AnalysisConverter {
                 .chatRoomId(record.getType() == RecordType.CHAT ? record.getChatRoom().getChatRoomId() : null)
                 .recordId(record.getRecordId())
                 .recordType(record.getType())
+                .folderName(record.getFolder().getTitle())
                 .recordTitle(record.getTitle())
                 .recordContent(analysis.getContent())
                 .abilityDtoList(abilityDtoList)
