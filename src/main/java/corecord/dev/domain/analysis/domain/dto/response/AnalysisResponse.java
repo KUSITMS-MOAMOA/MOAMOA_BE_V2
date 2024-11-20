@@ -19,6 +19,7 @@ public class AnalysisResponse {
         private Long analysisId;
         private Long chatRoomId;
         private Long recordId;
+        private String folderName;
         private RecordType recordType;
         private String recordTitle;
         private String recordContent;
