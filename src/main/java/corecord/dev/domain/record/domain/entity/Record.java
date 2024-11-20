@@ -35,8 +35,7 @@ public class Record extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_room_id", nullable = true)
+    @OneToOne(mappedBy = "record", cascade = CascadeType.ALL)
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
