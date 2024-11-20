@@ -1,8 +1,9 @@
-# 🎯 CORECORD_BE
-대학생IT경영학회 큐시즘 30th CORECORD Backend Repository
-2024.09.28 ~
+# 🎯 MOAMOA_BE
 
-<br><br>
+> 대학생IT경영학회 큐시즘 30th 밋업 프로젝트 G팀 MOAMOA Backend Repository <br>
+> 2024.09.28 ~ 2024.11.28
+
+<br>
 
 ## Member
 |      김다은       |          오세연        |                                                                                                   
@@ -13,13 +14,15 @@
 
 <br><br>
 
+
 ## Convention
 
-**commit convention** <br>
-`conventionType: 구현한 내용` <br><br>
+#### Commit Convention
+- **`ConventionType: 구현한 내용`**
+- ex) feat: 회원가입 기능 구현 <br><br>
 
 
-**convention Type** <br>
+#### Convention Type
 | convention type | description |
 | --- | --- |
 | `feat` | 새로운 기능 구현 |
@@ -30,15 +33,43 @@
 | `rename` | 파일 및 폴더 이름 변경 |
 | `test` | 테스트 코드 추가 및 수정, 삭제 |
 | `refactor` | 코드 리팩토링 |
+| `!hotfix` | develop 브랜치에 급하게 커밋해야 하는 경우 |
 
-<br><br><br>
+<br>
+
+#### Issue
+- Issue Title : **`ConventionType: 작업할 내용`**
+- 모든 작업은 `Issue`를 만든 후, 해당 이슈 번호에 대한 branch를 통해 수행
+- 수행할 작업에 대한 설명과 할 일을 작성
+
+<br>
+
+#### Pull Request
+- Pull Request Title : **`[ContentionType/#이슈번호] 작업한 내용`**
+- 수행한 작업에 대한 설명을 작성하고 관련 스크린샷을 첨부
+- Reviewer, Assigner, Label, Project, Milestone, 관련 이슈를 태그
+- 작업 중 참고한 자료 혹은 reviewer에게 전할 내용이 있다면 하단에 작성
+
+<br>
+
+#### Branch
+- Branch Name : **`컨벤션명/#이슈번호`**
+- `Pull Request`를 통해 develop branch에 merge 후, 해당 branch 제거
+
+<br><br>
+
+## Architecture
+![MOAMOA_ARCHITECTURE](https://github.com/user-attachments/assets/d9aaee68-0793-482c-b57a-2f2ab4d56756)
+
+
+<br><br>
+
+## ERD
+![MOAMOA_ERD](https://github.com/user-attachments/assets/fdd8622b-8418-45e2-966a-9757fc5e8b7c)
 
 
 
-## Branch
-### 
-- `컨벤션명/#이슈번호`
-- pull request를 통해 develop branch에 merge 후, branch delete
-- 부득이하게 develop branch에 직접 commit 해야 할 경우, `!hotfix:` 사용
 
-<br><br><br>
+
+
+
