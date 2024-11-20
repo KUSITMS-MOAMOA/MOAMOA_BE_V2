@@ -98,8 +98,8 @@ public class UserService {
         abilityRepository.deleteAbilityByUserId(userId);
         analysisRepository.deleteAnalysisByUserId(userId);
         chatRepository.deleteChatByUserId(userId);
-        chatRoomRepository.deleteChatRoomByUserId(userId);
         recordRepository.deleteRecordByUserId(userId);
+        chatRoomRepository.deleteChatRoomByUserId(userId);
         folderRepository.deleteFolderByUserId(userId);
         userRepository.deleteUserByUserId(userId);
 
