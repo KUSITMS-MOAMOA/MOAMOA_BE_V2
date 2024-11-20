@@ -30,9 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final ChatRoomRepository chatRoomRepository;
-    private final ChatRepository chatRepository;
-    private final UserRepository userRepository;
+    private final ChatDbService chatDbService;
     private final ClovaService clovaService;
 
     /*
@@ -40,16 +38,15 @@ public class ChatService {
      * @param userId
      * @return chatRoomDto
      */
-    @Transactional
     public ChatResponse.ChatRoomDto createChatRoom(Long userId) {
-        User user = findUserById(userId);
+        User user = chatDbService.findUserById(userId);
 
         // 채팅방 생성
-        ChatRoom chatRoom = ChatConverter.toChatRoomEntity(user);
-        chatRoomRepository.save(chatRoom);
+        ChatRoom chatRoom = chatDbService.createChatRoom(user);
 
         // 첫번째 채팅 생성 - "안녕하세요! {nickName}님! {nickName}님의 경험이 궁금해요. {nickName}님의 경험을 들려주세요!"
-        Chat firstChat = createFirstChat(user, chatRoom);
+        String firstChatContent = String.format("안녕하세요! %s님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!", user.getNickName());
+        Chat firstChat = chatDbService.saveChat(0, firstChatContent, chatRoom);
 
         return ChatConverter.toChatRoomDto(chatRoom, firstChat);
     }
@@ -60,24 +57,22 @@ public class ChatService {
      * @param chatDto
      * @return
      */
-    @Transactional
     public ChatResponse.ChatsDto createChat(Long userId, Long chatRoomId, ChatRequest.ChatDto chatDto) {
-        User user = findUserById(userId);
-        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+        User user = chatDbService.findUserById(userId);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 사용자 채팅 생성
-        Chat chat = ChatConverter.toChatEntity(1, chatDto.getContent(), chatRoom);
-        chatRepository.save(chat);
+        chatDbService.saveChat(1, chatDto.getContent(), chatRoom);
 
         // 가이드이면 가이드 채팅 생성
-        if(chatDto.isGuide()) {
+        if (chatDto.isGuide()) {
             checkGuideChat(chatRoom);
             return generateGuideChats(chatRoom);
         }
 
         // AI 답변 생성
         String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent());
-        Chat aiChat = chatRepository.save(ChatConverter.toChatEntity(0, aiAnswer, chatRoom));
+        Chat aiChat = chatDbService.saveChat(0, aiAnswer, chatRoom);
 
         return ChatConverter.toChatsDto(List.of(aiChat));
     }
@@ -89,9 +84,9 @@ public class ChatService {
      * @return chatListDto
      */
     public ChatResponse.ChatListDto getChatList(Long userId, Long chatRoomId) {
-        User user = findUserById(userId);
-        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
-        List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
+        User user = chatDbService.findUserById(userId);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
         return ChatConverter.toChatListDto(chatList);
     }
@@ -101,15 +96,13 @@ public class ChatService {
      * @param userId
      * @param chatRoomId
      */
-    @Transactional
     public void deleteChatRoom(Long userId, Long chatRoomId) {
-        User user = findUserById(userId);
-        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+        User user = chatDbService.findUserById(userId);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 임시 저장된 ChatRoom 인지 확인 후 삭제
         checkTmpChat(user, chatRoom);
-        chatRepository.deleteByChatRoomId(chatRoomId);
-        chatRoomRepository.delete(chatRoom);
+        chatDbService.deleteChatRoom(chatRoom);
     }
 
     /*
@@ -119,9 +112,9 @@ public class ChatService {
      * @return chatSummaryDto
      */
     public ChatResponse.ChatSummaryDto getChatSummary(Long userId, Long chatRoomId) {
-        User user = findUserById(userId);
-        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
-        List<Chat> chatList = chatRepository.findByChatRoomOrderByChatId(chatRoom);
+        User user = chatDbService.findUserById(userId);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
         // 사용자 입력 없이 저장하려는 경우 체크
         validateChatList(chatList);
@@ -141,13 +134,13 @@ public class ChatService {
      */
     @Transactional
     public ChatResponse.ChatTmpDto getChatTmp(Long userId) {
-        User user = findUserById(userId);
-        if(user.getTmpChat() == null) {
+        User user = chatDbService.findUserById(userId);
+        if (user.getTmpChat() == null) {
             return ChatConverter.toNotExistingChatTmpDto();
         }
         // 임시 채팅 제거 후 반환
         Long chatRoomId = user.getTmpChat();
-        user.deleteTmpChat();
+        chatDbService.deleteUserTmpChat(user);
         return ChatConverter.toExistingChatTmpDto(chatRoomId);
     }
 
@@ -158,27 +151,25 @@ public class ChatService {
      */
     @Transactional
     public void saveChatTmp(Long userId, Long chatRoomId) {
-        User user = findUserById(userId);
-        ChatRoom chatRoom = findChatRoomById(chatRoomId, user);
+        User user = chatDbService.findUserById(userId);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 이미 임시 저장된 채팅방이 있는 경우
-        if(user.getTmpChat() != null) {
+        if (user.getTmpChat() != null) {
             throw new ChatException(ChatErrorStatus.TMP_CHAT_EXIST);
         }
-        user.updateTmpChat(chatRoom.getChatRoomId());
+        chatDbService.updateUserTmpChat(user, chatRoom.getChatRoomId());
     }
 
     private static void checkGuideChat(ChatRoom chatRoom) {
-        if(chatRoom.getChatList().size() > 2) {
+        if (chatRoom.getChatList().size() > 2) {
             throw new ChatException(ChatErrorStatus.INVALID_GUIDE_CHAT);
         }
     }
 
     private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
-        Chat guideChat1 = ChatConverter.toChatEntity(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
-        Chat guideChat2 = ChatConverter.toChatEntity(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
-        chatRepository.save(guideChat1);
-        chatRepository.save(guideChat2);
+        Chat guideChat1 = chatDbService.saveChat(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
+        Chat guideChat2 = chatDbService.saveChat(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
         return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
     }
 
@@ -197,7 +188,7 @@ public class ChatService {
     }
 
     private static void validateChatList(List<Chat> chatList) {
-        if(chatList.size() <= 1) {
+        if (chatList.size() <= 1) {
             throw new ChatException(ChatErrorStatus.NO_RECORD);
         }
     }
@@ -218,36 +209,18 @@ public class ChatService {
     }
 
     private void checkTmpChat(User user, ChatRoom chatRoom) {
-        if(user.getTmpChat() == null) {
+        if (user.getTmpChat() == null) {
             return;
         }
-        if(user.getTmpChat().equals(chatRoom.getChatRoomId())) {
+        if (user.getTmpChat().equals(chatRoom.getChatRoomId())) {
             user.deleteTmpChat();
         }
     }
 
     private String createChatAiAnswer(ChatRoom chatRoom, String userInput) {
-        List<Chat> chatHistory = chatRepository.findByChatRoomOrderByChatId(chatRoom);
+        List<Chat> chatHistory = chatDbService.findChatsByChatRoom(chatRoom);
         ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
         return clovaService.generateAiResponse(clovaRequest);
-    }
-
-    private ChatRoom findChatRoomById(Long chatRoomId, User user) {
-        return chatRoomRepository.findByChatRoomIdAndUser(chatRoomId, user)
-                .orElseThrow(() -> new ChatException(ChatErrorStatus.CHAT_ROOM_NOT_FOUND));
-    }
-
-    private Chat createFirstChat(User user, ChatRoom chatRoom) {
-        String nickName = user.getNickName();
-        String firstChatContent = String.format("안녕하세요! %s님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!", nickName);
-        Chat chat = ChatConverter.toChatEntity(0, firstChatContent, chatRoom);
-        chatRepository.save(chat);
-        return chat;
-    }
-
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 
 }
