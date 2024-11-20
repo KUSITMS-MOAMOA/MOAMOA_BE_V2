@@ -6,6 +6,8 @@ import corecord.dev.common.util.CookieUtil;
 import corecord.dev.domain.auth.jwt.JwtUtil;
 import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
+import corecord.dev.domain.chat.domain.repository.ChatRepository;
+import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
 import corecord.dev.domain.folder.domain.repository.FolderRepository;
 import corecord.dev.domain.record.domain.repository.RecordRepository;
 import corecord.dev.domain.auth.domain.entity.RefreshToken;
@@ -45,6 +47,9 @@ public class UserService {
     private final FolderRepository folderRepository;
     private final AnalysisRepository analysisRepository;
     private final AbilityRepository abilityRepository;
+    private final ChatRepository chatRepository;
+    private final ChatRoomRepository chatRoomRepository;
+
 
     @Value("${jwt.access-token.expiration-time}")
     private long accessTokenExpirationTime;
@@ -92,6 +97,8 @@ public class UserService {
         // 연관된 데이터 삭제
         abilityRepository.deleteAbilityByUserId(userId);
         analysisRepository.deleteAnalysisByUserId(userId);
+        chatRepository.deleteChatByUserId(userId);
+        chatRoomRepository.deleteChatRoomByUserId(userId);
         recordRepository.deleteRecordByUserId(userId);
         folderRepository.deleteFolderByUserId(userId);
         userRepository.deleteUserByUserId(userId);
