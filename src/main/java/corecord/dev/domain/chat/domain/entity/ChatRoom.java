@@ -26,8 +26,7 @@ public class ChatRoom extends BaseEntity {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Chat> chatList;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "record_id", nullable = false)
+    @OneToOne(mappedBy = "chatRoom")
     private Record record;
 
     @ManyToOne
