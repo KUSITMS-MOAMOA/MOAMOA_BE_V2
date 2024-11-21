@@ -9,6 +9,7 @@ import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.chat.infra.clova.application.ClovaService;
 import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,11 +21,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -37,6 +36,9 @@ class ChatServiceTest {
 
     @Mock
     private ChatDbService chatDbService;
+
+    @Mock
+    private UserDbService userDbService;
 
     @Mock
     private ClovaService clovaService;
@@ -54,7 +56,7 @@ class ChatServiceTest {
     @DisplayName("채팅방 생성 테스트")
     void createChatRoom() {
         // Given
-        when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+        when(userDbService.findUserById(user.getUserId())).thenReturn(user);
         when(chatDbService.createChatRoom(user)).thenReturn(chatRoom);
         when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                 .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
@@ -75,7 +77,7 @@ class ChatServiceTest {
         Chat userChat = createTestChat("userChat", 1);
         Chat aiChat = createTestChat("aiChat", 0);
 
-        when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+        when(userDbService.findUserById(user.getUserId())).thenReturn(user);
         when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
         when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(List.of(userChat, aiChat));
 
@@ -101,7 +103,7 @@ class ChatServiceTest {
                     .content("어떤 경험을 말해야 할지 모르겠어요.")
                     .build();
 
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                     .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
@@ -128,7 +130,7 @@ class ChatServiceTest {
                     .content("테스트 입력")
                     .build();
 
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                     .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
@@ -162,7 +164,7 @@ class ChatServiceTest {
                     createTestChat("userChat2", 1)
             );
 
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
@@ -185,7 +187,7 @@ class ChatServiceTest {
                     createTestChat("aiChat1", 0)
             );
 
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
@@ -205,7 +207,7 @@ class ChatServiceTest {
             );
 
             String longTitle = "a".repeat(51); // 51자 제목 생성
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
@@ -225,7 +227,7 @@ class ChatServiceTest {
             );
 
             String longContent = "a".repeat(501); // 501자 응답 생성
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(clovaService.generateAiResponse(any(ClovaRequest.class)))
@@ -244,16 +246,16 @@ class ChatServiceTest {
         @DisplayName("저장 성공")
         void saveChatTmp() {
             // Given
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
 
             // When
             chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId());
 
             // Then
-            verify(chatDbService).findUserById(user.getUserId());
+            verify(userDbService).findUserById(user.getUserId());
             verify(chatDbService).findChatRoomById(chatRoom.getChatRoomId(), user);
-            verify(chatDbService).updateUserTmpChat(user, chatRoom.getChatRoomId());
+            verify(userDbService).updateUserTmpChat(user, chatRoom.getChatRoomId());
         }
 
         @Test
@@ -261,7 +263,7 @@ class ChatServiceTest {
         void saveChatTmpFailsWhenTmpChatExists() {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
 
             // When & Then
@@ -273,7 +275,7 @@ class ChatServiceTest {
         void getChatTmp() {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
-            when(chatDbService.findUserById(user.getUserId())).thenReturn(user);
+            when(userDbService.findUserById(user.getUserId())).thenReturn(user);
 
             // When
             ChatResponse.ChatTmpDto result = chatService.getChatTmp(user.getUserId());
@@ -281,7 +283,7 @@ class ChatServiceTest {
             // Then
             assertEquals(result.getChatRoomId(), chatRoom.getChatRoomId());
             assertTrue(result.isExist());
-            verify(chatDbService).findUserById(user.getUserId());
+            verify(userDbService).findUserById(user.getUserId());
         }
     }
 

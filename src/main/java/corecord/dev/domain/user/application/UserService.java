@@ -1,15 +1,12 @@
 package corecord.dev.domain.user.application;
 
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.common.util.CookieUtil;
+import corecord.dev.domain.ability.application.AbilityDbService;
+import corecord.dev.domain.analysis.application.AnalysisDbService;
 import corecord.dev.domain.auth.jwt.JwtUtil;
-import corecord.dev.domain.ability.domain.repository.AbilityRepository;
-import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
-import corecord.dev.domain.chat.domain.repository.ChatRepository;
-import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
-import corecord.dev.domain.folder.domain.repository.FolderRepository;
-import corecord.dev.domain.record.domain.repository.RecordRepository;
+import corecord.dev.domain.chat.application.ChatDbService;
+import corecord.dev.domain.folder.application.FolderDbService;
+import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.auth.domain.entity.RefreshToken;
 import corecord.dev.domain.auth.status.TokenErrorStatus;
 import corecord.dev.domain.auth.exception.TokenException;
@@ -21,7 +18,6 @@ import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.status.UserErrorStatus;
 import corecord.dev.domain.user.exception.UserException;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -41,14 +37,13 @@ public class UserService {
 
     private final JwtUtil jwtUtil;
     private final CookieUtil cookieUtil;
-    private final UserRepository userRepository;
-    private final RecordRepository recordRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final FolderRepository folderRepository;
-    private final AnalysisRepository analysisRepository;
-    private final AbilityRepository abilityRepository;
-    private final ChatRepository chatRepository;
-    private final ChatRoomRepository chatRoomRepository;
+    private final AnalysisDbService analysisDbService;
+    private final AbilityDbService abilityDbService;
+    private final ChatDbService chatDbService;
+    private final UserDbService userDbService;
+    private final FolderDbService folderDbService;
+    private final RecordDbService recordDbService;
 
 
     @Value("${jwt.access-token.expiration-time}")
@@ -71,7 +66,7 @@ public class UserService {
 
         // 새로운 유저 생성
         User newUser = UserConverter.toUserEntity(userRegisterDto, providerId);
-        User savedUser = userRepository.save(newUser);
+        User savedUser = userDbService.saveUser(newUser);
 
         // RefreshToken 생성 및 저장
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
@@ -95,13 +90,13 @@ public class UserService {
     @Transactional
     public void deleteUser(HttpServletRequest request, HttpServletResponse response, Long userId) {
         // 연관된 데이터 삭제
-        abilityRepository.deleteAbilityByUserId(userId);
-        analysisRepository.deleteAnalysisByUserId(userId);
-        chatRepository.deleteChatByUserId(userId);
-        recordRepository.deleteRecordByUserId(userId);
-        chatRoomRepository.deleteChatRoomByUserId(userId);
-        folderRepository.deleteFolderByUserId(userId);
-        userRepository.deleteUserByUserId(userId);
+        abilityDbService.deleteAbilityByUserId(userId);
+        analysisDbService.deleteAnalysisByUserId(userId);
+        chatDbService.deleteChatByUserId(userId);
+        recordDbService.deleteRecordByUserId(userId);
+        chatDbService.deleteChatRoomByUserId(userId);
+        folderDbService.deleteFolderByUserId(userId);
+        userDbService.deleteUserByUserId(userId);
 
         // RefreshToken 삭제
         deleteRefreshTokenInRedis(request);
@@ -111,7 +106,7 @@ public class UserService {
     // 유저 정보 수정
     @Transactional
     public void updateUser(Long userId, UserRequest.UserUpdateDto userUpdateDto) {
-        User user = getUser(userId);
+        User user = userDbService.getUser(userId);
 
         if(userUpdateDto.getNickName() != null) {
             validateUserInfo(userUpdateDto.getNickName());
@@ -126,14 +121,14 @@ public class UserService {
     // 유저 정보 조회
     @Transactional
     public UserResponse.UserInfoDto getUserInfo(Long userId) {
-        User user = getUser(userId);
+        User user = userDbService.getUser(userId);
 
         int recordCount = getRecordCount(user);
         return UserConverter.toUserInfoDto(user, recordCount);
     }
 
     private int getRecordCount(User user) {
-        int recordCount = recordRepository.getRecordCount(user);
+        int recordCount = recordDbService.getRecordCount(user);
         if (user.getTmpChat() != null) {
             recordCount--;
         }
@@ -178,7 +173,7 @@ public class UserService {
     }
 
     private void checkExistUser(String providerId) {
-        if (userRepository.existsByProviderId(providerId)) {
+        if (userDbService.IsUserExistByProviderId(providerId)) {
             throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
         }
     }
@@ -201,10 +196,5 @@ public class UserService {
         if (!jwtUtil.isRegisterTokenValid(registerToken)) {
             throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
         }
-    }
-
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
     }
 }

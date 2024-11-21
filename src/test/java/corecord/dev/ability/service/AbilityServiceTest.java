@@ -1,19 +1,19 @@
 package corecord.dev.ability.service;
 
+import corecord.dev.domain.ability.application.AbilityDbService;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
-import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.ability.application.AbilityService;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.entity.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,13 +37,13 @@ import static org.mockito.Mockito.*;
 public class AbilityServiceTest {
 
     @Mock
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
     @Mock
-    UserRepository userRepository;
+    private UserDbService userDbService;
 
     @Mock
-    AbilityRepository abilityRepository;
+    private AbilityDbService abilityDbService;
 
     @InjectMocks
     AbilityService abilityService;
@@ -72,16 +72,16 @@ public class AbilityServiceTest {
         analysis.addAbility(ability1);
         analysis.addAbility(ability2);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(abilityRepository.getKeywordList(any(User.class)))
-                .thenReturn(List.of(Keyword.COMMUNICATION, Keyword.LEADERSHIP));
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(abilityDbService.findKeywordList(any(User.class)))
+                .thenReturn(List.of(Keyword.COMMUNICATION.getValue(), Keyword.LEADERSHIP.getValue()));
 
         // When
         AbilityResponse.KeywordListDto response = abilityService.getKeywordList(1L);
 
         // Then
-        verify(userRepository, times(1)).findById(1L);
-        verify(abilityRepository, times(1)).getKeywordList(user);
+        verify(userDbService, times(1)).findUserById(1L);
+        verify(abilityDbService, times(1)).findKeywordList(user);
 
         assertEquals(2, response.getKeywordList().size());
         assertEquals(Keyword.COMMUNICATION.getValue(), response.getKeywordList().get(0));
@@ -100,7 +100,7 @@ public class AbilityServiceTest {
         abilityService.parseAndSaveAbilities(keywordList, analysis, user);
 
         // Then
-        verify(abilityRepository, times(2)).save(any(Ability.class));
+        verify(abilityDbService, times(2)).saveAbility(any(Ability.class));
         assertEquals(2, analysis.getAbilityList().size());
         assertEquals(Keyword.COMMUNICATION.getValue(), analysis.getAbilityList().get(0).getKeyword().getValue());
         assertEquals(Keyword.LEADERSHIP.getValue(), analysis.getAbilityList().get(1).getKeyword().getValue());

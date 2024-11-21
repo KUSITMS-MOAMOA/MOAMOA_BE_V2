@@ -1,43 +1,34 @@
 package corecord.dev.domain.analysis.application;
 
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.ability.domain.entity.Keyword;
-import corecord.dev.domain.ability.status.AbilityErrorStatus;
-import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.application.AbilityService;
 import corecord.dev.domain.analysis.domain.converter.AnalysisConverter;
 import corecord.dev.domain.analysis.domain.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.domain.dto.response.AnalysisResponse;
-import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.infra.openai.application.OpenAiService;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
-import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
+import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.status.RecordErrorStatus;
 import corecord.dev.domain.record.exception.RecordException;
-import corecord.dev.domain.record.domain.repository.RecordRepository;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
-    private final AnalysisRepository analysisRepository;
-    private final UserRepository userRepository;
-    private final RecordRepository recordRepository;
     private final OpenAiService openAiService;
     private final AbilityService abilityService;
-
+    private final AnalysisDbService analysisDbService;
+    private final UserDbService userDbService;
+    private final RecordDbService recordDbService;
 
     /*
      * CLOVA STUDIO룰 활용해 역량 분석 객체를 생성 후 반환
@@ -45,7 +36,6 @@ public class AnalysisService {
      * @param user
      * @return
      */
-    @Transactional
     public Analysis createAnalysis(Record record, User user) {
 
         // MEMO 경험 기록이라면, CLOVA STUDIO를 이용해 요약 진행
@@ -56,7 +46,7 @@ public class AnalysisService {
 
         // Analysis 객체 생성 및 저장
         Analysis analysis = AnalysisConverter.toAnalysis(content, response.getComment(), record);
-        analysisRepository.save(analysis);
+        analysisDbService.saveAnalysis(analysis);
 
         // Ability 객체 생성 및 저장
         abilityService.parseAndSaveAbilities(response.getKeywordList(), analysis, user);
@@ -70,7 +60,6 @@ public class AnalysisService {
      * @param user
      * @return
      */
-    @Transactional
     public Analysis recreateAnalysis(Record record, User user) {
         Analysis analysis = record.getAnalysis();
 
@@ -81,8 +70,8 @@ public class AnalysisService {
         AnalysisAiResponse response = generateAbilityAnalysis(content);
 
         // Analysis 객체 수정
-        analysis.updateContent(content);
-        analysis.updateComment(response.getComment());
+        analysisDbService.updateAnalysisContent(analysis, content);
+        analysisDbService.updateAnalysisComment(analysis, response.getComment());
 
         // 기존 Ability 객체 삭제
         abilityService.deleteOriginAbilityList(analysis);
@@ -100,8 +89,8 @@ public class AnalysisService {
      * @return
      */
     public AnalysisResponse.AnalysisDto postAnalysis(Long userId, Long recordId) {
-        User user = findUserById(userId);
-        Record record = findRecordById(recordId);
+        User user = userDbService.findUserById(userId);
+        Record record = recordDbService.findRecordById(recordId);
 
         // User-Record 권한 유효성 검증
         validIsUserAuthorizedForRecord(user, record);
@@ -119,10 +108,9 @@ public class AnalysisService {
      * @param userId, analysisId
      * @return
      */
-    @Transactional(readOnly = true)
     public AnalysisResponse.AnalysisDto getAnalysis(Long userId, Long analysisId) {
-        User user = findUserById(userId);
-        Analysis analysis = findAnalysisById(analysisId);
+        User user = userDbService.findUserById(userId);
+        Analysis analysis = analysisDbService.findAnalysisById(analysisId);
 
         // User-Analysis 권한 유효성 검증
         validIsUserAuthorizedForAnalysis(user, analysis);
@@ -137,23 +125,23 @@ public class AnalysisService {
      */
     @Transactional
     public AnalysisResponse.AnalysisDto updateAnalysis(Long userId, AnalysisRequest.AnalysisUpdateDto analysisUpdateDto) {
-        User user = findUserById(userId);
-        Analysis analysis = findAnalysisById(analysisUpdateDto.getAnalysisId());
+        User user = userDbService.findUserById(userId);
+        Analysis analysis = analysisDbService.findAnalysisById(analysisUpdateDto.getAnalysisId());
 
         // User-Analysis 권한 유효성 검증
         validIsUserAuthorizedForAnalysis(user, analysis);
 
         // 경험 기록 제목 수정
         String title = analysisUpdateDto.getTitle();
-        analysis.getRecord().updateTitle(title);
+        recordDbService.updateRecordTitle(analysis.getRecord(), title);
 
         // 경험 역량 분석 요약 내용 수정
         String content = analysisUpdateDto.getContent();
-        analysis.updateContent(content);
+        analysisDbService.updateAnalysisContent(analysis, content);
 
         // 키워드 경험 내용 수정
         Map<String, String> abilityMap = analysisUpdateDto.getAbilityMap();
-        updateAbilityContents(analysis, abilityMap);
+        abilityService.updateAbilityContents(analysis, abilityMap);
 
         return AnalysisConverter.toAnalysisDto(analysis);
     }
@@ -164,13 +152,13 @@ public class AnalysisService {
      */
     @Transactional
     public void deleteAnalysis(Long userId, Long analysisId) {
-        User user = findUserById(userId);
-        Analysis analysis = findAnalysisById(analysisId);
+        User user = userDbService.findUserById(userId);
+        Analysis analysis = analysisDbService.findAnalysisById(analysisId);
 
         // User-Analysis 권한 유효성 검증
         validIsUserAuthorizedForAnalysis(user, analysis);
 
-        analysisRepository.delete(analysis);
+        analysisDbService.deleteAnalysis(analysis);
     }
 
     private AnalysisAiResponse generateAbilityAnalysis(String content) {
@@ -229,34 +217,4 @@ public class AnalysisService {
         }
     }
 
-    private void updateAbilityContents(Analysis analysis, Map<String, String> abilityMap) {
-        abilityMap.forEach((keyword, content) -> {
-            Keyword key = Keyword.getName(keyword);
-            Ability ability = findAbilityByKeyword(analysis, key);
-            ability.updateContent(content);
-        });
-    }
-
-    private Ability findAbilityByKeyword(Analysis analysis, Keyword key) {
-        // keyword가 기존 역량 분석에 존재했는지 확인
-        return analysis.getAbilityList().stream()
-                .filter(ability -> ability.getKeyword().equals(key))
-                .findFirst()
-                .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
-    }
-
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
-    }
-
-    private Analysis findAnalysisById(Long analysisId) {
-        return analysisRepository.findAnalysisById(analysisId)
-                .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.ANALYSIS_NOT_FOUND));
-    }
-
-    private Record findRecordById(Long recordId) {
-        return recordRepository.findRecordById(recordId)
-                .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
-    }
 }

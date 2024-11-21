@@ -1,17 +1,14 @@
 package corecord.dev.domain.ability.application;
 
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.ability.domain.converter.AbilityConverter;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
-import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,9 +20,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AbilityService {
-    private final AbilityRepository abilityRepository;
-    private final UserRepository userRepository;
     private final EntityManager entityManager;
+    private final UserDbService userDbService;
+    private final AbilityDbService abilityDbService;
 
     /*
      * user의 역량 키워드 리스트를 반환
@@ -34,8 +31,8 @@ public class AbilityService {
      */
     @Transactional(readOnly = true)
     public AbilityResponse.KeywordListDto getKeywordList(Long userId) {
-        User user = findUserById(userId);
-        List<String> keywordList = findKeywordList(user);
+        User user = userDbService.findUserById(userId);
+        List<String> keywordList = abilityDbService.findKeywordList(user);
 
         return AbilityConverter.toKeywordListDto(keywordList);
     }
@@ -47,10 +44,10 @@ public class AbilityService {
      */
     @Transactional(readOnly = true)
     public AbilityResponse.GraphDto getKeywordGraph(Long userId) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
 
         // keyword graph 정보 조회
-        List<AbilityResponse.KeywordStateDto> keywordGraph = findKeywordGraph(user);
+        List<AbilityResponse.KeywordStateDto> keywordGraph = abilityDbService.findKeywordGraph(user);
 
         return AbilityConverter.toGraphDto(keywordGraph);
     }
@@ -65,15 +62,14 @@ public class AbilityService {
             if (keyword == null) continue;
 
             Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user);
-            abilityRepository.save(ability);
+            abilityDbService.saveAbility(ability);
+
             if (analysis.getAbilityList() != null)
                 analysis.addAbility(ability);
             abilityCount++;
         }
 
-        if (abilityCount < 1 || abilityCount > 3) {
-            throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
-        }
+        validAbilityCount(abilityCount);
     }
 
     @Transactional
@@ -82,7 +78,7 @@ public class AbilityService {
 
         if (!abilityList.isEmpty()) {
             // 연관된 abilities 삭제
-            abilityRepository.deleteAll(abilityList);
+            abilityDbService.deleteAbilityList(abilityList);
 
             // Analysis에서 abilities 리스트 비우기
             analysis.getAbilityList().clear();
@@ -90,18 +86,26 @@ public class AbilityService {
         }
     }
 
-    private List<String> findKeywordList(User user) {
-        return abilityRepository.getKeywordList(user).stream()
-                .map(Keyword::getValue)
-                .toList();
+    @Transactional
+    public void updateAbilityContents(Analysis analysis, Map<String, String> abilityMap) {
+        abilityMap.forEach((keyword, content) -> {
+            Keyword key = Keyword.getName(keyword);
+            Ability ability = findAbilityByKeyword(analysis, key);
+            ability.updateContent(content);
+        });
     }
 
-    private List<AbilityResponse.KeywordStateDto> findKeywordGraph(User user) {
-        return abilityRepository.findKeywordStateDtoList(user);
+    private Ability findAbilityByKeyword(Analysis analysis, Keyword key) {
+        // keyword가 기존 역량 분석에 존재했는지 확인
+        return analysis.getAbilityList().stream()
+                .filter(ability -> ability.getKeyword().equals(key))
+                .findFirst()
+                .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
     }
 
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
+    private void validAbilityCount(int abilityCount) {
+        if (abilityCount < 1 || abilityCount > 3) {
+            throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
+        }
     }
 }

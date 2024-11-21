@@ -2,8 +2,6 @@ package corecord.dev.domain.chat.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.chat.domain.converter.ChatConverter;
 import corecord.dev.domain.chat.domain.dto.request.ChatRequest;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
@@ -12,12 +10,10 @@ import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.domain.repository.ChatRepository;
-import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
 import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
 import corecord.dev.domain.chat.infra.clova.application.ClovaService;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +28,7 @@ public class ChatService {
 
     private final ChatDbService chatDbService;
     private final ClovaService clovaService;
+    private final UserDbService userDbService;
 
     /*
      * user의 채팅방을 생성하고 생성된 채팅방 정보를 반환
@@ -39,7 +36,7 @@ public class ChatService {
      * @return chatRoomDto
      */
     public ChatResponse.ChatRoomDto createChatRoom(Long userId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
 
         // 채팅방 생성
         ChatRoom chatRoom = chatDbService.createChatRoom(user);
@@ -58,7 +55,7 @@ public class ChatService {
      * @return
      */
     public ChatResponse.ChatsDto createChat(Long userId, Long chatRoomId, ChatRequest.ChatDto chatDto) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 사용자 채팅 생성
@@ -84,7 +81,7 @@ public class ChatService {
      * @return chatListDto
      */
     public ChatResponse.ChatListDto getChatList(Long userId, Long chatRoomId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
         List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
@@ -97,7 +94,7 @@ public class ChatService {
      * @param chatRoomId
      */
     public void deleteChatRoom(Long userId, Long chatRoomId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 임시 저장된 ChatRoom 인지 확인 후 삭제
@@ -112,7 +109,7 @@ public class ChatService {
      * @return chatSummaryDto
      */
     public ChatResponse.ChatSummaryDto getChatSummary(Long userId, Long chatRoomId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
         List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
@@ -134,13 +131,13 @@ public class ChatService {
      */
     @Transactional
     public ChatResponse.ChatTmpDto getChatTmp(Long userId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         if (user.getTmpChat() == null) {
             return ChatConverter.toNotExistingChatTmpDto();
         }
         // 임시 채팅 제거 후 반환
         Long chatRoomId = user.getTmpChat();
-        chatDbService.deleteUserTmpChat(user);
+        userDbService.deleteUserTmpChat(user);
         return ChatConverter.toExistingChatTmpDto(chatRoomId);
     }
 
@@ -151,14 +148,14 @@ public class ChatService {
      */
     @Transactional
     public void saveChatTmp(Long userId, Long chatRoomId) {
-        User user = chatDbService.findUserById(userId);
+        User user = userDbService.findUserById(userId);
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
 
         // 이미 임시 저장된 채팅방이 있는 경우
         if (user.getTmpChat() != null) {
             throw new ChatException(ChatErrorStatus.TMP_CHAT_EXIST);
         }
-        chatDbService.updateUserTmpChat(user, chatRoom.getChatRoomId());
+        userDbService.updateUserTmpChat(user, chatRoom.getChatRoomId());
     }
 
     private static void checkGuideChat(ChatRoom chatRoom) {
@@ -222,5 +219,4 @@ public class ChatService {
         ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
         return clovaService.generateAiResponse(clovaRequest);
     }
-
 }
