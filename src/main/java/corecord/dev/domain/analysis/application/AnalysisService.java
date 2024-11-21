@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
-@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
