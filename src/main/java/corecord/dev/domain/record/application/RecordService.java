@@ -1,19 +1,13 @@
 package corecord.dev.domain.record.application;
 
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.analysis.application.AnalysisService;
+import corecord.dev.domain.chat.application.ChatDbService;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
-import corecord.dev.domain.chat.status.ChatErrorStatus;
-import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
+import corecord.dev.domain.folder.application.FolderDbService;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.folder.status.FolderErrorStatus;
-import corecord.dev.domain.folder.exception.FolderException;
-import corecord.dev.domain.folder.domain.repository.FolderRepository;
 import corecord.dev.domain.record.domain.entity.RecordType;
 import corecord.dev.domain.record.domain.converter.RecordConverter;
 import corecord.dev.domain.record.domain.dto.request.RecordRequest;
@@ -21,14 +15,10 @@ import corecord.dev.domain.record.domain.dto.response.RecordResponse;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.status.RecordErrorStatus;
 import corecord.dev.domain.record.exception.RecordException;
-import corecord.dev.domain.record.domain.repository.RecordRepository;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,11 +28,13 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class RecordService {
-    private final RecordRepository recordRepository;
-    private final FolderRepository folderRepository;
-    private final UserRepository userRepository;
+
     private final AnalysisService analysisService;
-    private final ChatRoomRepository chatRoomRepository;
+    private final RecordDbService recordDbService;
+    private final UserDbService userDbService;
+    private final FolderDbService folderDbService;
+    private final ChatDbService chatDbService;
+
     private final int listSize = 30;
 
     /*
@@ -50,21 +42,18 @@ public class RecordService {
      * @param userId, recordDto
      * @return
      */
-    @Transactional
     public RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.RecordDto recordDto) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
         String title = recordDto.getTitle();
         String content = recordDto.getContent();
-        Folder folder = findFolderById(recordDto.getFolderId());
+        Folder folder = folderDbService.findFolderById(recordDto.getFolderId());
 
         // 제목, 본문 글자 수 검사
         validTextLength(title, content);
 
         // 경험 기록 종류에 따른 Record 생성
         Record record = createRecordBasedOnType(recordDto, user, folder);
-
-        // Record 저장
-        recordRepository.save(record);
+        recordDbService.saveRecord(record);
 
         // 역량 분석 레포트 생성
         analysisService.createAnalysis(record, user);
@@ -79,8 +68,8 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.MemoRecordDto getMemoRecordDetail(Long userId, Long recordId) {
-        User user = findUserById(userId);
-        Record record = findRecordById(recordId);
+        User user = userDbService.findUserById(userId);
+        Record record = recordDbService.findRecordById(recordId);
 
         // User-Record 권한 유효성 검증
         validIsUserAuthorizedForRecord(user, record);
@@ -94,7 +83,7 @@ public class RecordService {
      */
     @Transactional
     public void createTmpMemoRecord(Long userId, RecordRequest.TmpMemoRecordDto tmpMemoRecordDto) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
         String title = tmpMemoRecordDto.getTitle();
         String content = tmpMemoRecordDto.getContent();
 
@@ -106,7 +95,7 @@ public class RecordService {
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
         Record record = RecordConverter.toMemoRecordEntity(title, content, user, null);
-        Record tmpRecord = recordRepository.save(record);
+        Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
 
@@ -117,7 +106,7 @@ public class RecordService {
      */
     @Transactional
     public RecordResponse.TmpMemoRecordDto getTmpMemoRecord(Long userId) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
         Long tmpMemoRecordId = user.getTmpMemo();
 
         // 임시 저장 내역이 없는 경우 isExist=false 반환
@@ -126,11 +115,11 @@ public class RecordService {
         }
 
         // 임시 저장 내역이 있는 경우 결과 조회
-        Record tmpMemoRecord = findTmpRecordById(tmpMemoRecordId);
+        Record tmpMemoRecord = recordDbService.findTmpRecordById(tmpMemoRecordId);
 
         // 기존 데이터 제거 후 결과 반환
         user.deleteTmpMemo();
-        recordRepository.delete(tmpMemoRecord);
+        recordDbService.deleteRecord(tmpMemoRecord);
         return RecordConverter.toExistingTmpMemoRecordDto(tmpMemoRecord);
     }
 
@@ -141,15 +130,15 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.RecordListDto getRecordList(Long userId, String folderName, Long lastRecordId) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
         List<Record> recordList;
 
         // 임시 저장 기록 제외 Record List 최신 생성 순 조회
         if (folderName.equals("all")) {
-            recordList = findRecordList(user, lastRecordId);
+            recordList = recordDbService.findRecordList(user, lastRecordId);
         } else {
-            Folder folder = findFolderByTitle(user, folderName);
-            recordList = findRecordListByFolder(user, folder, lastRecordId);
+            Folder folder = folderDbService.findFolderByTitle(user, folderName);
+            recordList = recordDbService.findRecordListByFolder(user, folder, lastRecordId);
         }
 
         // 다음 조회할 데이터가 남아있는지 확인
@@ -167,11 +156,11 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue, Long lastRecordId) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
 
         // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
         Keyword keyword = getKeyword(keywordValue);
-        List<Record> recordList = findRecordListByKeyword(user, keyword, lastRecordId);
+        List<Record> recordList = recordDbService.findRecordListByKeyword(user, keyword, lastRecordId);
 
         // 다음 조회할 데이터가 남아있는지 확인
         boolean hasNext = recordList.size() == listSize + 1;
@@ -187,9 +176,9 @@ public class RecordService {
      */
     @Transactional
     public void updateFolder(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
-        User user = findUserById(userId);
-        Record record = findRecordById(updateFolderDto.getRecordId());
-        Folder folder = findFolderByTitle(user, updateFolderDto.getFolder());
+        User user = userDbService.findUserById(userId);
+        Record record = recordDbService.findRecordById(updateFolderDto.getRecordId());
+        Folder folder = folderDbService.findFolderByTitle(user, updateFolderDto.getFolder());
 
         record.updateFolder(folder);
     }
@@ -200,10 +189,10 @@ public class RecordService {
      * @return
      */
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
-        User user = findUserById(userId);
+        User user = userDbService.findUserById(userId);
 
         // 최근 생성된 3개의 데이터만 조회
-        List<Record> recordList = findRecordListOrderByCreatedAt(user);
+        List<Record> recordList = recordDbService.findRecordListOrderByCreatedAt(user);
 
         return RecordConverter.toRecordListDto("all", recordList, false);
     }
@@ -231,51 +220,6 @@ public class RecordService {
             throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
     }
 
-    private Folder findFolderById(Long folderId) {
-        return folderRepository.findById(folderId)
-                .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
-    }
-
-    private Folder findFolderByTitle(User user, String title) {
-        return folderRepository.findFolderByTitle(title, user)
-                .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
-    }
-
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus.UNAUTHORIZED));
-    }
-
-    private Record findRecordById(Long recordId) {
-        return recordRepository.findRecordById(recordId)
-                .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
-    }
-
-    private Record findTmpRecordById(Long recordId) {
-        return recordRepository.findById(recordId)
-                .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
-    }
-
-    private List<Record> findRecordListByFolder(User user, Folder folder, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
-    }
-
-    private List<Record> findRecordList(User user, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecords(user, lastRecordId, pageable);
-    }
-
-    private List<Record> findRecordListOrderByCreatedAt(User user) {
-        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
-    }
-
-    private List<Record> findRecordListByKeyword(User user, Keyword keyword, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByKeyword(keyword, user, lastRecordId, pageable);
-    }
-
     private Keyword getKeyword(String keywordValue) {
         Keyword keyword = Keyword.getName(keywordValue);
         if (keyword == null)
@@ -287,13 +231,9 @@ public class RecordService {
         if (recordDto.getRecordType() == RecordType.MEMO) {
             return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
         } else {
-            ChatRoom chatRoom = findChatRoomById(recordDto.getChatRoomId(), user);
+            ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user);
             return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
         }
     }
 
-    private ChatRoom findChatRoomById(Long chatRoomId, User user) {
-        return chatRoomRepository.findByChatRoomIdAndUser(chatRoomId, user)
-                .orElseThrow(() -> new ChatException(ChatErrorStatus.CHAT_ROOM_NOT_FOUND));
-    }
 }
