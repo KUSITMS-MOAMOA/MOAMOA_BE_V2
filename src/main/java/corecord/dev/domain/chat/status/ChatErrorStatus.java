@@ -14,7 +14,11 @@ public enum ChatErrorStatus implements BaseErrorStatus {
     OVERFLOW_SUMMARY_CONTENT(HttpStatus.BAD_REQUEST, "E0305_OVERFLOW_SUMMARY_CONTENT", "경험 요약 내용은 500자 이내여야 합니다."),
     INVALID_CHAT_SUMMARY(HttpStatus.BAD_REQUEST, "E0305_INVALID_CHAT_SUMMARY", "채팅 경험 요약 파싱 중 오류가 발생했습니다."),
     NO_RECORD(HttpStatus.BAD_REQUEST, "E0305_NO_RECORD", "경험 기록의 내용이 충분하지 않습니다."),
-    TMP_CHAT_EXIST(HttpStatus.BAD_REQUEST, "E0307_TMP_CHAT_EXIST", "임시 채팅이 이미 존재합니다."),;
+    TMP_CHAT_EXIST(HttpStatus.BAD_REQUEST, "E0307_TMP_CHAT_EXIST", "임시 채팅이 이미 존재합니다."),
+    INVALID_CHAT_RESPONSE(HttpStatus.BAD_REQUEST, "E0305_INVALID_CHAT_RESPONSE", "채팅 응답 파싱 중 오류가 발생했습니다."),
+    AI_RESPONSE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0500_CHAT_AI_RESPONSE_ERROR", "AI 응답 생성 중 오류가 발생했습니다."),
+    AI_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "E0400_AI_CLIENT_ERROR", "AI 클라이언트 요청 오류가 발생했습니다."),
+    AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E0500_CHAT_SERVER_ERROR", "AI 서버에 오류가 발생했습니다."),;
 
     private final HttpStatus httpStatus;
     private final String code;
