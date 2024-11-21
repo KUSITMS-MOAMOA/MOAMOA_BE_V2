@@ -12,17 +12,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "chat")
 public class Chat extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "chat_id", nullable = false)
     private Long chatId;
 
-    @Column(nullable = false)
+    @Column(name = "author", nullable = false)
     private Integer author; // 0(user), 1(ai)
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 500)
     private String content;
 
     @ManyToOne

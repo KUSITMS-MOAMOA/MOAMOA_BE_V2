@@ -15,28 +15,29 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "user")
 public class User extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
+    @Column(name = "provider_id", nullable = false)
     private String providerId;
 
     @Setter
-    @Column(nullable = false)
+    @Column(name = "nick_name", nullable = false)
     private String nickName;
 
     @Setter
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column
+    @Column(name = "tmp_chat")
     private Long tmpChat;
 
-    @Column
+    @Column(name = "tmp_memo")
     private Long tmpMemo;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

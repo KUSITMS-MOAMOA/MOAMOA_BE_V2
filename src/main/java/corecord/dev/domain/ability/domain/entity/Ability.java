@@ -14,18 +14,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "ability")
 public class Ability extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "ability_id", nullable = false)
     private Long abilityId;
 
-    @Column(nullable = false)
+    @Column(name = "keyword", nullable = false)
     @Enumerated(EnumType.STRING)
     private Keyword keyword;
 
-    @Column(nullable = false, length = 300)
+    @Column(name = "content", nullable = false, length = 300)
     private String content;
 
     @ManyToOne
