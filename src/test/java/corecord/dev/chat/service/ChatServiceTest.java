@@ -1,9 +1,11 @@
 package corecord.dev.chat.service;
 
+import corecord.dev.domain.chat.application.ChatAIService;
 import corecord.dev.domain.chat.application.ChatDbService;
 import corecord.dev.domain.chat.application.ChatService;
 import corecord.dev.domain.chat.domain.dto.request.ChatRequest;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
+import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.ChatException;
@@ -41,7 +43,7 @@ class ChatServiceTest {
     private UserDbService userDbService;
 
     @Mock
-    private ClovaService clovaService;
+    private ChatAIService chatAIService;
 
     private User user;
     private ChatRoom chatRoom;
@@ -134,7 +136,7 @@ class ChatServiceTest {
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                     .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
-            when(clovaService.generateAiResponse(any(ClovaRequest.class))).thenReturn("AI의 예상 응답");
+            when(chatAIService.generateChatResponse(anyList(), anyString())).thenReturn("AI의 예상 응답");
 
             // When
             ChatResponse.ChatsDto result = chatService.createChat(
@@ -167,8 +169,8 @@ class ChatServiceTest {
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
-            when(clovaService.generateAiResponse(any(ClovaRequest.class)))
-                    .thenReturn("{\"title\":\"요약 제목\",\"content\":\"요약 내용\"}");
+            when(chatAIService.generateChatSummaryResponse(anyList()))
+                    .thenReturn(new ChatSummaryAiResponse("요약 제목", "요약 내용"));
 
             // When
             ChatResponse.ChatSummaryDto result = chatService.getChatSummary(user.getUserId(), chatRoom.getChatRoomId());
@@ -190,8 +192,8 @@ class ChatServiceTest {
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
-            when(clovaService.generateAiResponse(any(ClovaRequest.class)))
-                    .thenReturn("{\"title\":\"\",\"content\":\"\"}"); // 빈 응답
+            when(chatAIService.generateChatSummaryResponse(anyList()))
+                    .thenReturn(new ChatSummaryAiResponse("", "")); // 빈 응답
 
             // When & Then
             assertThrows(ChatException.class, () -> chatService.getChatSummary(user.getUserId(), chatRoom.getChatRoomId()));
@@ -210,8 +212,8 @@ class ChatServiceTest {
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
-            when(clovaService.generateAiResponse(any(ClovaRequest.class)))
-                    .thenReturn(String.format("{\"title\":\"%s\",\"content\":\"정상 내용\"}", longTitle)); // 50자 초과 제목
+            when(chatAIService.generateChatSummaryResponse(anyList()))
+                    .thenReturn(new ChatSummaryAiResponse(longTitle, "정상 내용")); // 50자 초과 제목
 
             // When & Then
             assertThrows(ChatException.class, () -> chatService.getChatSummary(user.getUserId(), chatRoom.getChatRoomId()));
@@ -230,8 +232,8 @@ class ChatServiceTest {
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
             when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
-            when(clovaService.generateAiResponse(any(ClovaRequest.class)))
-                    .thenReturn(String.format("{\"title\":\"정상 제목\",\"content\":\"%s\"}", longContent)); // 500자 초과 내용
+            when(chatAIService.generateChatSummaryResponse(anyList()))
+                    .thenReturn(new ChatSummaryAiResponse("정상 제목", longContent)); // 500자 초과 내용
 
             // When & Then
             assertThrows(ChatException.class, () -> chatService.getChatSummary(user.getUserId(), chatRoom.getChatRoomId()));
