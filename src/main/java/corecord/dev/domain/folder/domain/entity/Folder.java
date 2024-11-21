@@ -16,14 +16,15 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "folder")
 public class Folder extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "folder_id", nullable = false)
     private Long folderId;
 
-    @Column(nullable = false, length = 15)
+    @Column(name = "title", nullable = false, length = 15)
     private String title;
 
     @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)

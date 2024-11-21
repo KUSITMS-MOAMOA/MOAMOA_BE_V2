@@ -17,17 +17,18 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "analysis")
 public class Analysis extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "analysis_id", nullable = false)
     private Long analysisId;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 500)
     private String content;
 
-    @Column(nullable = false, length = 300)
+    @Column(name = "comment", nullable = false, length = 300)
     private String comment;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

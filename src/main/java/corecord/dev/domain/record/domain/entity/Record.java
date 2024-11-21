@@ -15,20 +15,21 @@ import lombok.NoArgsConstructor;
 @Getter @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "record")
 public class Record extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(nullable = false)
+    @Column(name = "record_id",nullable = false)
     private Long recordId;
 
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private RecordType type;
 
-    @Column(length = 50)
+    @Column(name = "title", length = 50)
     private String title;
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 500)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
