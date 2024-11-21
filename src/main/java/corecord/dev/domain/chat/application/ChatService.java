@@ -1,17 +1,13 @@
 package corecord.dev.domain.chat.application;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.domain.chat.domain.converter.ChatConverter;
 import corecord.dev.domain.chat.domain.dto.request.ChatRequest;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
-import corecord.dev.domain.chat.infra.clova.dto.response.ChatSummaryAiResponse;
+import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
-import corecord.dev.domain.chat.infra.clova.application.ClovaService;
 import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
 import jakarta.transaction.Transactional;
@@ -27,7 +23,7 @@ import java.util.List;
 public class ChatService {
 
     private final ChatDbService chatDbService;
-    private final ClovaService clovaService;
+    private final ChatAIService chatAIService;
     private final UserDbService userDbService;
 
     /*
@@ -68,7 +64,8 @@ public class ChatService {
         }
 
         // AI 답변 생성
-        String aiAnswer = createChatAiAnswer(chatRoom, chatDto.getContent());
+        List<Chat> chatHistory = chatDbService.findChatsByChatRoom(chatRoom);
+        String aiAnswer = chatAIService.generateChatResponse(chatHistory, chatDto.getContent());
         Chat aiChat = chatDbService.saveChat(0, aiAnswer, chatRoom);
 
         return ChatConverter.toChatsDto(List.of(aiChat));
@@ -117,7 +114,7 @@ public class ChatService {
         validateChatList(chatList);
 
         // 채팅 정보 요약 생성
-        ChatSummaryAiResponse response = generateChatSummary(chatList);
+        ChatSummaryAiResponse response = chatAIService.generateChatSummaryResponse(chatList);
 
         validateResponse(response);
 
@@ -190,21 +187,6 @@ public class ChatService {
         }
     }
 
-    private ChatSummaryAiResponse generateChatSummary(List<Chat> chatList) {
-        ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatList);
-        String response = clovaService.generateAiResponse(clovaRequest);
-        return parseChatSummaryResponse(response);
-    }
-
-    private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(aiResponse, ChatSummaryAiResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new ChatException(ChatErrorStatus.INVALID_CHAT_SUMMARY);
-        }
-    }
-
     private void checkTmpChat(User user, ChatRoom chatRoom) {
         if (user.getTmpChat() == null) {
             return;
@@ -212,11 +194,5 @@ public class ChatService {
         if (user.getTmpChat().equals(chatRoom.getChatRoomId())) {
             user.deleteTmpChat();
         }
-    }
-
-    private String createChatAiAnswer(ChatRoom chatRoom, String userInput) {
-        List<Chat> chatHistory = chatDbService.findChatsByChatRoom(chatRoom);
-        ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
-        return clovaService.generateAiResponse(clovaRequest);
     }
 }

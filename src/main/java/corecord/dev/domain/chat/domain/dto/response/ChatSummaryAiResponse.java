@@ -1,4 +1,4 @@
-package corecord.dev.domain.chat.infra.clova.dto.response;
+package corecord.dev.domain.chat.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
