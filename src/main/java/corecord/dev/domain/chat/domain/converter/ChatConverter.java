@@ -1,6 +1,6 @@
 package corecord.dev.domain.chat.domain.converter;
 
-import corecord.dev.domain.chat.infra.clova.dto.response.ChatSummaryAiResponse;
+import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;

@@ -1,13 +1,13 @@
-package corecord.dev.domain.chat.infra.clova.dto.response;
+package corecord.dev.domain.chat.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatSummaryAiResponse {
     @JsonProperty("title")
     private String title;
