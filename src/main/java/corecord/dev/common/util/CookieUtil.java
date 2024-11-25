@@ -12,7 +12,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class CookieUtil {
-    public ResponseCookie createTokenCookie(String tokenName, String token, long expirationTime) {
+    public ResponseCookie createCookie(String tokenName, String token, long expirationTime) {
         return ResponseCookie.from(tokenName, token)
                 .domain("corecord.site")
                 .httpOnly(true)
