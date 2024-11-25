@@ -1,34 +1,28 @@
 package corecord.dev.user.service;
 
-import corecord.dev.common.util.CookieUtil;
 import corecord.dev.domain.auth.domain.repository.RefreshTokenRepository;
 import corecord.dev.domain.auth.jwt.JwtUtil;
-import corecord.dev.domain.record.domain.repository.RecordRepository;
+import corecord.dev.domain.record.application.RecordDbService;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.dto.request.UserRequest;
 import corecord.dev.domain.user.domain.dto.response.UserResponse;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.status.UserErrorStatus;
 import corecord.dev.domain.user.exception.UserException;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import corecord.dev.domain.user.application.UserService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.ResponseCookie;
-import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,25 +32,17 @@ public class UserServiceTest {
     private JwtUtil jwtUtil;
 
     @Mock
-    private CookieUtil cookieUtil;
-
-    @Mock
-    private UserRepository userRepository;
+    private UserDbService userDbService;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
-    private RecordRepository recordRepository;
-
-    @Mock
-    private HttpServletResponse response;
+    private RecordDbService recordDbService;
 
     @InjectMocks
     private UserService userService;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 86400000L;
-    private static final long REFRESH_TOKEN_EXPIRATION = 2592000000L;
     private static final String REGISTER_TOKEN = "validRegisterToken";
     private static final String PROVIDER_ID = "1234567890";
     private static final String REFRESH_TOKEN = "generatedRefreshToken";
@@ -65,9 +51,7 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(userService, "accessTokenExpirationTime", ACCESS_TOKEN_EXPIRATION);
-        ReflectionTestUtils.setField(userService, "refreshTokenExpirationTime", REFRESH_TOKEN_EXPIRATION);
-        newUser = createTestUser(PROVIDER_ID);
+        newUser = createTestUser();
     }
 
     @Test
@@ -82,35 +66,23 @@ public class UserServiceTest {
         when(jwtUtil.getProviderIdFromToken(REGISTER_TOKEN)).thenReturn(PROVIDER_ID);
         when(jwtUtil.generateRefreshToken(anyLong())).thenReturn(REFRESH_TOKEN);
         when(jwtUtil.generateAccessToken(anyLong())).thenReturn(ACCESS_TOKEN);
-        when(userRepository.existsByProviderId(PROVIDER_ID)).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(newUser);
-        when(cookieUtil.createTokenCookie(eq("refreshToken"), eq(REFRESH_TOKEN), eq(REFRESH_TOKEN_EXPIRATION)))
-                .thenReturn(ResponseCookie.from("refreshToken", REFRESH_TOKEN).build());
-        when(cookieUtil.createTokenCookie(eq("accessToken"), eq(ACCESS_TOKEN), eq(ACCESS_TOKEN_EXPIRATION)))
-                .thenReturn(ResponseCookie.from("accessToken", ACCESS_TOKEN).build());
+        when(userDbService.IsUserExistByProviderId(PROVIDER_ID)).thenReturn(false);
+        when(userDbService.saveUser(any(User.class))).thenReturn(newUser);
 
         // When
-        UserResponse.UserDto userDto = userService.registerUser(response, REGISTER_TOKEN, userRegisterDto);
+        UserResponse.UserDto userDto = userService.registerUser(REGISTER_TOKEN, userRegisterDto);
 
         // Then
         assertThat(userDto.getNickname()).isEqualTo(newUser.getNickName());
         assertThat(userDto.getStatus()).isEqualTo(newUser.getStatus().getValue());
-
-        ArgumentCaptor<String> cookieCaptor = ArgumentCaptor.forClass(String.class);
-        verify(response, times(2)).addHeader(eq("Set-Cookie"), cookieCaptor.capture());
-
-        assertThat(cookieCaptor.getAllValues()).containsExactlyInAnyOrder(
-                ResponseCookie.from("refreshToken", REFRESH_TOKEN).build().toString(),
-                ResponseCookie.from("accessToken", ACCESS_TOKEN).build().toString()
-        );
-
     }
 
     @Test
     @DisplayName("회원 정보 조회 테스트")
     void getUserInfo() {
         // Given
-        when(userRepository.findById(newUser.getUserId())).thenReturn(Optional.of(newUser));
+        when(userDbService.getUser(newUser.getUserId())).thenReturn(newUser);
+        when(recordDbService.getRecordCount(newUser)).thenReturn(0);
 
         // When
         UserResponse.UserInfoDto userInfoDto = userService.getUserInfo(newUser.getUserId());
@@ -128,7 +100,7 @@ public class UserServiceTest {
         updateDto.setNickName("editName");
         updateDto.setStatus("인턴");
 
-        when(userRepository.findById(newUser.getUserId())).thenReturn(Optional.of(newUser));
+        when(userDbService.getUser(newUser.getUserId())).thenReturn(newUser);
 
         // When
         userService.updateUser(newUser.getUserId(), updateDto);
@@ -136,7 +108,7 @@ public class UserServiceTest {
         // Then
         assertThat(newUser.getNickName()).isEqualTo("editName");
         assertThat(newUser.getStatus()).isEqualTo(Status.INTERN);
-        verify(userRepository).findById(newUser.getUserId());
+        verify(userDbService).getUser(newUser.getUserId());
     }
 
     @Test
@@ -152,7 +124,7 @@ public class UserServiceTest {
 
         // When & Then
         UserException exception = Assertions.assertThrows(UserException.class,
-                () -> userService.registerUser(response, REGISTER_TOKEN, userRegisterDto));
+                () -> userService.registerUser(REGISTER_TOKEN, userRegisterDto));
         assertThat(exception.getUserErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
     }
 
@@ -169,14 +141,14 @@ public class UserServiceTest {
 
         // When & Then
         UserException exception = Assertions.assertThrows(UserException.class,
-                () -> userService.registerUser(response, REGISTER_TOKEN, userRegisterDto));
+                () -> userService.registerUser(REGISTER_TOKEN, userRegisterDto));
         assertThat(exception.getUserErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
     }
 
-    private User createTestUser(String providerId) {
+    private User createTestUser() {
         return User.builder()
                 .userId(1L)
-                .providerId(providerId)
+                .providerId(UserServiceTest.PROVIDER_ID)
                 .nickName("testUser")
                 .status(Status.UNIVERSITY_STUDENT)
                 .build();
