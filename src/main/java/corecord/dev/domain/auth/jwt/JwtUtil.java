@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -92,6 +93,9 @@ public class JwtUtil {
 
             return true;
 
+        } catch (SignatureException e) {
+            log.error("토큰 서명 검증 실패 - Token: {}, Error: {}", token, e.getMessage());
+            throw new TokenException(errorStatus);
         } catch (ExpiredJwtException e) {
             log.warn("토큰이 만료되었습니다: {}", e.getMessage());
             throw new TokenException(errorStatus);
@@ -130,6 +134,12 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload()
                     .get(claimKey, String.class);
+        } catch (SignatureException e) {
+            log.error("토큰 서명 검증 실패 - Token: {}, Error: {}", token, e.getMessage());
+            throw new TokenException(errorStatus);
+        } catch (ExpiredJwtException e) {
+            log.warn("토큰이 만료되었습니다.");
+            throw new TokenException(errorStatus);
         } catch (JwtException | IllegalArgumentException e) {
             log.warn("유효하지 않은 토큰입니다.");
             throw new TokenException(errorStatus);
