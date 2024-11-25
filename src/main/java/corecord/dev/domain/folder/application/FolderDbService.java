@@ -46,7 +46,7 @@ public class FolderDbService {
         return folderRepository.findFolderDtoList(user);
     }
 
-    public boolean isFolderExist(String title) {
-        return folderRepository.existsByTitle(title);
+    public boolean isFolderExist(String title, User user) {
+        return folderRepository.existsByTitleAndUser(title, user);
     }
 }
