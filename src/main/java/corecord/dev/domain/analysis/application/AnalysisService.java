@@ -173,6 +173,8 @@ public class AnalysisService {
 
     private String generateMemoSummary(String content) {
         String response = openAiService.generateMemoSummary(content);
+
+        validIsRecordEnough(response);
         validAnalysisContentLength(response);
 
         return response;
@@ -186,6 +188,11 @@ public class AnalysisService {
         validAnalysisContentLength(content);
 
         return content;
+    }
+
+    private void validIsRecordEnough(String response) {
+        if (response.contains("NO_RECORD"))
+            throw new RecordException(RecordErrorStatus.NO_RECORD);
     }
 
     private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {

@@ -53,10 +53,10 @@ public class RecordService {
 
         // 경험 기록 종류에 따른 Record 생성
         Record record = createRecordBasedOnType(recordDto, user, folder);
-        recordDbService.saveRecord(record);
 
         // 역량 분석 레포트 생성
         analysisService.createAnalysis(record, user);
+        recordDbService.saveRecord(record);
 
         return RecordConverter.toMemoRecordDto(record);
     }
