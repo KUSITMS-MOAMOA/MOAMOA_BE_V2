@@ -28,7 +28,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
             @Param(value = "title") String title,
             @Param(value = "user") User user);
 
-    boolean existsByTitle(String title);
+    boolean existsByTitleAndUser(String title, User user);
 
     @Modifying
     @Query("DELETE " +

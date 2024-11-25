@@ -33,7 +33,7 @@ public class FolderService {
         String title = folderDto.getTitle();
 
         // 폴더명 유효성 검증
-        validDuplicatedFolderTitleAndLength(title);
+        validDuplicatedFolderTitleAndLength(title, user);
 
         // folder 객체 생성 및 User 연관관계 설정
         Folder folder = FolderConverter.toFolderEntity(title, user);
@@ -74,7 +74,7 @@ public class FolderService {
         String title = folderDto.getTitle();
 
         // 폴더명 유효성 검증
-        validDuplicatedFolderTitleAndLength(title);
+        validDuplicatedFolderTitleAndLength(title, user);
 
         // User-Folder 권한 유효성 검증
         validIsUserAuthorizedForFolder(user, folder);
@@ -98,14 +98,14 @@ public class FolderService {
         return FolderConverter.toFolderDtoList(folderList);
     }
 
-    private void validDuplicatedFolderTitleAndLength(String title) {
+    private void validDuplicatedFolderTitleAndLength(String title, User user) {
         // 폴더명 글자 수 검사
         if (title.length() > 15) {
             throw new FolderException(FolderErrorStatus.OVERFLOW_FOLDER_TITLE);
         }
 
         // 폴더명 중복 검사
-        if (folderDbService.isFolderExist(title)) {
+        if (folderDbService.isFolderExist(title, user)) {
             throw new FolderException(FolderErrorStatus.DUPLICATED_FOLDER_TITLE);
         }
     }
