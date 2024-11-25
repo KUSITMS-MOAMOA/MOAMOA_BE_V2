@@ -1,5 +1,6 @@
 package corecord.dev.domain.auth.presentation;
 
+import corecord.dev.common.auth.TokenCookieManager;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.util.CookieUtil;
 import corecord.dev.domain.auth.exception.TokenException;
@@ -10,8 +11,6 @@ import corecord.dev.domain.user.domain.dto.response.UserResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +21,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TokenController {
     private final TokenService tokenService;
+    private final TokenCookieManager tokenCookieManager;
     private final CookieUtil cookieUtil;
-
-    @Value("${jwt.access-token.expiration-time}")
-    private long accessTokenExpirationTime;
-
-    @Value("${jwt.refresh-token.expiration-time}")
-    private long refreshTokenExpirationTime;
 
     @GetMapping("/reissue")
     public ResponseEntity<ApiResponse<Void>> reissueAccessToken(
@@ -38,13 +32,9 @@ public class TokenController {
         String refreshToken = getRefreshTokenFromCookie(request);
         String accessToken = tokenService.reissueAccessToken(refreshToken);
 
-        // 기존 AccessToken 삭제
-        ResponseCookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
+        tokenCookieManager.removeAccessTokenCookie(response);
+        tokenCookieManager.addAccessTokenCookie(response, accessToken);
 
-        // 새 AccessToken 발급
-        ResponseCookie newAccessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken, accessTokenExpirationTime);
-        response.addHeader("Set-Cookie", newAccessTokenCookie.toString());
         return ApiResponse.success(TokenSuccessStatus.REISSUE_ACCESS_TOKEN_SUCCESS);
     }
 
@@ -55,13 +45,8 @@ public class TokenController {
     ) {
         UserResponse.UserDto issueTokenResponse = tokenService.issueTokens(tmpToken);
 
-        // 새 AccessToken 발급
-        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", issueTokenResponse.getAccessToken(), accessTokenExpirationTime);
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-
-        // 새 RefreshToken 발급
-        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", issueTokenResponse.getRefreshToken(), refreshTokenExpirationTime);
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+        tokenCookieManager.addAccessTokenCookie(response, issueTokenResponse.getAccessToken());
+        tokenCookieManager.addRefreshTokenCookie(response, issueTokenResponse.getRefreshToken());
 
         return ApiResponse.success(TokenSuccessStatus.ISSUE_TOKENS_SUCCESS, issueTokenResponse);
     }

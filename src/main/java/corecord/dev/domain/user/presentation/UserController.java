@@ -1,5 +1,6 @@
 package corecord.dev.domain.user.presentation;
 
+import corecord.dev.common.auth.TokenCookieManager;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.SuccessStatus;
 import corecord.dev.common.util.CookieUtil;
@@ -22,12 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
     private final CookieUtil cookieUtil;
-
-    @Value("${jwt.access-token.expiration-time}")
-    private long accessTokenExpirationTime;
-
-    @Value("${jwt.refresh-token.expiration-time}")
-    private long refreshTokenExpirationTime;
+    private final TokenCookieManager tokenCookieManager;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResponse.UserDto>> registerUser(
@@ -37,7 +33,8 @@ public class UserController {
             ) {
         UserResponse.UserDto registerResponse = userService.registerUser(registerToken, userRegisterDto);
 
-        createTokenCookies(response, registerResponse.getAccessToken(), registerResponse.getRefreshToken());
+        tokenCookieManager.addAccessTokenCookie(response, registerResponse.getAccessToken());
+        tokenCookieManager.addRefreshTokenCookie(response, registerResponse.getRefreshToken());
 
         return ApiResponse.success(UserSuccessStatus.USER_REGISTER_SUCCESS, registerResponse);
     }
@@ -49,7 +46,9 @@ public class UserController {
     ) {
         String refreshToken = cookieUtil.getCookieValue(request, "refreshToken");
         userService.logoutUser(refreshToken);
-        deleteTokenCookies(response);
+
+        tokenCookieManager.removeAccessTokenCookie(response);
+        tokenCookieManager.removeRefreshTokenCookie(response);
 
         return ApiResponse.success(UserSuccessStatus.USER_LOGOUT_SUCCESS);
     }
@@ -62,7 +61,9 @@ public class UserController {
     ) {
         String refreshToken = cookieUtil.getCookieValue(request, "refreshToken");
         userService.deleteUser(userId, refreshToken);
-        deleteTokenCookies(response);
+
+        tokenCookieManager.removeAccessTokenCookie(response);
+        tokenCookieManager.removeRefreshTokenCookie(response);
 
         return ApiResponse.success(UserSuccessStatus.USER_DELETE_SUCCESS);
     }
@@ -84,17 +85,4 @@ public class UserController {
         return ApiResponse.success(UserSuccessStatus.GET_USER_INFO_SUCCESS, userInfoDto);
     }
 
-    private void createTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        ResponseCookie accessTokenCookie = cookieUtil.createTokenCookie("accessToken", accessToken, accessTokenExpirationTime);
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-        ResponseCookie refreshTokenCookie = cookieUtil.createTokenCookie("refreshToken", refreshToken, refreshTokenExpirationTime);
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-    }
-
-    private void deleteTokenCookies(HttpServletResponse response) {
-        ResponseCookie accessTokenCookie = cookieUtil.deleteCookie("accessToken");
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-        ResponseCookie refreshTokenCookie = cookieUtil.deleteCookie("refreshToken");
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-    }
 }
