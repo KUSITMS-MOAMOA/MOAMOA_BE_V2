@@ -77,7 +77,8 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
 
     @Query("SELECT COUNT(r) " +
             "FROM Record r " +
-            "WHERE r.user = :user")
+            "WHERE r.user = :user " +
+            "AND r.folder is not null") // 임시 저장 기록 제외
     int getRecordCount(@Param(value = "user") User user);
 
     @Modifying

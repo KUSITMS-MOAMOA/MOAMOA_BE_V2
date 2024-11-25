@@ -123,19 +123,8 @@ public class UserService {
     public UserResponse.UserInfoDto getUserInfo(Long userId) {
         User user = userDbService.getUser(userId);
 
-        int recordCount = getRecordCount(user);
+        int recordCount = recordDbService.getRecordCount(user);;
         return UserConverter.toUserInfoDto(user, recordCount);
-    }
-
-    private int getRecordCount(User user) {
-        int recordCount = recordDbService.getRecordCount(user);
-        if (user.getTmpChat() != null) {
-            recordCount--;
-        }
-        if (user.getTmpMemo() != null) {
-            recordCount--;
-        }
-        return recordCount;
     }
 
     // RefreshToken 저장
