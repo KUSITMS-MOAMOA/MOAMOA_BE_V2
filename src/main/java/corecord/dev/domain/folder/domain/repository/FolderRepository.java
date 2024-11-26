@@ -35,4 +35,6 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
             "FROM Folder f " +
             "WHERE f.user.userId IN :userId")
     void deleteFolderByUserId(@Param(value = "userId") Long userId);
+
+    void delete(Long folderId);
 }

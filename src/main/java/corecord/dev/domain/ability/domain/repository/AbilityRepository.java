@@ -3,6 +3,7 @@ package corecord.dev.domain.ability.domain.repository;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.user.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,6 +29,12 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
                 "FROM Ability a " +
                 "WHERE a.user.userId IN :userId")
         void deleteAbilityByUserId(@Param(value = "userId") Long userId);
+
+        @Modifying
+        @Query("DELETE " +
+                "FROM Ability a " +
+                "WHERE a.analysis.record.folder = :folder")
+        void deleteAbilityByFolder(@Param(value = "folder") Folder folder);
 
         @Query("SELECT distinct a.keyword AS keyword " + // unique한 keyword list 반환
                 "FROM Ability a " +

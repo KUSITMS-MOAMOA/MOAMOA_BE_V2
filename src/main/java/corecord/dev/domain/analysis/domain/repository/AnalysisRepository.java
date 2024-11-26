@@ -1,6 +1,7 @@
 package corecord.dev.domain.analysis.domain.repository;
 
 import corecord.dev.domain.analysis.domain.entity.Analysis;
+import corecord.dev.domain.folder.domain.entity.Folder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,10 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
             "FROM Analysis a " +
             "WHERE a.record.user.userId IN :userId")
     void deleteAnalysisByUserId(@Param(value = "userId") Long userId);
+
+    @Modifying
+    @Query("DELETE " +
+            "FROM Analysis a " +
+            "WHERE a.record.folder = :folder")
+    void deleteAnalysisByFolder(@Param(value = "folder") Folder folder);
 }

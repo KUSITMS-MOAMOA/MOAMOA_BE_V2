@@ -38,6 +38,11 @@ public class RecordDbService {
         recordRepository.deleteRecordByUserId(userId);
     }
 
+    @Transactional
+    public void deleteRecordByFolder(Folder folder) {
+        recordRepository.deleteRecordByFolder(folder);
+    }
+
     public int getRecordCount(User user) {
         return recordRepository.getRecordCount(user);
     }

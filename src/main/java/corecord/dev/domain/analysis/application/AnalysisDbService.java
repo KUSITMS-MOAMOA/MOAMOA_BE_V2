@@ -4,6 +4,7 @@ import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
 import corecord.dev.domain.analysis.exception.AnalysisException;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
+import corecord.dev.domain.folder.domain.entity.Folder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +40,13 @@ public class AnalysisDbService {
         analysisRepository.deleteAnalysisByUserId(userId);
     }
 
+    @Transactional
+    public void deleteAnalysisByFolder(Folder folder) {
+        analysisRepository.deleteAnalysisByFolder(folder);
+    }
+
     public Analysis findAnalysisById(Long analysisId) {
         return analysisRepository.findAnalysisById(analysisId)
                 .orElseThrow(() -> new AnalysisException(AnalysisErrorStatus.ANALYSIS_NOT_FOUND));
     }
-
 }
