@@ -24,7 +24,7 @@ public class FolderDbService {
 
     @Transactional
     public void deleteFolder(Folder folder) {
-        folderRepository.delete(folder.getFolderId());
+        folderRepository.delete(folder);
     }
 
     @Transactional
