@@ -2,7 +2,6 @@ package corecord.dev.domain.chat.domain.repository;
 
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.user.domain.entity.User;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

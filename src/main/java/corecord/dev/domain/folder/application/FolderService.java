@@ -1,11 +1,15 @@
 package corecord.dev.domain.folder.application;
 
+import corecord.dev.domain.ability.application.AbilityDbService;
+import corecord.dev.domain.analysis.application.AnalysisDbService;
+import corecord.dev.domain.chat.application.ChatDbService;
 import corecord.dev.domain.folder.domain.converter.FolderConverter;
 import corecord.dev.domain.folder.domain.dto.request.FolderRequest;
 import corecord.dev.domain.folder.domain.dto.response.FolderResponse;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.folder.status.FolderErrorStatus;
 import corecord.dev.domain.folder.exception.FolderException;
+import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,11 @@ import java.util.List;
 public class FolderService {
     private final FolderDbService folderDbService;
     private final UserDbService userDbService;
+    private final AnalysisDbService analysisDbService;
+    private final AbilityDbService abilityDbService;
+    private final ChatDbService chatDbService;
+    private final RecordDbService recordDbService;
+
 
     /*
      * 폴더명(title)을 request로 받아, 새로운 폴더를 생성 후 생성 순 풀더 리스트 반환
@@ -56,6 +65,10 @@ public class FolderService {
         // User-Folder 권한 유효성 검증
         validIsUserAuthorizedForFolder(user, folder);
 
+        abilityDbService.deleteAbilityByFolder(folder);
+        analysisDbService.deleteAnalysisByFolder(folder);
+        chatDbService.deleteChatRoomByFolder(folder);
+        recordDbService.deleteRecordByFolder(folder);
         folderDbService.deleteFolder(folder);
 
         List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(user);

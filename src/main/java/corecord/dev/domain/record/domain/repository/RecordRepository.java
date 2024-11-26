@@ -86,4 +86,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "FROM Record r " +
             "WHERE r.user.userId IN :userId")
     void deleteRecordByUserId(@Param(value = "userId") Long userId);
+
+    @Modifying
+    @Query("DELETE " +
+            "FROM Record r " +
+            "WHERE r.folder = :folder")
+    void deleteRecordByFolder(@Param(value = "folder") Folder folder);
 }

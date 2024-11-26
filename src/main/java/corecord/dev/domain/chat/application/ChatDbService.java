@@ -5,6 +5,7 @@ import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.domain.repository.ChatRepository;
 import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
+import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
@@ -47,6 +48,11 @@ public class ChatDbService {
     @Transactional
     public void deleteChatRoomByUserId(Long userId) {
         chatRoomRepository.deleteChatRoomByUserId(userId);
+    }
+
+    @Transactional
+    public void deleteChatRoomByFolder(Folder folder) {
+        chatRepository.deleteChatByFolderId(folder.getFolderId());
     }
 
     public ChatRoom findChatRoomById(Long chatRoomId, User user) {
