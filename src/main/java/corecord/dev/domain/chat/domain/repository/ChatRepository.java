@@ -28,7 +28,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query(value = "DELETE c, cr, r " +
             "FROM chat c " +
             "JOIN chat_room cr ON cr.chat_room_id = c.chat_room_id " +
-            "JOIN Record r ON r.chat_room_id = cr.chat_room_id " +
+            "JOIN record r ON r.chat_room_id = cr.chat_room_id " +
             "WHERE r.folder_id = :folderId ",
             nativeQuery = true)
     void deleteChatByFolderId(@Param(value = "folderId") Long folderId);
