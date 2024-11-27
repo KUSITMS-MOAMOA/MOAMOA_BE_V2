@@ -151,6 +151,34 @@ public class AnalysisServiceTest {
 
         when(userDbService.findUserById(1L)).thenReturn(user);
         when(analysisDbService.findAnalysisById(1L)).thenReturn(analysis);
+        doAnswer(invocation -> {
+            Record record = invocation.getArgument(0);
+            String title = invocation.getArgument(1);
+            record.updateTitle(title);
+            return null;
+        }).when(recordDbService).updateRecordTitle(any(Record.class), anyString());
+
+        doAnswer(invocation -> {
+            Analysis analysis = invocation.getArgument(0);
+            String content = invocation.getArgument(1);
+            analysis.updateContent(content);
+            return null;
+        }).when(analysisDbService).updateAnalysisContent(any(Analysis.class), anyString());
+
+        doAnswer(invocation -> {
+            Analysis passedAnalysis = invocation.getArgument(0); // 첫 번째 인수: Analysis
+            Map<String, String> passedAbilityMap = invocation.getArgument(1); // 두 번째 인수: abilityMap
+
+            passedAbilityMap.forEach((keyword, content) -> {
+                Keyword key = Keyword.getName(keyword);
+                Ability matchedAbility = passedAnalysis.getAbilityList().stream()
+                        .filter(a -> a.getKeyword().equals(key))
+                        .findFirst()
+                        .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
+                matchedAbility.updateContent(content);
+            });
+            return null;
+        }).when(abilityService).updateAbilityContents(any(Analysis.class), any(Map.class));
 
         // When
         Map<String, String> abilityMap = Map.of("커뮤니케이션", "Updated Keyword Content");
@@ -183,15 +211,16 @@ public class AnalysisServiceTest {
     @DisplayName("역량 분석 수정 중 존재하지 않는 키워드 제시 시 예외 발생 테스트")
     void findAbilityByNotExistingKeyword() {
         // Given
+        Map<String, String> abilityMap = Map.of("협동", testContent);
         Ability ability = createMockAbility(analysis);
         analysis.addAbility(ability);
 
         when(userDbService.findUserById(1L)).thenReturn(user);
         when(analysisDbService.findAnalysisById(1L)).thenReturn(analysis);
-
+        doThrow(new AbilityException(AbilityErrorStatus.INVALID_KEYWORD))
+                .when(abilityService).updateAbilityContents(any(Analysis.class), any(Map.class));
 
         // When & Then
-        Map<String, String> abilityMap = Map.of("협동", testContent);
         AnalysisRequest.AnalysisUpdateDto request = AnalysisRequest.AnalysisUpdateDto.builder()
                 .analysisId(1L)
                 .abilityMap(abilityMap)
