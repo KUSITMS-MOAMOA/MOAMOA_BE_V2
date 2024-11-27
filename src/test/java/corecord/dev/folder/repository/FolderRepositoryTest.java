@@ -62,7 +62,7 @@ public class FolderRepositoryTest {
         entityManager.persist(folder1);
 
         // When
-        boolean result = folderRepository.existsByTitle(testTitle);
+        boolean result = folderRepository.existsByTitleAndUser(testTitle, user);
 
         // Then
         assertThat(result).isEqualTo(true);

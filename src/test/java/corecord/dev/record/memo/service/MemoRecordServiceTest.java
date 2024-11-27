@@ -2,19 +2,20 @@ package corecord.dev.record.memo.service;
 
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.application.AnalysisService;
+import corecord.dev.domain.folder.application.FolderDbService;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.folder.domain.repository.FolderRepository;
+import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.record.domain.entity.RecordType;
 import corecord.dev.domain.record.domain.dto.request.RecordRequest;
 import corecord.dev.domain.record.domain.dto.response.RecordResponse;
 import corecord.dev.domain.record.domain.entity.Record;
+import corecord.dev.domain.record.domain.repository.RecordRepository;
 import corecord.dev.domain.record.status.RecordErrorStatus;
 import corecord.dev.domain.record.exception.RecordException;
-import corecord.dev.domain.record.domain.repository.RecordRepository;
 import corecord.dev.domain.record.application.RecordService;
+import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;
-import corecord.dev.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,13 +36,13 @@ import static org.mockito.Mockito.*;
 public class MemoRecordServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserDbService userDbService;
 
     @Mock
-    private FolderRepository folderRepository;
+    private FolderDbService folderDbService;
 
     @Mock
-    private RecordRepository recordRepository;
+    private RecordDbService recordDbService;
 
     @Mock
     private AnalysisService analysisService;
@@ -67,11 +67,11 @@ public class MemoRecordServiceTest {
         // Given
         Record record = createMockRecord(user, folder);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(folderRepository.findById(1L)).thenReturn(Optional.of(folder));
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(folderDbService.findFolderById(1L)).thenReturn(folder);
         when(analysisService.createAnalysis(any(Record.class), any(User.class)))
                 .thenReturn(createMockAnalysis(record));
-        when(recordRepository.save(any(Record.class))).thenAnswer(invocation -> {
+        when(recordDbService.saveRecord(any(Record.class))).thenAnswer(invocation -> {
             Record savedRecord = invocation.getArgument(0);
             savedRecord.setCreatedAt(LocalDateTime.now());
             return savedRecord;
@@ -88,9 +88,9 @@ public class MemoRecordServiceTest {
         RecordResponse.MemoRecordDto response = recordService.createMemoRecord(1L, request);
 
         // Then
-        verify(userRepository).findById(1L);
-        verify(folderRepository).findById(1L);
-        verify(recordRepository).save(any(Record.class));
+        verify(userDbService).findUserById(1L);
+        verify(folderDbService).findFolderById(1L);
+        verify(recordDbService).saveRecord(any(Record.class));
 
         assertEquals(response.getFolder(), folder.getTitle());
         assertEquals(response.getTitle(), testTitle);
@@ -101,8 +101,8 @@ public class MemoRecordServiceTest {
     @DisplayName("경험 기록 제목이 긴 경우 예외 발생")
     void createMemoRecordWithLongContent() {
         // Given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(folderRepository.findById(1L)).thenReturn(Optional.of(folder));
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(folderDbService.findFolderById(1L)).thenReturn(folder);
 
         // When & Then
         RecordRequest.RecordDto request = RecordRequest.RecordDto.builder()
@@ -121,8 +121,8 @@ public class MemoRecordServiceTest {
     @DisplayName("경험 기록 내용 글자수가 충분하지 않은 경우 예외 발생")
     void createMemoRecordWithNotEnoughContent() {
         // Given
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(folderRepository.findById(1L)).thenReturn(Optional.of(folder));
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(folderDbService.findFolderById(1L)).thenReturn(folder);
 
         // When & Then
         RecordRequest.RecordDto request = RecordRequest.RecordDto.builder()
@@ -142,8 +142,8 @@ public class MemoRecordServiceTest {
     void createTmpMemoRecordTest() {
         // Given
         Record tmpRecord = createMockRecord(user, null);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(recordRepository.save(any(Record.class))).thenReturn(tmpRecord);
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(recordDbService.saveRecord(any(Record.class))).thenReturn(tmpRecord);
 
         // When
         RecordRequest.TmpMemoRecordDto request = RecordRequest.TmpMemoRecordDto.builder()
@@ -154,8 +154,8 @@ public class MemoRecordServiceTest {
         recordService.createTmpMemoRecord(1L, request);
 
         // Then
-        verify(userRepository, times(1)).findById(1L);
-        verify(recordRepository, times(1)).save(any(Record.class));
+        verify(userDbService, times(1)).findUserById(1L);
+        verify(recordDbService, times(1)).saveRecord(any(Record.class));
         assertEquals(user.getTmpMemo(), tmpRecord.getRecordId());
     }
 
@@ -164,7 +164,7 @@ public class MemoRecordServiceTest {
     void createTmpMemoRecordDuplicateTest() {
         // Given
         user.updateTmpMemo(1L); // 이미 임시 메모 경험 기록을 저장
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userDbService.findUserById(1L)).thenReturn(user);
 
         // When & Then
         RecordRequest.TmpMemoRecordDto request = RecordRequest.TmpMemoRecordDto.builder()
@@ -176,8 +176,8 @@ public class MemoRecordServiceTest {
                 () -> recordService.createTmpMemoRecord(1L, request));
         assertEquals(exception.getRecordErrorStatus(), RecordErrorStatus.ALREADY_TMP_MEMO);
 
-        verify(userRepository, times(1)).findById(1L);
-        verify(recordRepository, times(0)).save(any(Record.class));
+        verify(userDbService, times(1)).findUserById(1L);
+        verify(recordDbService, times(0)).saveRecord(any(Record.class));
     }
 
     @Test
@@ -187,16 +187,16 @@ public class MemoRecordServiceTest {
         Record tmpRecord = createMockRecord(user, null);
         user.updateTmpMemo(1L);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(recordRepository.findById(1L)).thenReturn(Optional.of(tmpRecord));
+        when(userDbService.findUserById(1L)).thenReturn(user);
+        when(recordDbService.findTmpRecordById(1L)).thenReturn(tmpRecord);
 
         // When
         RecordResponse.TmpMemoRecordDto response = recordService.getTmpMemoRecord(1L);
 
         // Then
-        verify(userRepository, times(1)).findById(1L);
-        verify(recordRepository, times(1)).findById(1L);
-        verify(recordRepository, times(1)).delete(tmpRecord);
+        verify(userDbService, times(1)).findUserById(1L);
+        verify(recordDbService, times(1)).findTmpRecordById(1L);
+        verify(recordDbService, times(1)).deleteRecord(tmpRecord);
 
         assertNull(user.getTmpMemo());
         assertTrue(response.getIsExist());
@@ -209,13 +209,13 @@ public class MemoRecordServiceTest {
     void getTmpMemoRecordWithoutRecordTest() {
         // Given
         user.updateTmpMemo(null);
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userDbService.findUserById(1L)).thenReturn(user);
 
         // When
         RecordResponse.TmpMemoRecordDto response = recordService.getTmpMemoRecord(1L);
 
         // Then
-        verify(userRepository, times(1)).findById(1L);
+        verify(userDbService, times(1)).findUserById(1L);
 
         assertFalse(response.getIsExist());
         assertNull(response.getTitle());
