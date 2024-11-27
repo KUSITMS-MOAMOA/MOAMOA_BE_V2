@@ -71,6 +71,17 @@ public class ChatService {
         return ChatConverter.toChatsDto(List.of(aiChat));
     }
 
+    private static void checkGuideChat(ChatRoom chatRoom) {
+        if (chatRoom.getChatList().size() > 2)
+            throw new ChatException(ChatErrorStatus.INVALID_GUIDE_CHAT);
+    }
+
+    private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
+        Chat guideChat1 = chatDbService.saveChat(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
+        Chat guideChat2 = chatDbService.saveChat(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
+        return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
+    }
+
     /*
      * user의 채팅방의 채팅 목록을 반환
      * @param userId
@@ -99,6 +110,15 @@ public class ChatService {
         chatDbService.deleteChatRoom(chatRoom);
     }
 
+    private void checkTmpChat(User user, ChatRoom chatRoom) {
+        if (user.getTmpChat() == null) {
+            return;
+        }
+        if (user.getTmpChat().equals(chatRoom.getChatRoomId())) {
+            user.deleteTmpChat();
+        }
+    }
+
     /*
      * user의 채팅의 요약 정보를 반환
      * @param userId
@@ -119,6 +139,11 @@ public class ChatService {
         validateResponse(response);
 
         return ChatConverter.toChatSummaryDto(chatRoom, response);
+    }
+
+    private static void validateChatList(List<Chat> chatList) {
+        if (chatList.size() <= 1)
+            throw new ChatException(ChatErrorStatus.NO_RECORD);
     }
 
     /*
@@ -155,18 +180,6 @@ public class ChatService {
         userDbService.updateUserTmpChat(user, chatRoom.getChatRoomId());
     }
 
-    private static void checkGuideChat(ChatRoom chatRoom) {
-        if (chatRoom.getChatList().size() > 2) {
-            throw new ChatException(ChatErrorStatus.INVALID_GUIDE_CHAT);
-        }
-    }
-
-    private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
-        Chat guideChat1 = chatDbService.saveChat(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
-        Chat guideChat2 = chatDbService.saveChat(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
-        return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
-    }
-
     private static void validateResponse(ChatSummaryAiResponse response) {
         if (response.getTitle().equals("NO_RECORD") || response.getContent().equals("NO_RECORD") || response.getContent().equals("") || response.getTitle().equals("")) {
             throw new ChatException(ChatErrorStatus.NO_RECORD);
@@ -178,21 +191,6 @@ public class ChatService {
 
         if (response.getContent().length() > 500) {
             throw new ChatException(ChatErrorStatus.OVERFLOW_SUMMARY_CONTENT);
-        }
-    }
-
-    private static void validateChatList(List<Chat> chatList) {
-        if (chatList.size() <= 1) {
-            throw new ChatException(ChatErrorStatus.NO_RECORD);
-        }
-    }
-
-    private void checkTmpChat(User user, ChatRoom chatRoom) {
-        if (user.getTmpChat() == null) {
-            return;
-        }
-        if (user.getTmpChat().equals(chatRoom.getChatRoomId())) {
-            user.deleteTmpChat();
         }
     }
 }
