@@ -312,6 +312,55 @@ https://spiny-lake-7e5.notion.site/API-10b37be2e3fa8020a345c0aa4089a0a0?pvs=4
 
 <br><br>
 
+
+# 🔄 Work Flow
+> **1) 개발 단계**
+
+1. **코드 작성**
+    - IntelliJ를 사용하여 백엔드 코드를 작성합니다.
+2. **버전 관리**
+    - Git을 통해 로컬에서 작성된 코드를 GitHub로 푸시합니다.
+    - `develop` 브랜치에는 코드 리뷰를 거친 후 병합됩니다.
+
+<br>
+
+> **2) CI (Continuous Integration)**
+
+GitHub Actions를 활용하여 `develop` 브랜치에 코드가 푸시될 때 CI 작업이 자동으로 실행됩니다. <br>
+
+1. **코드 체크아웃 및 환경 설정**
+    - `actions/checkout` 액션을 통해 최신 코드를 체크아웃합니다.
+    - Amazon Corretto JDK 21을 설정하여 Spring Boot 애플리케이션의 빌드 환경을 준비합니다.
+2. **필요한 리소스 파일 생성**
+    - 설정 파일과 텍스트 파일을 생성하고, GitHub Secrets를 통해 보안 데이터를 삽입합니다.
+3. **애플리케이션 빌드**
+    - Gradle을 사용하여 애플리케이션을 빌드합니다.
+4. **Docker 이미지 생성 및 Docker Hub 푸시**
+    - Docker Hub에 로그인하여 인증을 수행합니다.
+    - Docker 이미지를 빌드하고, 이를 Docker Hub 레지스트리에 푸시합니다.
+
+<br>
+
+> **3) CD (Continuous Deployment)**
+
+CD 작업은 GitHub Actions와 `deploy.sh` 스크립트를 활용하여 Docker 이미지를 Amazon EC2 인스턴스에 배포하고, **Blue-Green 배포 전략**을 통해 **무중단 배포**를 지원합니다. <br>
+
+1. **도커 이미지 배포**
+    - CI에서 생성된 최신 Docker 이미지를 EC2 인스턴스에서 다운로드하여 배포 준비를 합니다.
+2. **Green 환경 컨테이너 실행**
+    - 새로운 애플리케이션 컨테이너를 실행합니다. 실행 가능한 포트를 자동으로 할당하며, 기존 애플리케이션(Blue 환경)과 독립적으로 동작합니다.
+3. **Health Check**
+    - 새로운 컨테이너의 상태를 확인하여 애플리케이션이 정상적으로 실행 중인지 검증합니다. 배포 실패 시 기존 환경에 영향을 주지 않고 작업을 중단합니다.
+4. **Nginx를 통한 트래픽 스위칭**
+    - Nginx 설정을 업데이트하여 트래픽을 Green 환경으로 전환합니다. 실시간 트래픽 스위칭으로 사용자 요청에 영향을 주지 않습니다.
+5. **Blue 환경 종료**
+    - Green 환경 배포가 성공하면 기존 Blue 환경 컨테이너를 안전하게 종료하여 리소스를 정리합니다.
+
+
+<br><br>
+
+
+
 ## 📁 Directory
 
 ```
