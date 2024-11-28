@@ -1,7 +1,14 @@
 # 🎯 MOAMOA_BE
 
 > 대학생IT경영학회 큐시즘 30th 밋업 프로젝트 G팀 MOAMOA Backend Repository <br>
-> 2024.09.28 ~ 2024.11.28
+> 개발 기간 : 2024.09.28 ~ 2024.11.28 <br>
+> 서비스 배포 주소 : https://www.corecord.site
+
+<br>
+
+![간지장표](https://github.com/user-attachments/assets/a7b7d96e-3f94-441e-a499-3abd8270061c)
+
+
 
 <br>
 
@@ -90,6 +97,56 @@
 
 ## 📊 ERD
 ![MOAMOA_ERD](https://github.com/user-attachments/assets/fdd8622b-8418-45e2-966a-9757fc5e8b7c)
+
+<br><br>
+
+## 📁 Directory
+
+```
+src/
+├── main/
+│   ├── common/
+│   │    ├── base/
+│   │    ├── config/
+│   │    ├── exception/
+│   │    ├── response/
+│   │    ├── status/
+│   │    ├── util/
+│   │    └── web/
+│   │
+│   ├── domain/
+│   │    ├── ability/
+│   │    ├── analysis/
+│   │    │    ├── application/
+│   │    │    ├── domain/
+│   │    │    │    ├──converter/
+│   │    │    │    ├──dto/
+│   │    │    │    │    ├──request/
+│   │    │    │    │    └──response/
+│   │    │    │    ├──entity/
+│   │    │    │    └──repository/
+│   │    │    ├── exception/
+│   │    │    ├── infra/openai/
+│   │    │    ├── presentation/
+│   │    │    └── status/
+│   │    ├── auth/
+│   │    ├── chat/
+│   │    ├── folder/
+│   │    ├── record/
+│   │    ├── token/
+│   └──  └── user/
+│
+└── test/
+    ├── ability/
+    │    ├──repository/
+    │    └──service/
+    ├── analysis/
+    ├── auth/
+    ├── chat/
+    ├── folder/
+    ├── record/
+    └── user/
+```
 
 
 
