@@ -6,8 +6,7 @@
 
 <br>
 
-![간지장표](https://github.com/user-attachments/assets/a7b7d96e-3f94-441e-a499-3abd8270061c)
-
+![간지장표](https://github.com/user-attachments/assets/c29ee0e9-62ab-4740-8d63-a7d67a4fa0aa)
 
 
 <br>
