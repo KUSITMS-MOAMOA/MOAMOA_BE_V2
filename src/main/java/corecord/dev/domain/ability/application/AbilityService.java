@@ -72,6 +72,11 @@ public class AbilityService {
         validAbilityCount(abilityCount);
     }
 
+    private void validAbilityCount(int abilityCount) {
+        if (abilityCount < 1 || abilityCount > 3)
+            throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
+    }
+
     @Transactional
     public void deleteOriginAbilityList(Analysis analysis) {
         List<Ability> abilityList = analysis.getAbilityList();
@@ -101,11 +106,5 @@ public class AbilityService {
                 .filter(ability -> ability.getKeyword().equals(key))
                 .findFirst()
                 .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
-    }
-
-    private void validAbilityCount(int abilityCount) {
-        if (abilityCount < 1 || abilityCount > 3) {
-            throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
-        }
     }
 }

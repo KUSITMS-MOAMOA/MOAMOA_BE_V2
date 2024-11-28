@@ -31,17 +31,17 @@ public class AnalysisService {
     private final RecordDbService recordDbService;
 
     /*
-     * CLOVA STUDIO룰 활용해 역량 분석 객체를 생성 후 반환
+     * OpenAI룰 활용해 역량 분석 객체를 생성 후 반환
      * @param record
      * @param user
      * @return
      */
     public Analysis createAnalysis(Record record, User user) {
 
-        // MEMO 경험 기록이라면, CLOVA STUDIO를 이용해 요약 진행
+        // MEMO 경험 기록이라면, OpenAI를 이용해 요약 진행
         String content = getRecordContent(record);
 
-        // Open-ai API 호출
+        // OpenAI API 호출
         AnalysisAiResponse response = generateAbilityAnalysis(content);
 
         // Analysis 객체 생성 및 저장
@@ -55,7 +55,7 @@ public class AnalysisService {
     }
 
     /*
-     * CLOVA STUDIO를 활용해 역량 분석을 재수행함 Analysis 객체 데이터 교체 후 반환
+     * OpenAI를 활용해 역량 분석을 재수행함 Analysis 객체 데이터 교체 후 반환
      * @param record
      * @param user
      * @return
@@ -101,6 +101,11 @@ public class AnalysisService {
                 recreateAnalysis(record, user);       // 기존 Analysis 객체가 있을 경우 교체
 
         return AnalysisConverter.toAnalysisDto(analysis);
+    }
+
+    private void validIsUserAuthorizedForRecord(User user, Record record) {
+        if (!record.getUser().equals(user))
+            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
     }
 
     /*
@@ -171,45 +176,6 @@ public class AnalysisService {
         return response;
     }
 
-    private String generateMemoSummary(String content) {
-        String response = openAiService.generateMemoSummary(content);
-
-        validIsRecordEnough(response);
-        validAnalysisContentLength(response);
-
-        return response;
-    }
-
-    private String getRecordContent(Record record) {
-        String content = record.isMemoType()
-                ? generateMemoSummary(record.getContent())
-                : record.getContent();
-
-        validAnalysisContentLength(content);
-
-        return content;
-    }
-
-    private void validIsRecordEnough(String response) {
-        if (response.contains("NO_RECORD"))
-            throw new RecordException(RecordErrorStatus.NO_RECORD);
-    }
-
-    private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
-        if (!analysis.getRecord().getUser().equals(user))
-            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
-    }
-
-    private void validIsUserAuthorizedForRecord(User user, Record record) {
-        if (!record.getUser().equals(user))
-            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
-    }
-
-    private void validAnalysisContentLength(String content) {
-        if (content.isEmpty() || content.length() > 500)
-            throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
-    }
-
     private void validAnalysisCommentLength(String comment) {
         if (comment.isEmpty() || comment.length() > 300)
             throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_COMMENT);
@@ -224,4 +190,37 @@ public class AnalysisService {
         }
     }
 
+    private String getRecordContent(Record record) {
+        String content = record.isMemoType()
+                ? generateMemoSummary(record.getContent())
+                : record.getContent();
+
+        validAnalysisContentLength(content);
+
+        return content;
+    }
+
+    private String generateMemoSummary(String content) {
+        String response = openAiService.generateMemoSummary(content);
+
+        validIsRecordEnough(response);
+        validAnalysisContentLength(response);
+
+        return response;
+    }
+
+    private void validIsRecordEnough(String response) {
+        if (response.contains("NO_RECORD"))
+            throw new RecordException(RecordErrorStatus.NO_RECORD);
+    }
+
+    private void validAnalysisContentLength(String content) {
+        if (content.isEmpty() || content.length() > 500)
+            throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
+    }
+
+    private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
+        if (!analysis.getRecord().getUser().equals(user))
+            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
+    }
 }

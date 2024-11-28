@@ -98,6 +98,11 @@ public class FolderService {
         return FolderConverter.toFolderDtoList(folderList);
     }
 
+    private void validIsUserAuthorizedForFolder(User user, Folder folder) {
+        if (!folder.getUser().equals(user))
+            throw new FolderException(FolderErrorStatus.USER_FOLDER_UNAUTHORIZED);
+    }
+
     /*
      * 생성일 오름차순으로 폴더 리스트를 조회
      * @param userId
@@ -122,11 +127,4 @@ public class FolderService {
             throw new FolderException(FolderErrorStatus.DUPLICATED_FOLDER_TITLE);
         }
     }
-
-    // user-folder 권한 검사
-    private void validIsUserAuthorizedForFolder(User user, Folder folder) {
-        if (!folder.getUser().equals(user))
-            throw new FolderException(FolderErrorStatus.USER_FOLDER_UNAUTHORIZED);
-    }
-
 }

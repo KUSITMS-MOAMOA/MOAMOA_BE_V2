@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -61,6 +62,14 @@ public class RecordService {
         return RecordConverter.toMemoRecordDto(record);
     }
 
+    private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
+        if (recordDto.getRecordType() == RecordType.MEMO)
+            return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
+
+        ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user);
+        return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
+    }
+
     /*
      * recordId를 받아 MEMO ver. 경험 기록의 상세 정보를 반환
      * @param userId, recordId
@@ -75,6 +84,11 @@ public class RecordService {
         validIsUserAuthorizedForRecord(user, record);
 
         return RecordConverter.toMemoRecordDto(record);
+    }
+
+    private void validIsUserAuthorizedForRecord(User user, Record record) {
+        if (!record.getUser().equals(user))
+            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
     }
 
     /*
@@ -97,6 +111,11 @@ public class RecordService {
         Record record = RecordConverter.toMemoRecordEntity(title, content, user, null);
         Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
+    }
+
+    private void validHasUserTmpMemo(User user) {
+        if (user.getTmpMemo() != null)
+            throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
     }
 
     /*
@@ -131,15 +150,8 @@ public class RecordService {
     @Transactional(readOnly = true)
     public RecordResponse.RecordListDto getRecordList(Long userId, String folderName, Long lastRecordId) {
         User user = userDbService.findUserById(userId);
-        List<Record> recordList;
 
-        // 임시 저장 기록 제외 Record List 최신 생성 순 조회
-        if (folderName.equals("all")) {
-            recordList = recordDbService.findRecordList(user, lastRecordId);
-        } else {
-            Folder folder = folderDbService.findFolderByTitle(user, folderName);
-            recordList = recordDbService.findRecordListByFolder(user, folder, lastRecordId);
-        }
+        List<Record> recordList = fetchRecords(user, folderName, lastRecordId);
 
         // 다음 조회할 데이터가 남아있는지 확인
         boolean hasNext = recordList.size() == listSize + 1;
@@ -149,9 +161,19 @@ public class RecordService {
         return RecordConverter.toRecordListDto(folderName, recordList, hasNext);
     }
 
+    private List<Record> fetchRecords(User user, String folderName, Long lastRecordId) {
+        if (folderName.equals("all")) {
+            return recordDbService.findRecordList(user, lastRecordId);
+        }
+        Folder folder = folderDbService.findFolderByTitle(user, folderName);
+        return recordDbService.findRecordListByFolder(user, folder, lastRecordId);
+    }
+
     /*
      * keyword를 받아 해당 키워드를 가진 역량 분석 정보와 경험 기록 정보를 반환
-     * @param userId, keywordValue
+     * @param userId
+     * @param keywordValue
+     * @param lastRecordId
      * @return
      */
     @Transactional(readOnly = true)
@@ -170,9 +192,15 @@ public class RecordService {
         return RecordConverter.toKeywordRecordListDto(recordList, hasNext);
     }
 
+    private Keyword getKeyword(String keywordValue) {
+        return Optional.ofNullable(Keyword.getName(keywordValue))
+                .orElseThrow(() -> new AbilityException(AbilityErrorStatus.INVALID_KEYWORD));
+    }
+
     /*
      * record가 속한 폴더를 변경
-     * @param userId, updateFolderDto
+     * @param userId
+     * @param updateFolderDto
      */
     @Transactional
     public void updateFolder(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
@@ -186,7 +214,7 @@ public class RecordService {
     /*
      * 최근 생성된 경험 기록 리스트 3개를 반환
      * @param userId
-     * @return
+     * @return RecordListDto
      */
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
         User user = userDbService.findUserById(userId);
@@ -197,43 +225,15 @@ public class RecordService {
         return RecordConverter.toRecordListDto("all", recordList, false);
     }
 
-    private void validHasUserTmpMemo(User user) {
-        if (user.getTmpMemo() != null)
-            throw new RecordException(RecordErrorStatus.ALREADY_TMP_MEMO);
-    }
-
     private void validTextLength(String title, String content) {
         if (title != null && title.length() > 50)
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
 
-        if (content != null && content.length() < 30)
+        if (content != null && content.length() < 50)
             throw new RecordException(RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
 
         if (content != null && content.length() > 500) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
         }
     }
-
-    // user-record 권한 검사
-    private void validIsUserAuthorizedForRecord(User user, Record record) {
-        if (!record.getUser().equals(user))
-            throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
-    }
-
-    private Keyword getKeyword(String keywordValue) {
-        Keyword keyword = Keyword.getName(keywordValue);
-        if (keyword == null)
-            throw new AbilityException(AbilityErrorStatus.INVALID_KEYWORD);
-        return keyword;
-    }
-
-    private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
-        if (recordDto.getRecordType() == RecordType.MEMO) {
-            return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
-        } else {
-            ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user);
-            return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
-        }
-    }
-
 }
