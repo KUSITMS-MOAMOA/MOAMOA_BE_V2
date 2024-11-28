@@ -16,8 +16,7 @@ public class CookieUtil {
         return ResponseCookie.from(tokenName, token)
                 .domain("corecord.site")
                 .httpOnly(true)
-                .secure(true) // 배포 시 true로 설정
-                .sameSite("None")
+                .secure(true)
                 .path("/")
                 .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
