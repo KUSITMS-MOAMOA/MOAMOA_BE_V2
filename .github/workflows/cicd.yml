@@ -21,6 +21,28 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew build -x test
+          
+
+      - name: Generate afterInstall.sh
+        run: |
+          mkdir -p ./scripts
+          cat <<EOF > ./scripts/afterInstall.sh
+          ${{ secrets.AFTER_INSTALL_SCRIPT }}
+          EOF
+        shell: bash
+
+      - name: Set execute permission for afterInstall.sh
+        run: chmod +x ./scripts/afterInstall.sh
+
+      - name: Generate appspec.yml
+        run: |
+          cat <<EOF > afterInstall.sh
+          ${{ secrets.APPSPEC_YML }}
+          EOF
+        shell: bash
+
+      - name: Set execute permission for afterInstall.sh
+        run: chmod +x ./scripts/afterInstall.sh
 
       - name: make application-secret.yml
         run: |
