@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate appspec.yml
         run: |
-          cat <<EOF > afterInstall.sh
+          cat <<EOF > appspec.yml
           ${{ secrets.APPSPEC_YML }}
           EOF
         shell: bash
