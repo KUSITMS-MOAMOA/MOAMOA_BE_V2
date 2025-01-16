@@ -1,11 +1,11 @@
-name: CD
+name: CI/CD
 
 on:
   push:
     branches: [ "develop" ]
 
 jobs:
-  deploy-ci:
+  deploy:
     runs-on: ubuntu-22.04
 
     steps:
@@ -21,7 +21,6 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew build -x test
-          
 
       - name: Generate afterInstall.sh
         run: |
