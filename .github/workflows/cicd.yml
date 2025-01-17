@@ -40,9 +40,6 @@ jobs:
           EOF
         shell: bash
 
-      - name: Set execute permission for afterInstall.sh
-        run: chmod +x ./scripts/afterInstall.sh
-
       - name: make application-secret.yml
         run: |
           touch ./src/main/resources/application-secret.yml
