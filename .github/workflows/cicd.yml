@@ -17,11 +17,6 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Grant execute permission for gradlew
-        run: |
-          chmod +x gradlew
-          ./gradlew build -x test
-
       - name: Generate afterInstall.sh
         run: |
           mkdir -p ./scripts
@@ -71,6 +66,11 @@ jobs:
           ${{ secrets.ABILITY_ANALYSIS_PROMPT }}
           EOF
         shell: bash
+
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x gradlew
+          ./gradlew build -x test
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
