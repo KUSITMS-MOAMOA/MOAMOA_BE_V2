@@ -52,7 +52,8 @@ public class SecurityConfig {
                 "http://localhost:5173", "https://localhost:5173",
                 "https://corecord.site",
                 "https://www.corecord.site",
-                "https://corecord.vercel.app"
+                "https://corecord.vercel.app",
+                "https://moamoa.site", "https://moamoa.site", "https://moamoa.vercel.app"
         ));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
