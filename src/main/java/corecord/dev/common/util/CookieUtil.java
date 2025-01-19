@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CookieUtil {
     public ResponseCookie createCookie(String tokenName, String token, long expirationTime) {
         return ResponseCookie.from(tokenName, token)
-                .domain("corecord.site")
+                .domain("moamoa.site")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -36,7 +36,7 @@ public class CookieUtil {
 
     public ResponseCookie deleteCookie(String cookieName) {
         return ResponseCookie.from(cookieName, "")
-                .domain("corecord.site")
+                .domain("moamoa.site")
                 .httpOnly(true)
                 .secure(true) // 배포 시 true로 설정
                 .sameSite("None")
