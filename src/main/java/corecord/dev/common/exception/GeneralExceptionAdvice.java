@@ -1,5 +1,6 @@
 package corecord.dev.common.exception;
 
+import corecord.dev.common.log.discord.DiscordAlarmSender;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
@@ -9,6 +10,8 @@ import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.folder.exception.FolderException;
 import corecord.dev.domain.record.exception.RecordException;
 import corecord.dev.domain.user.exception.UserException;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +32,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
+    private final DiscordAlarmSender discordAlarmSender;
 
     // UserException 처리
     @ExceptionHandler(UserException.class)
@@ -54,7 +59,7 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // RecordException 처리
     @ExceptionHandler(RecordException.class)
-    public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e) {
+    public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e, HttpServletRequest request) {
         log.warn(">>>>>>>>RecordException: {}", e.getRecordErrorStatus().getMessage());
         return ApiResponse.error(e.getRecordErrorStatus());
     }
@@ -153,7 +158,8 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // 기타 모든 예외 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e, HttpServletRequest request) {
+        discordAlarmSender.sendDiscordAlarm(e, request);
         log.error(">>>>>>>>Internal Server Error: {}", e.getMessage());
         e.printStackTrace();
         return ApiResponse.error(ErrorStatus.INTERNAL_SERVER_ERROR);
