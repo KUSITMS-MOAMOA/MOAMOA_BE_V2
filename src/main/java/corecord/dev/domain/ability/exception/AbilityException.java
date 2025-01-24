@@ -1,17 +1,18 @@
 package corecord.dev.domain.ability.exception;
 
-import corecord.dev.domain.ability.status.AbilityErrorStatus;
-import lombok.AllArgsConstructor;
+import corecord.dev.common.base.BaseErrorStatus;
+import corecord.dev.common.exception.GeneralException;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class AbilityException extends RuntimeException {
+public class AbilityException extends GeneralException {
 
-    private final AbilityErrorStatus abilityErrorStatus;
+    public AbilityException(BaseErrorStatus errorStatus) {
+        super(errorStatus);
+    }
 
     @Override
     public String getMessage() {
-        return abilityErrorStatus.getMessage();
+        return errorStatus.getMessage();
     }
 }

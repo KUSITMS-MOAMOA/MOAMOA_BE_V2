@@ -1,16 +1,18 @@
 package corecord.dev.domain.user.exception;
 
-import corecord.dev.domain.user.status.UserErrorStatus;
+import corecord.dev.common.base.BaseErrorStatus;
+import corecord.dev.common.exception.GeneralException;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
-public class UserException extends RuntimeException {
-    private final UserErrorStatus userErrorStatus;
+public class UserException extends GeneralException {
+
+    public UserException(BaseErrorStatus errorStatus) {
+        super(errorStatus);
+    }
 
     @Override
     public String getMessage() {
-        return userErrorStatus.getMessage();
+        return errorStatus.getMessage();
     }
 }

@@ -1,16 +1,18 @@
 package corecord.dev.domain.analysis.exception;
 
-import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
-import lombok.AllArgsConstructor;
+import corecord.dev.common.base.BaseErrorStatus;
+import corecord.dev.common.exception.GeneralException;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class AnalysisException extends RuntimeException {
-    private final AnalysisErrorStatus analysisErrorStatus;
+public class AnalysisException extends GeneralException {
+
+    public AnalysisException(BaseErrorStatus errorStatus) {
+        super(errorStatus);
+    }
 
     @Override
     public String getMessage() {
-        return analysisErrorStatus.getMessage();
+        return errorStatus.getMessage();
     }
 }

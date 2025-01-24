@@ -2,13 +2,7 @@ package corecord.dev.common.exception;
 
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.ability.exception.AbilityException;
-import corecord.dev.domain.analysis.exception.AnalysisException;
-import corecord.dev.domain.auth.exception.TokenException;
-import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.folder.exception.FolderException;
-import corecord.dev.domain.record.exception.RecordException;
-import corecord.dev.domain.user.exception.UserException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -29,56 +23,8 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
-
-    // UserException 처리
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUserException(UserException e) {
-        log.warn(">>>>>>>>UserException: {}", e.getUserErrorStatus().getMessage());
-        return ApiResponse.error(e.getUserErrorStatus());
-    }
-
-    // TokenException 처리
-    @ExceptionHandler(TokenException.class)
-    public ResponseEntity<ApiResponse<Void>> handleTokenException(TokenException e) {
-        log.warn(">>>>>>>>TokenException: {}", e.getTokenErrorStatus().getMessage());
-        return ApiResponse.error(e.getTokenErrorStatus());
-    }
-
-    // FolderException 처리
-    @ExceptionHandler(FolderException.class)
-    public ResponseEntity<ApiResponse<Void>> handleFolderException(FolderException e) {
-        log.warn(">>>>>>>>FolderException: {}", e.getFolderErrorStatus().getMessage());
-        return ApiResponse.error(e.getFolderErrorStatus());
-    }
-
-    // RecordException 처리
-    @ExceptionHandler(RecordException.class)
-    public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e) {
-        log.warn(">>>>>>>>RecordException: {}", e.getRecordErrorStatus().getMessage());
-        return ApiResponse.error(e.getRecordErrorStatus());
-    }
-
-    // AnalysisException 처리
-    @ExceptionHandler(AnalysisException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAnalysisException(AnalysisException e) {
-        log.warn(">>>>>>>>AnalysisException: {}", e.getAnalysisErrorStatus().getMessage());
-        return ApiResponse.error(e.getAnalysisErrorStatus());
-    }
-
-    // AbilityException 처리
-    @ExceptionHandler(AbilityException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAbilityException(AbilityException e) {
-        log.warn(">>>>>>>>AbilityException: {}", e.getAbilityErrorStatus().getMessage());
-        return ApiResponse.error(e.getAbilityErrorStatus());
-    }
-
-    // ChatException 처리
-    @ExceptionHandler(ChatException.class)
-    public ResponseEntity<ApiResponse<Void>> handleChatException(ChatException e) {
-        log.warn(">>>>>>>>ChatException: {}", e.getChatErrorStatus().getMessage());
-        return ApiResponse.error(e.getChatErrorStatus());
-    }
 
     // GeneralException 처리
     @ExceptionHandler(GeneralException.class)
