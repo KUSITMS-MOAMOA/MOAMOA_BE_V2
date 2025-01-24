@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -26,11 +27,10 @@ public class DiscordAlarmSender {
         if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
             return webClient.post()
                     .uri(webHookUrl)
-                    .header("Content-Type", "application/json; charset=utf-8")
-                    .header("Accept", "application/json")
+                    .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(discordUtil.createMessage(exception, httpServletRequest))
                     .retrieve()
-                    .bodyToMono(void.class)
+                    .bodyToMono(Void.class)
                     .block();
         }
         return null;
