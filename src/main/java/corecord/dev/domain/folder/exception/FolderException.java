@@ -1,16 +1,18 @@
 package corecord.dev.domain.folder.exception;
 
-import corecord.dev.domain.folder.status.FolderErrorStatus;
-import lombok.AllArgsConstructor;
+import corecord.dev.common.base.BaseErrorStatus;
+import corecord.dev.common.exception.GeneralException;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class FolderException extends RuntimeException {
-    private final FolderErrorStatus folderErrorStatus;
+public class FolderException extends GeneralException {
+
+    public FolderException(BaseErrorStatus errorStatus) {
+        super(errorStatus);
+    }
 
     @Override
     public String getMessage() {
-        return folderErrorStatus.getMessage();
+        return errorStatus.getMessage();
     }
 }

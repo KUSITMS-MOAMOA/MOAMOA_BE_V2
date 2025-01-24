@@ -1,6 +1,5 @@
 package corecord.dev.common.exception;
 
-import corecord.dev.common.log.discord.DiscordAlarmSender;
 import corecord.dev.common.response.ApiResponse;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
@@ -10,12 +9,10 @@ import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.folder.exception.FolderException;
 import corecord.dev.domain.record.exception.RecordException;
 import corecord.dev.domain.user.exception.UserException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,58 +32,54 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
-    private final DiscordAlarmSender discordAlarmSender;
 
     // UserException 처리
     @ExceptionHandler(UserException.class)
     public ResponseEntity<ApiResponse<Void>> handleUserException(UserException e) {
-        log.warn(">>>>>>>>UserException: {}", e.getUserErrorStatus().getMessage());
-        return ApiResponse.error(e.getUserErrorStatus());
+        log.warn(">>>>>>>>UserException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // TokenException 처리
     @ExceptionHandler(TokenException.class)
     public ResponseEntity<ApiResponse<Void>> handleTokenException(TokenException e) {
-        log.warn(">>>>>>>>TokenException: {}", e.getTokenErrorStatus().getMessage());
-        return ApiResponse.error(e.getTokenErrorStatus());
+        log.warn(">>>>>>>>TokenException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // FolderException 처리
     @ExceptionHandler(FolderException.class)
     public ResponseEntity<ApiResponse<Void>> handleFolderException(FolderException e) {
-        log.warn(">>>>>>>>FolderException: {}", e.getFolderErrorStatus().getMessage());
-        return ApiResponse.error(e.getFolderErrorStatus());
+        log.warn(">>>>>>>>FolderException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // RecordException 처리
     @ExceptionHandler(RecordException.class)
     public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e) {
-        log.warn(">>>>>>>>RecordException: {}", e.getRecordErrorStatus().getMessage());
-        return ApiResponse.error(e.getRecordErrorStatus());
+        log.warn(">>>>>>>>RecordException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // AnalysisException 처리
     @ExceptionHandler(AnalysisException.class)
     public ResponseEntity<ApiResponse<Void>> handleAnalysisException(AnalysisException e) {
-        log.warn(">>>>>>>>AnalysisException: {}", e.getAnalysisErrorStatus().getMessage());
-        return ApiResponse.error(e.getAnalysisErrorStatus());
+        log.warn(">>>>>>>>AnalysisException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // AbilityException 처리
     @ExceptionHandler(AbilityException.class)
     public ResponseEntity<ApiResponse<Void>> handleAbilityException(AbilityException e) {
-        log.warn(">>>>>>>>AbilityException: {}", e.getAbilityErrorStatus().getMessage());
-        return ApiResponse.error(e.getAbilityErrorStatus());
+        log.warn(">>>>>>>>AbilityException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // ChatException 처리
     @ExceptionHandler(ChatException.class)
-    public ResponseEntity<ApiResponse<Void>> handleChatException(ChatException e, HttpServletRequest request) {
-        if (e.getChatErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
-            discordAlarmSender.sendDiscordAlarm(e, request);
-
-        log.warn(">>>>>>>>ChatException: {}", e.getChatErrorStatus().getMessage());
-        return ApiResponse.error(e.getChatErrorStatus());
+    public ResponseEntity<ApiResponse<Void>> handleChatException(ChatException e) {
+        log.warn(">>>>>>>>ChatException: {}", e.getErrorStatus().getMessage());
+        return ApiResponse.error(e.getErrorStatus());
     }
 
     // GeneralException 처리
@@ -131,8 +124,7 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // NullPointerException 처리
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<Object> handleNullPointerException(NullPointerException e, HttpServletRequest request) {
-        discordAlarmSender.sendDiscordAlarm(e, request);
+    public ResponseEntity<Object> handleNullPointerException(NullPointerException e) {
         String errorMessage = "서버에서 예기치 않은 오류가 발생했습니다. 요청을 처리하는 중에 Null 값이 참조되었습니다.";
         logError("NullPointerException", e);
         return ApiResponse.error(ErrorStatus.INTERNAL_SERVER_ERROR, errorMessage);
@@ -163,8 +155,7 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // 기타 모든 예외 처리
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleException(Exception e, HttpServletRequest request) {
-        discordAlarmSender.sendDiscordAlarm(e, request);
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         log.error(">>>>>>>>Internal Server Error: {}", e.getMessage());
         e.printStackTrace();
         return ApiResponse.error(ErrorStatus.INTERNAL_SERVER_ERROR);
