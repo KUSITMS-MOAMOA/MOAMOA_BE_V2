@@ -26,12 +26,15 @@ public class DiscordLoggerAop {
 
     @Before("generalExceptionErrorLoggerExecute()")
     public void serverErrorLogging(JoinPoint joinpoint) {
-        Object[] args = joinpoint.getArgs();
-        GeneralException exception = (GeneralException) args[0];
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        Object[] args = joinpoint.getArgs();
 
-        if (exception.getErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
+        if (args[0] instanceof GeneralException exception) {
+            if (exception.getErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
+                discordAlarmSender.sendDiscordAlarm(exception, request);
+        } else {
+            Exception exception = (Exception) args[0];
             discordAlarmSender.sendDiscordAlarm(exception, request);
+        }
     }
-
 }
