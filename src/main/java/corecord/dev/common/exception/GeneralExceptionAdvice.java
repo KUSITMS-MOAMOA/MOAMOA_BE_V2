@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -59,7 +60,7 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // RecordException 처리
     @ExceptionHandler(RecordException.class)
-    public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> handleRecordException(RecordException e) {
         log.warn(">>>>>>>>RecordException: {}", e.getRecordErrorStatus().getMessage());
         return ApiResponse.error(e.getRecordErrorStatus());
     }
@@ -80,7 +81,10 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // ChatException 처리
     @ExceptionHandler(ChatException.class)
-    public ResponseEntity<ApiResponse<Void>> handleChatException(ChatException e) {
+    public ResponseEntity<ApiResponse<Void>> handleChatException(ChatException e, HttpServletRequest request) {
+        if (e.getChatErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
+            discordAlarmSender.sendDiscordAlarm(e, request);
+
         log.warn(">>>>>>>>ChatException: {}", e.getChatErrorStatus().getMessage());
         return ApiResponse.error(e.getChatErrorStatus());
     }
@@ -127,7 +131,8 @@ public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
     // NullPointerException 처리
     @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<Object> handleNullPointerException(NullPointerException e) {
+    public ResponseEntity<Object> handleNullPointerException(NullPointerException e, HttpServletRequest request) {
+        discordAlarmSender.sendDiscordAlarm(e, request);
         String errorMessage = "서버에서 예기치 않은 오류가 발생했습니다. 요청을 처리하는 중에 Null 값이 참조되었습니다.";
         logError("NullPointerException", e);
         return ApiResponse.error(ErrorStatus.INTERNAL_SERVER_ERROR, errorMessage);
