@@ -21,20 +21,29 @@ public class DiscordLoggerAop {
 
     private final DiscordAlarmSender discordAlarmSender;
 
-    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice..*(..))")
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleGeneralException())")
     public void generalExceptionErrorLoggerExecute() {}
 
-    @Before("generalExceptionErrorLoggerExecute()")
-    public void serverErrorLogging(JoinPoint joinpoint) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-        Object[] args = joinpoint.getArgs();
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleException())")
+    public void serverExceptionErrorLoggerExecute() {}
 
-        if (args[0] instanceof GeneralException exception) {
-            if (exception.getErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
-                discordAlarmSender.sendDiscordAlarm(exception, request);
-        } else {
-            Exception exception = (Exception) args[0];
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleNullPointerException())")
+    public void nullPointerExceptionErrorLoggerExecute() {}
+
+    @Before("generalExceptionErrorLoggerExecute()")
+    public void generalExceptionLogging(JoinPoint joinpoint) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        GeneralException exception =  (GeneralException)joinpoint.getArgs()[0];
+
+        if (exception.getErrorStatus().getHttpStatus() == HttpStatus.INTERNAL_SERVER_ERROR)
             discordAlarmSender.sendDiscordAlarm(exception, request);
-        }
+    }
+
+    @Before("serverExceptionErrorLoggerExecute() & nullPointerExceptionErrorLoggerExecute()")
+    public void serverExceptionLogging(JoinPoint joinpoint) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        Exception exception = (Exception)joinpoint.getArgs()[0];
+
+        discordAlarmSender.sendDiscordAlarm(exception, request);
     }
 }
