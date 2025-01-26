@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ability",
-        indexes = {@Index(name = "user_keyword_idx", columnList = "user_id, keyword")})
+        indexes = {@Index(name = "user_keyword_created_idx", columnList = "user_id, keyword, created_at")})
 public class Ability extends BaseEntity {
 
     @Id

@@ -17,7 +17,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "analysis")
+@Table(name = "analysis",
+        indexes = {@Index(name = "created_at_idx", columnList = "created_at")})
 public class Analysis extends BaseEntity {
 
     @Id
