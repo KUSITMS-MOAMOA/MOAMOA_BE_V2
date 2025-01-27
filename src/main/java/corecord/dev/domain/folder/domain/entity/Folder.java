@@ -16,7 +16,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "folder")
+@Table(name = "folder",
+        indexes = {@Index(name = "user_created_at_idx", columnList = "user_id, created_at")})
 public class Folder extends BaseEntity {
 
     @Id
