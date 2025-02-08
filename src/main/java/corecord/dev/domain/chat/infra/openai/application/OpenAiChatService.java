@@ -7,11 +7,13 @@ import corecord.dev.domain.chat.application.ChatAIService;
 import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.exception.ChatException;
+import corecord.dev.domain.chat.infra.clova.application.ClovaService;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OpenAiChatService implements ChatAIService {
     private final OpenAiChatModel chatModel;
+    private final ClovaService clovaService;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
 
@@ -44,7 +47,11 @@ public class OpenAiChatService implements ChatAIService {
         // 사용자 입력 추가
         messages.add(Map.of("role", "user", "content", userContent));
 
-        return chatModel.call(String.valueOf(messages));
+        try {
+            return chatModel.call(String.valueOf(messages));
+        } catch (HttpServerErrorException e) {
+            return clovaService.generateChatResponse(chatHistory, userContent);
+        }
     }
 
     @Override
@@ -63,7 +70,12 @@ public class OpenAiChatService implements ChatAIService {
             messages.add(Map.of("role", role, "content", chat.getContent()));
         }
 
-        String response = chatModel.call(String.valueOf(messages));
+        String response;
+        try {
+            response =  chatModel.call(String.valueOf(messages));
+        } catch (HttpServerErrorException e) {
+            response = clovaService.generateChatSummaryResponse(chatHistory).getContent();
+        }
 
         return parseChatSummaryResponse(response);
     }
