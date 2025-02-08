@@ -38,7 +38,7 @@ public class ChatService {
         ChatRoom chatRoom = chatDbService.createChatRoom(user);
 
         // 첫번째 채팅 생성 - "안녕하세요! {nickName}님! {nickName}님의 경험이 궁금해요. {nickName}님의 경험을 들려주세요!"
-        String firstChatContent = String.format("안녕하세요! %s님\n오늘은 어떤 경험을 했나요?\n저와 함께 정리해보아요!", user.getNickName());
+        String firstChatContent = String.format("안녕하세요! %s님의 경험을 말해주세요.\n어떤 경험을 했나요? 당시 상황과 문제를 해결하기 위한 %s님의 노력이 궁금해요", user.getNickName(), user.getNickName());
         Chat firstChat = chatDbService.saveChat(0, firstChatContent, chatRoom);
 
         return ChatConverter.toChatRoomDto(chatRoom, firstChat);
@@ -77,8 +77,13 @@ public class ChatService {
     }
 
     private ChatResponse.ChatsDto generateGuideChats(ChatRoom chatRoom) {
-        Chat guideChat1 = chatDbService.saveChat(0, "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD", chatRoom);
-        Chat guideChat2 = chatDbService.saveChat(0, "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!", chatRoom);
+        Chat guideChat1 = chatDbService.saveChat(0, "아래 질문에 답하다 보면 경험이 정리될 거예요! \n" +
+                "S(상황) : 어떤 상황이었나요?\n" +
+                "T(과제) : 마주한 문제나 목표는 무엇이었나요?\n" +
+                "A(행동) : 문제를 해결하기 위해 어떻게 노력했나요?\n" +
+                "R(결과) : 그 결과는 어땠나요?", chatRoom);
+        Chat guideChat2 = chatDbService.saveChat(0, "우선 기억나는 내용부터 가볍게 적어보세요.\n" +
+                "부족한 부분은 대화를 통해 모아모아가 도와줄게요! \uD83D\uDCDD", chatRoom);
         return ChatConverter.toChatsDto(List.of(guideChat1, guideChat2));
     }
 
