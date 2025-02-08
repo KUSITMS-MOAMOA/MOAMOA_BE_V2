@@ -17,6 +17,7 @@ public class CookieUtil {
                 .domain("moamoa.site")
                 .httpOnly(true)
                 .secure(true)
+                .sameSite("None") // 배포시 삭제
                 .path("/")
                 .maxAge(expirationTime / 1000) // maxAge는 초 단위
                 .build();
