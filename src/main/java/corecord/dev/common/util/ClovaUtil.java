@@ -3,7 +3,6 @@ package corecord.dev.common.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +28,7 @@ public class ClovaUtil {
     @Value("${ncp.chat.request-id}")
     private String chatRequestId;
 
-    public String postWebClient(ClovaRequest clovaRequest) {
+    public String postWebClient(Object clovaRequest) {
         return webClient.post()
                 .uri(chatHost)
                 .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)
