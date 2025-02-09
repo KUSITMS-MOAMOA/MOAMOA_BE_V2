@@ -5,4 +5,5 @@ import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse
 
 public interface AnalysisAIService {
     AnalysisAiResponse generateAbilityAnalysis(String content);
+    String generateMemoSummary(String content);
 }

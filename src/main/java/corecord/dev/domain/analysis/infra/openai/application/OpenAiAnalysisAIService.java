@@ -9,8 +9,10 @@ import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Service
 @RequiredArgsConstructor
 public class OpenAiAnalysisAIService implements AnalysisAIService {
@@ -24,6 +26,7 @@ public class OpenAiAnalysisAIService implements AnalysisAIService {
         return parseAnalysisAiResponse(response);
     }
 
+    @Override
     public String generateMemoSummary(String content) {
         return chatModel.call(SUMMARY_SYSTEM_CONTENT + content);
     }
