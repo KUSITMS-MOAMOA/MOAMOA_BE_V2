@@ -125,7 +125,7 @@ public class UserServiceTest {
         // When & Then
         UserException exception = Assertions.assertThrows(UserException.class,
                 () -> userService.registerUser(REGISTER_TOKEN, userRegisterDto));
-        assertThat(exception.getUserErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
+        assertThat(exception.getErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class UserServiceTest {
         // When & Then
         UserException exception = Assertions.assertThrows(UserException.class,
                 () -> userService.registerUser(REGISTER_TOKEN, userRegisterDto));
-        assertThat(exception.getUserErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
+        assertThat(exception.getErrorStatus()).isEqualTo(UserErrorStatus.INVALID_USER_NICKNAME);
     }
 
     private User createTestUser() {

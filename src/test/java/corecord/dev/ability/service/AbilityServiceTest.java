@@ -115,7 +115,7 @@ public class AbilityServiceTest {
         // When & Then
         AbilityException exception = assertThrows(AbilityException.class,
                 () -> abilityService.parseAndSaveAbilities(keywordList, analysis, user));
-        assertEquals(exception.getAbilityErrorStatus(), AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
+        assertEquals(exception.getErrorStatus(), AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
     }
 
     @Test

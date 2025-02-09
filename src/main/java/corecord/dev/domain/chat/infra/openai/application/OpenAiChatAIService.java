@@ -30,16 +30,10 @@ public class OpenAiChatAIService implements ChatAIService {
         List<Map<String, String>> messages = new ArrayList<>();
 
         // 시스템 메시지 추가
-        messages.add(Map.of(
-                "role", "system",
-                "content", CHAT_SYSTEM_CONTENT
-        ));
+        addSystemMessage(messages, CHAT_SYSTEM_CONTENT);
 
         // 기존 채팅 내역 추가
-        for (Chat chat : chatHistory) {
-            String role = chat.getAuthor() == 0 ? "assistant" : "user";
-            messages.add(Map.of("role", role, "content", chat.getContent()));
-        }
+        addExistingChats(messages, chatHistory);
 
         // 사용자 입력 추가
         messages.add(Map.of("role", "user", "content", userContent));
@@ -52,20 +46,28 @@ public class OpenAiChatAIService implements ChatAIService {
         List<Map<String, String>> messages = new ArrayList<>();
 
         // 시스템 메시지 추가
-        messages.add(Map.of(
-                "role", "system",
-                "content", SUMMARY_SYSTEM_CONTENT
-        ));
+        addSystemMessage(messages, SUMMARY_SYSTEM_CONTENT);
 
         // 기존 채팅 내역 추가
-        for (Chat chat : chatHistory) {
-            String role = chat.getAuthor() == 0 ? "assistant" : "user";
-            messages.add(Map.of("role", role, "content", chat.getContent()));
-        }
+        addExistingChats(messages, chatHistory);
 
         String response = chatModel.call(String.valueOf(messages));
 
         return parseChatSummaryResponse(response);
+    }
+
+    private void addSystemMessage(List<Map<String, String>> messages, String systemContent) {
+        messages.add(Map.of(
+                "role", "system",
+                "content", systemContent
+        ));
+    }
+
+    private void addExistingChats(List<Map<String, String>> messages, List<Chat> chatHistory) {
+        for (Chat chat : chatHistory) {
+            String role = chat.getAuthor() == 0 ? "assistant" : "user";
+            messages.add(Map.of("role", role, "content", chat.getContent()));
+        }
     }
 
     private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {
@@ -76,5 +78,4 @@ public class OpenAiChatAIService implements ChatAIService {
             throw new ChatException(ChatErrorStatus.INVALID_CHAT_SUMMARY);
         }
     }
-
 }

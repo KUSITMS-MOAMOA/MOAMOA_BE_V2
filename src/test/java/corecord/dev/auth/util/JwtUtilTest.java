@@ -131,7 +131,7 @@ public class JwtUtilTest {
 
         // then
         TokenException exception = assertThrows(TokenException.class, () -> jwtUtil.isAccessTokenValid(expiredAccessToken));
-        assertThat(exception.getTokenErrorStatus()).isEqualTo(TokenErrorStatus.INVALID_ACCESS_TOKEN);
+        assertThat(exception.getErrorStatus()).isEqualTo(TokenErrorStatus.INVALID_ACCESS_TOKEN);
     }
 
 
@@ -143,6 +143,6 @@ public class JwtUtilTest {
 
         // then
         TokenException exception = assertThrows(TokenException.class, () -> jwtUtil.isAccessTokenValid(invalidToken));
-        assertThat(exception.getTokenErrorStatus()).isEqualTo(TokenErrorStatus.INVALID_ACCESS_TOKEN);
+        assertThat(exception.getErrorStatus()).isEqualTo(TokenErrorStatus.INVALID_ACCESS_TOKEN);
     }
 }
