@@ -55,8 +55,8 @@ public class ChatDbService {
         chatRepository.deleteChatByFolderId(folder.getFolderId());
     }
 
-    public ChatRoom findChatRoomById(Long chatRoomId, User user) {
-        return chatRoomRepository.findByChatRoomIdAndUser(chatRoomId, user)
+    public ChatRoom findChatRoomById(Long chatRoomId, Long userId) {
+        return chatRoomRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
                 .orElseThrow(() -> new ChatException(ChatErrorStatus.CHAT_ROOM_NOT_FOUND));
     }
 

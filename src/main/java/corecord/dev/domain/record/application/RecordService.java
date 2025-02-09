@@ -66,7 +66,7 @@ public class RecordService {
         if (recordDto.getRecordType() == RecordType.MEMO)
             return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
 
-        ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
         return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
     }
 
@@ -77,17 +77,16 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.MemoRecordDto getMemoRecordDetail(Long userId, Long recordId) {
-        User user = userDbService.findUserById(userId);
         Record record = recordDbService.findRecordById(recordId);
 
         // User-Record 권한 유효성 검증
-        validIsUserAuthorizedForRecord(user, record);
+        validIsUserAuthorizedForRecord(userId, record);
 
         return RecordConverter.toMemoRecordDto(record);
     }
 
-    private void validIsUserAuthorizedForRecord(User user, Record record) {
-        if (!record.getUser().equals(user))
+    private void validIsUserAuthorizedForRecord(Long userId, Record record) {
+        if (!record.getUser().getUserId().equals(userId))
             throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
     }
 
@@ -149,9 +148,7 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.RecordListDto getRecordList(Long userId, String folderName, Long lastRecordId) {
-        User user = userDbService.findUserById(userId);
-
-        List<Record> recordList = fetchRecords(user, folderName, lastRecordId);
+        List<Record> recordList = fetchRecords(userId, folderName, lastRecordId);
 
         // 다음 조회할 데이터가 남아있는지 확인
         boolean hasNext = recordList.size() == listSize + 1;
@@ -161,12 +158,12 @@ public class RecordService {
         return RecordConverter.toRecordListDto(folderName, recordList, hasNext);
     }
 
-    private List<Record> fetchRecords(User user, String folderName, Long lastRecordId) {
+    private List<Record> fetchRecords(Long userId, String folderName, Long lastRecordId) {
         if (folderName.equals("all")) {
-            return recordDbService.findRecordList(user, lastRecordId);
+            return recordDbService.findRecordList(userId, lastRecordId);
         }
-        Folder folder = folderDbService.findFolderByTitle(user, folderName);
-        return recordDbService.findRecordListByFolder(user, folder, lastRecordId);
+        Folder folder = folderDbService.findFolderByTitle(userId, folderName);
+        return recordDbService.findRecordListByFolder(userId, folder, lastRecordId);
     }
 
     /*
@@ -178,11 +175,9 @@ public class RecordService {
      */
     @Transactional(readOnly = true)
     public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue, Long lastRecordId) {
-        User user = userDbService.findUserById(userId);
-
         // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
         Keyword keyword = getKeyword(keywordValue);
-        List<Record> recordList = recordDbService.findRecordListByKeyword(user, keyword, lastRecordId);
+        List<Record> recordList = recordDbService.findRecordListByKeyword(userId, keyword, lastRecordId);
 
         // 다음 조회할 데이터가 남아있는지 확인
         boolean hasNext = recordList.size() == listSize + 1;
@@ -204,24 +199,19 @@ public class RecordService {
      */
     @Transactional
     public void updateFolder(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
-        User user = userDbService.findUserById(userId);
         Record record = recordDbService.findRecordById(updateFolderDto.getRecordId());
-        Folder folder = folderDbService.findFolderByTitle(user, updateFolderDto.getFolder());
+        Folder folder = folderDbService.findFolderByTitle(userId, updateFolderDto.getFolder());
 
         record.updateFolder(folder);
     }
 
     /*
-     * 최근 생성된 경험 기록 리스트 3개를 반환
+     * 최근 생성된 경험 기록 리스트 6개를 반환
      * @param userId
      * @return RecordListDto
      */
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
-        User user = userDbService.findUserById(userId);
-
-        // 최근 생성된 3개의 데이터만 조회
-        List<Record> recordList = recordDbService.findRecordListOrderByCreatedAt(user);
-
+        List<Record> recordList = recordDbService.findRecordListOrderByCreatedAt(userId);
         return RecordConverter.toRecordListDto("all", recordList, false);
     }
 

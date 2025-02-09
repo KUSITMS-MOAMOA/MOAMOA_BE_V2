@@ -51,8 +51,7 @@ public class ChatService {
      * @return
      */
     public ChatResponse.ChatsDto createChat(Long userId, Long chatRoomId, ChatRequest.ChatDto chatDto) {
-        User user = userDbService.findUserById(userId);
-        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
 
         // 사용자 채팅 생성
         chatDbService.saveChat(1, chatDto.getContent(), chatRoom);
@@ -94,8 +93,7 @@ public class ChatService {
      * @return chatListDto
      */
     public ChatResponse.ChatListDto getChatList(Long userId, Long chatRoomId) {
-        User user = userDbService.findUserById(userId);
-        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
         List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
         return ChatConverter.toChatListDto(chatList);
@@ -108,7 +106,7 @@ public class ChatService {
      */
     public void deleteChatRoom(Long userId, Long chatRoomId) {
         User user = userDbService.findUserById(userId);
-        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
 
         // 임시 저장된 ChatRoom 인지 확인 후 삭제
         checkTmpChat(user, chatRoom);
@@ -131,8 +129,7 @@ public class ChatService {
      * @return chatSummaryDto
      */
     public ChatResponse.ChatSummaryDto getChatSummary(Long userId, Long chatRoomId) {
-        User user = userDbService.findUserById(userId);
-        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
         List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
 
         // 사용자 입력 없이 저장하려는 경우 체크
@@ -176,7 +173,7 @@ public class ChatService {
     @Transactional
     public void saveChatTmp(Long userId, Long chatRoomId) {
         User user = userDbService.findUserById(userId);
-        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, user);
+        ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
 
         // 이미 임시 저장된 채팅방이 있는 경우
         if (user.getTmpChat() != null) {

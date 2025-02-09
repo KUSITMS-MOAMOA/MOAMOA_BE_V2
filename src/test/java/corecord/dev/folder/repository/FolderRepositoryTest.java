@@ -41,7 +41,7 @@ public class FolderRepositoryTest {
         Long testId = folder2.getFolderId();
 
         // When
-        Optional<Folder> result = folderRepository.findFolderByTitle(testTitle2, user);
+        Optional<Folder> result = folderRepository.findFolderByTitle(testTitle2, user.getUserId());
 
         // Then
         assertThat(result.isPresent()).isTrue();

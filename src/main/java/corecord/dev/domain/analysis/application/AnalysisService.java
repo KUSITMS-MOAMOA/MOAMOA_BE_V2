@@ -113,11 +113,10 @@ public class AnalysisService {
      * @return
      */
     public AnalysisResponse.AnalysisDto getAnalysis(Long userId, Long analysisId) {
-        User user = userDbService.findUserById(userId);
         Analysis analysis = analysisDbService.findAnalysisById(analysisId);
 
         // User-Analysis 권한 유효성 검증
-        validIsUserAuthorizedForAnalysis(user, analysis);
+        validIsUserAuthorizedForAnalysis(userId, analysis);
 
         return AnalysisConverter.toAnalysisDto(analysis);
     }
@@ -129,11 +128,10 @@ public class AnalysisService {
      */
     @Transactional
     public AnalysisResponse.AnalysisDto updateAnalysis(Long userId, AnalysisRequest.AnalysisUpdateDto analysisUpdateDto) {
-        User user = userDbService.findUserById(userId);
         Analysis analysis = analysisDbService.findAnalysisById(analysisUpdateDto.getAnalysisId());
 
         // User-Analysis 권한 유효성 검증
-        validIsUserAuthorizedForAnalysis(user, analysis);
+        validIsUserAuthorizedForAnalysis(userId, analysis);
 
         // 경험 기록 제목 수정
         String title = analysisUpdateDto.getTitle();
@@ -156,11 +154,10 @@ public class AnalysisService {
      */
     @Transactional
     public void deleteAnalysis(Long userId, Long analysisId) {
-        User user = userDbService.findUserById(userId);
         Analysis analysis = analysisDbService.findAnalysisById(analysisId);
 
         // User-Analysis 권한 유효성 검증
-        validIsUserAuthorizedForAnalysis(user, analysis);
+        validIsUserAuthorizedForAnalysis(userId, analysis);
 
         analysisDbService.deleteAnalysis(analysis);
     }
@@ -218,8 +215,8 @@ public class AnalysisService {
             throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
     }
 
-    private void validIsUserAuthorizedForAnalysis(User user, Analysis analysis) {
-        if (!analysis.getRecord().getUser().equals(user))
+    private void validIsUserAuthorizedForAnalysis(Long userId, Analysis analysis) {
+        if (!analysis.getRecord().getUser().getUserId().equals(userId))
             throw new RecordException(RecordErrorStatus.USER_RECORD_UNAUTHORIZED);
     }
 }

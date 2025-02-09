@@ -3,7 +3,6 @@ package corecord.dev.domain.folder.domain.repository;
 import corecord.dev.domain.folder.domain.dto.response.FolderResponse;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.user.domain.entity.User;
-import jakarta.validation.Valid;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,16 +17,16 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     @Query("SELECT new corecord.dev.domain.folder.domain.dto.response.FolderResponse$FolderDto(f.folderId, f.title) " +
             "FROM Folder f " +
-            "WHERE f.user = :user " +
+            "WHERE f.user.userId = :userId " +
             "ORDER BY f.createdAt desc ")
-    List<FolderResponse.FolderDto> findFolderDtoList(@Param(value = "user") User user);
+    List<FolderResponse.FolderDto> findFolderDtoList(@Param(value = "userId") Long userId);
 
     @Query("SELECT f " +
             "FROM Folder f " +
-            "WHERE f.title = :title AND f.user = :user ")
+            "WHERE f.title = :title AND f.user.userId = :userId ")
     Optional<Folder> findFolderByTitle(
             @Param(value = "title") String title,
-            @Param(value = "user") User user);
+            @Param(value = "userId") Long userId);
 
     boolean existsByTitleAndUser(String title, User user);
 

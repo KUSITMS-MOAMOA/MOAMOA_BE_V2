@@ -48,7 +48,7 @@ public class FolderService {
         Folder folder = FolderConverter.toFolderEntity(title, user);
         folderDbService.saveFolder(folder);
 
-        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(user);
+        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(userId);
         return FolderConverter.toFolderDtoList(folderList);
     }
 
@@ -59,11 +59,10 @@ public class FolderService {
      */
     @Transactional
     public FolderResponse.FolderDtoList deleteFolder(Long userId, Long folderId) {
-        User user = userDbService.findUserById(userId);
         Folder folder = folderDbService.findFolderById(folderId);
 
         // User-Folder 권한 유효성 검증
-        validIsUserAuthorizedForFolder(user, folder);
+        validIsUserAuthorizedForFolder(userId, folder);
 
         abilityDbService.deleteAbilityByFolder(folder);
         analysisDbService.deleteAnalysisByFolder(folder);
@@ -71,7 +70,7 @@ public class FolderService {
         recordDbService.deleteRecordByFolder(folder);
         folderDbService.deleteFolder(folder);
 
-        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(user);
+        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(userId);
         return FolderConverter.toFolderDtoList(folderList);
     }
 
@@ -90,16 +89,16 @@ public class FolderService {
         validDuplicatedFolderTitleAndLength(title, user);
 
         // User-Folder 권한 유효성 검증
-        validIsUserAuthorizedForFolder(user, folder);
+        validIsUserAuthorizedForFolder(userId, folder);
 
         folder.updateTitle(title);
 
-        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(user);
+        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(userId);
         return FolderConverter.toFolderDtoList(folderList);
     }
 
-    private void validIsUserAuthorizedForFolder(User user, Folder folder) {
-        if (!folder.getUser().equals(user))
+    private void validIsUserAuthorizedForFolder(Long userId, Folder folder) {
+        if (!folder.getUser().getUserId().equals(userId))
             throw new FolderException(FolderErrorStatus.USER_FOLDER_UNAUTHORIZED);
     }
 
@@ -110,9 +109,7 @@ public class FolderService {
      */
     @Transactional(readOnly = true)
     public FolderResponse.FolderDtoList getFolderList(Long userId) {
-        User user = userDbService.findUserById(userId);
-
-        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(user);
+        List<FolderResponse.FolderDto> folderList = folderDbService.findFolderDtoList(userId);
         return FolderConverter.toFolderDtoList(folderList);
     }
 

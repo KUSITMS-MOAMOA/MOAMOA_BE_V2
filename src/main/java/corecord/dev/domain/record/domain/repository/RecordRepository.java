@@ -22,12 +22,12 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.analysis a " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
-            "WHERE r.user = :user " +
+            "WHERE r.user.userId = :userId " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null AND r.folder = :folder") // 임시 저장 기록 제외
     List<Record> findRecordsByFolder(
             @Param(value = "folder") Folder folder,
-            @Param(value = "user") User user,
+            @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
             Pageable pageable);
 
@@ -35,11 +35,11 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.analysis a " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
-            "WHERE r.user = :user " +
+            "WHERE r.user.userId = :userId " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null") // 임시 저장 기록 제외
     List<Record> findRecords(
-            @Param(value = "user") User user,
+            @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
             Pageable pageable);
 
@@ -48,13 +48,13 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN a.analysis an " +
             "JOIN an.record r " +
             "JOIN FETCH r.folder f " +
-            "WHERE a.user = :user " +
+            "WHERE a.user.userId = :userId " +
             "AND a.keyword = :keyword " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null") // 임시 저장 기록 제외
     List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
-            @Param(value = "user") User user,
+            @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
             Pageable pageable
             );
@@ -63,10 +63,10 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.analysis a " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
-            "WHERE r.user = :user " +
+            "WHERE r.user.userId = :userId " +
             "AND r.folder is not null ")  // 임시 저장 기록 제외
     List<Record> findRecordsOrderByCreatedAt(
-            @Param(value = "user") User user,
+            @Param(value = "userId") Long userId,
             Pageable pageable);
 
     @Query("SELECT r FROM Record r " +
