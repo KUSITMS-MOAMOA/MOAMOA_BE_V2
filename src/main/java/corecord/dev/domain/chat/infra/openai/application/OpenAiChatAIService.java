@@ -7,7 +7,7 @@ import corecord.dev.domain.chat.application.ChatAIService;
 import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.application.ClovaService;
+import corecord.dev.domain.chat.infra.clova.application.ClovaChatAIService;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OpenAiChatAIService implements ChatAIService {
     private final OpenAiChatModel chatModel;
-    private final ClovaService clovaService;
+    private final ClovaChatAIService clovaChatAIService;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
 
@@ -44,7 +44,7 @@ public class OpenAiChatAIService implements ChatAIService {
         try {
             return chatModel.call(String.valueOf(messages));
         } catch (HttpServerErrorException e) {
-            return clovaService.generateChatResponse(chatHistory, userContent);
+            return clovaChatAIService.generateChatResponse(chatHistory, userContent);
         }
     }
 
@@ -62,7 +62,7 @@ public class OpenAiChatAIService implements ChatAIService {
         try {
             response =  chatModel.call(String.valueOf(messages));
         } catch (HttpServerErrorException e) {
-            response = clovaService.generateChatSummaryResponse(chatHistory).getContent();
+            response = clovaChatAIService.generateChatSummaryResponse(chatHistory).getContent();
         }
 
         return parseChatSummaryResponse(response);
