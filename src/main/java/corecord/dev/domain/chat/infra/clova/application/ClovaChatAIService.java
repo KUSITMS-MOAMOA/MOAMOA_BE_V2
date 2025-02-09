@@ -3,8 +3,6 @@ package corecord.dev.domain.chat.infra.clova.application;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.chat.application.ChatAIService;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.exception.ChatException;
@@ -24,7 +22,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ClovaService implements ChatAIService {
+public class ClovaChatAIService implements ChatAIService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.create();

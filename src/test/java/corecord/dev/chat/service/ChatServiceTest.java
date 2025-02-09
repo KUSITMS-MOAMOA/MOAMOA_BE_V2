@@ -9,8 +9,6 @@ import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.application.ClovaService;
-import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
 import corecord.dev.domain.user.application.UserDbService;
 import corecord.dev.domain.user.domain.entity.Status;
 import corecord.dev.domain.user.domain.entity.User;

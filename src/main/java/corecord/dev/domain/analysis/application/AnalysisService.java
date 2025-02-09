@@ -6,7 +6,7 @@ import corecord.dev.domain.analysis.domain.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.domain.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
-import corecord.dev.domain.analysis.infra.openai.application.OpenAiService;
+import corecord.dev.domain.analysis.infra.openai.application.OpenAiAnalysisAIService;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
 import corecord.dev.domain.record.application.RecordDbService;
@@ -24,7 +24,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AnalysisService {
-    private final OpenAiService openAiService;
+    private final OpenAiAnalysisAIService openAiAnalysisAIService;
     private final AbilityService abilityService;
     private final AnalysisDbService analysisDbService;
     private final UserDbService userDbService;
@@ -167,7 +167,7 @@ public class AnalysisService {
     }
 
     private AnalysisAiResponse generateAbilityAnalysis(String content) {
-        AnalysisAiResponse response = openAiService.generateAbilityAnalysis(content);
+        AnalysisAiResponse response = openAiAnalysisAIService.generateAbilityAnalysis(content);
 
         // 글자 수 validation
         validAnalysisCommentLength(response.getComment());
@@ -201,7 +201,7 @@ public class AnalysisService {
     }
 
     private String generateMemoSummary(String content) {
-        String response = openAiService.generateMemoSummary(content);
+        String response = openAiAnalysisAIService.generateMemoSummary(content);
 
         validIsRecordEnough(response);
         validAnalysisContentLength(response);

@@ -22,7 +22,7 @@ import java.util.Map;
 @Primary
 @Service
 @RequiredArgsConstructor
-public class OpenAiChatService implements ChatAIService {
+public class OpenAiChatAIService implements ChatAIService {
     private final OpenAiChatModel chatModel;
     private final ClovaService clovaService;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
