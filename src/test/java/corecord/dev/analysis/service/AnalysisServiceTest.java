@@ -13,7 +13,7 @@ import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
 import corecord.dev.domain.analysis.application.AnalysisService;
-import corecord.dev.domain.analysis.infra.openai.application.OpenAiService;
+import corecord.dev.domain.analysis.infra.openai.application.OpenAiAnalysisAIService;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.record.domain.entity.RecordType;
@@ -51,7 +51,7 @@ public class AnalysisServiceTest {
     private UserDbService userDbService;
 
     @Mock
-    private OpenAiService openAiService;
+    private OpenAiAnalysisAIService openAiAnalysisAIService;
 
     @Mock
     private AbilityService abilityService;
@@ -81,8 +81,8 @@ public class AnalysisServiceTest {
     @DisplayName("메모 역량 분석 생성 테스트")
     void createMemoAnalysisTest() {
         // Given
-        when(openAiService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiService.generateAbilityAnalysis(any(String.class)))
+        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", "Test Keyword Content"), "Test Comment"));
         doNothing().when(analysisDbService).saveAnalysis(any(Analysis.class));
         doNothing().when(abilityService).parseAndSaveAbilities(any(Map.class), any(Analysis.class), any(User.class));
@@ -91,8 +91,8 @@ public class AnalysisServiceTest {
         Analysis response = analysisService.createAnalysis(record, user);
 
         // Then
-        verify(openAiService).generateMemoSummary(testContent);
-        verify(openAiService).generateAbilityAnalysis(testContent);
+        verify(openAiAnalysisAIService).generateMemoSummary(testContent);
+        verify(openAiAnalysisAIService).generateAbilityAnalysis(testContent);
         verify(analysisDbService).saveAnalysis(any(Analysis.class));
 
         assertEquals(response.getContent(), testContent);
@@ -104,12 +104,12 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithNotEnoughContentTest() {
         // Given
         String overContent = "Test".repeat(500);
-        when(openAiService.generateMemoSummary(any(String.class))).thenReturn(overContent);
+        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(overContent);
 
         // When & Then
         AnalysisException exception = assertThrows(AnalysisException.class,
                 () -> analysisService.createAnalysis(record, user));
-        assertEquals(exception.getAnalysisErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
+        assertEquals(exception.getErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
     }
 
     @Test
@@ -117,14 +117,14 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithNotEnoughCommentTest() {
         // Given
         String overComment = "Test".repeat(200);
-        when(openAiService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiService.generateAbilityAnalysis(any(String.class)))
+        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", "Test Keyword Content"), overComment));
 
         // When & Then
         AnalysisException exception = assertThrows(AnalysisException.class,
                 () -> analysisService.createAnalysis(record, user));
-        assertEquals(exception.getAnalysisErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_COMMENT);
+        assertEquals(exception.getErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_COMMENT);
     }
 
     @Test
@@ -132,14 +132,14 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithLongKeywordCommentTest() {
         // Given
         String overKeywordComment = "Test".repeat(200);
-        when(openAiService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiService.generateAbilityAnalysis(any(String.class)))
+        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", overKeywordComment), testComment));
 
         // When & Then
         AnalysisException exception = assertThrows(AnalysisException.class,
                 () -> analysisService.createAnalysis(record, user));
-        assertEquals(exception.getAnalysisErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_KEYWORD_CONTENT);
+        assertEquals(exception.getErrorStatus(), AnalysisErrorStatus.OVERFLOW_ANALYSIS_KEYWORD_CONTENT);
     }
 
     @Test
@@ -229,7 +229,7 @@ public class AnalysisServiceTest {
         AbilityException exception = assertThrows(AbilityException.class,
                 () -> analysisService.updateAnalysis(1L, request));
 
-        assertEquals(exception.getAbilityErrorStatus(), AbilityErrorStatus.INVALID_KEYWORD);
+        assertEquals(exception.getErrorStatus(), AbilityErrorStatus.INVALID_KEYWORD);
         verify(userDbService, times(1)).findUserById(1L);
         verify(analysisDbService, times(1)).findAnalysisById(1L);
         verify(abilityService, times(1)).updateAbilityContents(analysis, abilityMap);

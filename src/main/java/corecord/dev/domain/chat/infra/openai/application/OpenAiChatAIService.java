@@ -20,7 +20,7 @@ import java.util.Map;
 @Primary
 @Service
 @RequiredArgsConstructor
-public class OpenAiChatService implements ChatAIService {
+public class OpenAiChatAIService implements ChatAIService {
     private final OpenAiChatModel chatModel;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
