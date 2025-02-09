@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,7 @@ public class OpenAiChatAIService implements ChatAIService {
                 "role", "system",
                 "content", systemContent
         ));
+    }
 
     private void addExistingChats(List<Map<String, String>> messages, List<Chat> chatHistory) {
         for (Chat chat : chatHistory) {
