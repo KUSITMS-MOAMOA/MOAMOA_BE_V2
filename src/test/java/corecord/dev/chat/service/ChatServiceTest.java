@@ -118,8 +118,13 @@ class ChatServiceTest {
             // Then
             verify(chatDbService, times(3)).saveChat(anyInt(), anyString(), eq(chatRoom)); // 사용자 입력 1개, 가이드 2개
             assertEquals(result.getChats().size(), 2); // Guide 메시지는 두 개 생성
-            assertEquals(result.getChats().get(0).getContent(), "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD");
-            assertEquals(result.getChats().get(1).getContent(), "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!");
+            assertEquals(result.getChats().get(0).getContent(), "아래 질문에 답하다 보면 경험이 정리될 거예요! \n" +
+                    "S(상황) : 어떤 상황이었나요?\n" +
+                    "T(과제) : 마주한 문제나 목표는 무엇이었나요?\n" +
+                    "A(행동) : 문제를 해결하기 위해 어떻게 노력했나요?\n" +
+                    "R(결과) : 그 결과는 어땠나요?");
+            assertEquals(result.getChats().get(1).getContent(), "우선 기억나는 내용부터 가볍게 적어보세요.\n" +
+                    "부족한 부분은 대화를 통해 모아모아가 도와줄게요! \uD83D\uDCDD");
         }
 
         @Test

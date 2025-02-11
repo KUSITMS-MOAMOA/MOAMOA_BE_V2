@@ -5,6 +5,7 @@ import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.application.AbilityService;
+import corecord.dev.domain.analysis.application.AnalysisAIService;
 import corecord.dev.domain.analysis.application.AnalysisDbService;
 import corecord.dev.domain.analysis.domain.dto.request.AnalysisRequest;
 import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse;
@@ -13,7 +14,6 @@ import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
 import corecord.dev.domain.analysis.application.AnalysisService;
-import corecord.dev.domain.analysis.infra.openai.application.OpenAiAnalysisAIService;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.record.domain.entity.RecordType;
@@ -51,7 +51,7 @@ public class AnalysisServiceTest {
     private UserDbService userDbService;
 
     @Mock
-    private OpenAiAnalysisAIService openAiAnalysisAIService;
+    private AnalysisAIService analysisAIService;
 
     @Mock
     private AbilityService abilityService;
@@ -81,8 +81,8 @@ public class AnalysisServiceTest {
     @DisplayName("메모 역량 분석 생성 테스트")
     void createMemoAnalysisTest() {
         // Given
-        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
+        when(analysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(analysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", "Test Keyword Content"), "Test Comment"));
         doNothing().when(analysisDbService).saveAnalysis(any(Analysis.class));
         doNothing().when(abilityService).parseAndSaveAbilities(any(Map.class), any(Analysis.class), any(User.class));
@@ -91,8 +91,8 @@ public class AnalysisServiceTest {
         Analysis response = analysisService.createAnalysis(record, user);
 
         // Then
-        verify(openAiAnalysisAIService).generateMemoSummary(testContent);
-        verify(openAiAnalysisAIService).generateAbilityAnalysis(testContent);
+        verify(analysisAIService).generateMemoSummary(testContent);
+        verify(analysisAIService).generateAbilityAnalysis(testContent);
         verify(analysisDbService).saveAnalysis(any(Analysis.class));
 
         assertEquals(response.getContent(), testContent);
@@ -104,7 +104,7 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithNotEnoughContentTest() {
         // Given
         String overContent = "Test".repeat(500);
-        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(overContent);
+        when(analysisAIService.generateMemoSummary(any(String.class))).thenReturn(overContent);
 
         // When & Then
         AnalysisException exception = assertThrows(AnalysisException.class,
@@ -117,8 +117,8 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithNotEnoughCommentTest() {
         // Given
         String overComment = "Test".repeat(200);
-        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
+        when(analysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(analysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", "Test Keyword Content"), overComment));
 
         // When & Then
@@ -132,8 +132,8 @@ public class AnalysisServiceTest {
     void createMemoAnalysisWithLongKeywordCommentTest() {
         // Given
         String overKeywordComment = "Test".repeat(200);
-        when(openAiAnalysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
-        when(openAiAnalysisAIService.generateAbilityAnalysis(any(String.class)))
+        when(analysisAIService.generateMemoSummary(any(String.class))).thenReturn(testContent);
+        when(analysisAIService.generateAbilityAnalysis(any(String.class)))
                 .thenReturn(new AnalysisAiResponse(Map.of("커뮤니케이션", overKeywordComment), testComment));
 
         // When & Then
