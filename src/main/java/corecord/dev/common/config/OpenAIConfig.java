@@ -1,4 +1,4 @@
-package corecord.dev.domain.analysis.infra.openai.config;
+package corecord.dev.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
