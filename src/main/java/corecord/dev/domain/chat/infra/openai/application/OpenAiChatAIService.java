@@ -7,7 +7,7 @@ import corecord.dev.domain.chat.application.ChatAIService;
 import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.application.ClovaService;
+import corecord.dev.domain.chat.infra.clova.application.ClovaChatAIService;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
@@ -22,9 +22,9 @@ import java.util.Map;
 @Primary
 @Service
 @RequiredArgsConstructor
-public class OpenAiChatService implements ChatAIService {
+public class OpenAiChatAIService implements ChatAIService {
     private final OpenAiChatModel chatModel;
-    private final ClovaService clovaService;
+    private final ClovaChatAIService clovaChatAIService;
     private static final String CHAT_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("chat-summary-prompt.txt");
 
@@ -33,16 +33,10 @@ public class OpenAiChatService implements ChatAIService {
         List<Map<String, String>> messages = new ArrayList<>();
 
         // 시스템 메시지 추가
-        messages.add(Map.of(
-                "role", "system",
-                "content", CHAT_SYSTEM_CONTENT
-        ));
+        addSystemMessage(messages, CHAT_SYSTEM_CONTENT);
 
         // 기존 채팅 내역 추가
-        for (Chat chat : chatHistory) {
-            String role = chat.getAuthor() == 0 ? "assistant" : "user";
-            messages.add(Map.of("role", role, "content", chat.getContent()));
-        }
+        addExistingChats(messages, chatHistory);
 
         // 사용자 입력 추가
         messages.add(Map.of("role", "user", "content", userContent));
@@ -50,7 +44,7 @@ public class OpenAiChatService implements ChatAIService {
         try {
             return chatModel.call(String.valueOf(messages));
         } catch (HttpServerErrorException e) {
-            return clovaService.generateChatResponse(chatHistory, userContent);
+            return clovaChatAIService.generateChatResponse(chatHistory, userContent);
         }
     }
 
@@ -59,25 +53,33 @@ public class OpenAiChatService implements ChatAIService {
         List<Map<String, String>> messages = new ArrayList<>();
 
         // 시스템 메시지 추가
-        messages.add(Map.of(
-                "role", "system",
-                "content", SUMMARY_SYSTEM_CONTENT
-        ));
+        addSystemMessage(messages, SUMMARY_SYSTEM_CONTENT);
 
         // 기존 채팅 내역 추가
-        for (Chat chat : chatHistory) {
-            String role = chat.getAuthor() == 0 ? "assistant" : "user";
-            messages.add(Map.of("role", role, "content", chat.getContent()));
-        }
+        addExistingChats(messages, chatHistory);
 
         String response;
         try {
             response =  chatModel.call(String.valueOf(messages));
         } catch (HttpServerErrorException e) {
-            response = clovaService.generateChatSummaryResponse(chatHistory).getContent();
+            response = clovaChatAIService.generateChatSummaryResponse(chatHistory).getContent();
         }
 
         return parseChatSummaryResponse(response);
+    }
+
+    private void addSystemMessage(List<Map<String, String>> messages, String systemContent) {
+        messages.add(Map.of(
+                "role", "system",
+                "content", systemContent
+        ));
+    }
+
+    private void addExistingChats(List<Map<String, String>> messages, List<Chat> chatHistory) {
+        for (Chat chat : chatHistory) {
+            String role = chat.getAuthor() == 0 ? "assistant" : "user";
+            messages.add(Map.of("role", role, "content", chat.getContent()));
+        }
     }
 
     private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {

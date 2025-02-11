@@ -114,7 +114,7 @@ public class MemoRecordServiceTest {
 
         RecordException exception = assertThrows(RecordException.class,
                 () -> recordService.createMemoRecord(1L, request));
-        assertEquals(exception.getRecordErrorStatus(), RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
+        assertEquals(exception.getErrorStatus(), RecordErrorStatus.OVERFLOW_MEMO_RECORD_TITLE);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class MemoRecordServiceTest {
 
         RecordException exception = assertThrows(RecordException.class,
                 () -> recordService.createMemoRecord(1L, request));
-        assertEquals(exception.getRecordErrorStatus(), RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
+        assertEquals(exception.getErrorStatus(), RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class MemoRecordServiceTest {
 
         RecordException exception = assertThrows(RecordException.class,
                 () -> recordService.createTmpMemoRecord(1L, request));
-        assertEquals(exception.getRecordErrorStatus(), RecordErrorStatus.ALREADY_TMP_MEMO);
+        assertEquals(exception.getErrorStatus(), RecordErrorStatus.ALREADY_TMP_MEMO);
 
         verify(userDbService, times(1)).findUserById(1L);
         verify(recordDbService, times(0)).saveRecord(any(Record.class));

@@ -1,31 +1,18 @@
-package corecord.dev.domain.chat.infra.clova.application;
+package corecord.dev.common.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.common.exception.GeneralException;
-import corecord.dev.common.status.ErrorStatus;
-import corecord.dev.domain.chat.application.ChatAIService;
-import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.exception.ChatException;
-import corecord.dev.domain.chat.infra.clova.dto.request.ClovaRequest;
-import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 
-import java.util.List;
-
-@Service
 @Slf4j
-@RequiredArgsConstructor
-public class ClovaService implements ChatAIService {
-
+@Component
+public class ClovaUtil {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.create();
 
@@ -41,34 +28,7 @@ public class ClovaService implements ChatAIService {
     @Value("${ncp.chat.request-id}")
     private String chatRequestId;
 
-    @Override
-    public String generateChatResponse(List<Chat> chatHistory, String userInput) {
-        try {
-            ClovaRequest clovaRequest = ClovaRequest.createChatRequest(chatHistory, userInput);
-            String responseBody = postWebClient(clovaRequest);
-
-            return parseContentFromResponse(responseBody);
-        } catch (WebClientException e) {
-            log.error("채팅 AI 응답 생성 실패", e);
-            throw new ChatException(ChatErrorStatus.AI_RESPONSE_ERROR);
-        }
-    }
-
-    @Override
-    public ChatSummaryAiResponse generateChatSummaryResponse(List<Chat> chatHistory) {
-        try {
-            ClovaRequest clovaRequest = ClovaRequest.createChatSummaryRequest(chatHistory);
-            String responseBody = postWebClient(clovaRequest);
-            String aiResponse = parseContentFromResponse(responseBody);
-
-            return parseChatSummaryResponse(aiResponse);
-        } catch (WebClientException e) {
-            log.error("채팅 AI 응답 생성 실패", e);
-            throw new ChatException(ChatErrorStatus.AI_RESPONSE_ERROR);
-        }
-    }
-
-    private String postWebClient(ClovaRequest clovaRequest) {
+    public String postWebClient(Object clovaRequest) {
         return webClient.post()
                 .uri(chatHost)
                 .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)
@@ -92,7 +52,7 @@ public class ClovaService implements ChatAIService {
                 .block();
     }
 
-    private String parseContentFromResponse(String responseBody) {
+    public String parseContentFromResponse(String responseBody) {
         try {
             JsonNode root = objectMapper.readTree(responseBody);
             JsonNode messageContent = root.path("result").path("message").path("content");
@@ -100,15 +60,6 @@ public class ClovaService implements ChatAIService {
         } catch (Exception e) {
             log.error("응답 파싱 실패", e);
             throw new ChatException(ChatErrorStatus.INVALID_CHAT_RESPONSE);
-        }
-    }
-
-    private ChatSummaryAiResponse parseChatSummaryResponse(String aiResponse) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(aiResponse, ChatSummaryAiResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new ChatException(ChatErrorStatus.INVALID_CHAT_SUMMARY);
         }
     }
 }
