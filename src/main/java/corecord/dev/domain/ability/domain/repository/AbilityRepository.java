@@ -4,7 +4,6 @@ import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.user.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +20,7 @@ public interface AbilityRepository extends JpaRepository<Ability, Long> {
                 "FROM Ability a " +
                 "WHERE a.user.userId = :userId " +
                 "GROUP BY a.keyword " +
-                "ORDER BY 3 desc ") // 비율 높은 순 정렬
+                "ORDER BY COUNT(a) DESC, MAX(a.createdAt) DESC ") // 개수 많은 순 정렬
         List<AbilityResponse.KeywordStateDto> findKeywordStateDtoList(@Param(value = "userId") Long userId);
 
         @Modifying

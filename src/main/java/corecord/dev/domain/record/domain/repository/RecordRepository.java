@@ -22,7 +22,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN FETCH r.analysis a " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
-            "JOIN FETCH r.user u " +
+            "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null AND r.folder = :folder") // 임시 저장 기록 제외
@@ -60,17 +60,6 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             @Param(value = "last_record_id") Long lastRecordId,
             Pageable pageable
             );
-
-    @Query("SELECT r FROM Record r " +
-            "JOIN FETCH r.analysis a " +
-            "JOIN FETCH r.folder f " +
-            "JOIN FETCH a.abilityList al " +
-            "JOIN FETCH r.user u " +
-            "WHERE u.userId = :userId " +
-            "AND r.folder is not null ")  // 임시 저장 기록 제외
-    List<Record> findRecordsOrderByCreatedAt(
-            @Param(value = "userId") Long userId,
-            Pageable pageable);
 
     @Query("SELECT r FROM Record r " +
             "JOIN FETCH r.analysis a " +
