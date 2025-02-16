@@ -17,7 +17,7 @@ import java.util.List;
 public interface AbilityRepository extends JpaRepository<Ability, Long> {
         @Query("SELECT new corecord.dev.domain.ability.domain.dto.response.AbilityResponse$KeywordStateDto(" +
                 "a.keyword, COUNT(a), " + // 각 키워드의 개수 집계
-                "(COUNT(a) * 1.0 / (SELECT COUNT(a2) FROM Ability a2 WHERE a2.user = :user)) * 100.0) " + // 각 키워드의 비율 집계
+                "(COUNT(a) * 1.0 / (SELECT COUNT(a2) FROM Ability a2 WHERE a2.user.userId = :userId)) * 100.0) " + // 각 키워드의 비율 집계
                 "FROM Ability a " +
                 "WHERE a.user.userId = :userId " +
                 "GROUP BY a.keyword " +

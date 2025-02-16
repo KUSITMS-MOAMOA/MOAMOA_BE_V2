@@ -5,7 +5,6 @@ import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

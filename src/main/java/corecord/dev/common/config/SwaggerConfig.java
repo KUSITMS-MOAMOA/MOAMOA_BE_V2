@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
-        info = @Info(title = "CO:RECORD",
-                description = "Kusitms 30th CO:RECORD",
+        info = @Info(title = "MOAMOA",
+                description = "Kusitms 30th MOAMOA",
                 version = "v1"),
         servers = {
                 @Server(url = "https://api.moamoa.site",

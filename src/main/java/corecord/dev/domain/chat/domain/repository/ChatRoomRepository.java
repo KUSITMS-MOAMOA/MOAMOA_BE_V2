@@ -14,8 +14,9 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     @Query("SELECT cr " +
             "FROM ChatRoom cr " +
+            "JOIN FETCH cr.user u " +
             "WHERE cr.chatRoomId = :chatRoomId " +
-            "AND cr.user.userId = :userId ")
+            "AND u.userId = :userId ")
     Optional<ChatRoom> findByChatRoomIdAndUserId(@Param(value = "chatRoomId") Long chatRoomId,
                                                  @Param(value = "userId") Long userId);
 
@@ -24,4 +25,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "FROM ChatRoom cr " +
             "WHERE cr.user.userId IN :userId")
     void deleteChatRoomByUserId(@Param(value = "userId") Long userId);
+
+    @Modifying
+    @Query("DELETE " +
+            "FROM ChatRoom cr " +
+            "WHERE cr.chatRoomId = :chatRoomId")
+    void deleteById(@Param(value = "chatRoomId") Long chatRoomId);
 }

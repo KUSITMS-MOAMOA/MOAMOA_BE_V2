@@ -18,6 +18,7 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
             "JOIN FETCH a.record r " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +
+            "JOIN FETCH r.user u " +
             "WHERE a.analysisId = :id")
     Optional<Analysis> findAnalysisById(@Param(value = "id") Long id);
 

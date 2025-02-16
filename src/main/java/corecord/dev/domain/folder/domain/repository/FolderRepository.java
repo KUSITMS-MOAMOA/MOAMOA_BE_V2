@@ -23,7 +23,8 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
 
     @Query("SELECT f " +
             "FROM Folder f " +
-            "WHERE f.title = :title AND f.user.userId = :userId ")
+            "JOIN FETCH f.user u " +
+            "WHERE f.title = :title AND u.userId = :userId ")
     Optional<Folder> findFolderByTitle(
             @Param(value = "title") String title,
             @Param(value = "userId") Long userId);

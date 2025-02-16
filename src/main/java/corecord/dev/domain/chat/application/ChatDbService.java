@@ -37,7 +37,7 @@ public class ChatDbService {
     @Transactional
     public void deleteChatRoom(ChatRoom chatRoom) {
         chatRepository.deleteByChatRoomId(chatRoom.getChatRoomId());
-        chatRoomRepository.delete(chatRoom);
+        chatRoomRepository.deleteById(chatRoom.getChatRoomId());
     }
 
     @Transactional

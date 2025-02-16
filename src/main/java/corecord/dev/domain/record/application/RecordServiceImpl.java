@@ -206,7 +206,7 @@ public class RecordServiceImpl implements RecordService {
      * @return RecordListDto
      */
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
-        List<Record> recordList = recordDbService.findRecordListOrderByCreatedAt(userId);
+        List<Record> recordList = recordDbService.findRecordList(userId, -1L);
         return RecordConverter.toRecordListDto("all", recordList, false);
     }
 
