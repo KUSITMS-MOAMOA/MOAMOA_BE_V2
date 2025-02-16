@@ -30,7 +30,7 @@ public class Feedback extends BaseEntity {
     @Column(name = "issue", nullable = true)
     private Issue issue;
 
-    @Column(name = "comment", nullable = true, length = 500)
+    @Column(name = "comment", nullable = true, length = 200)
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
