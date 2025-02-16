@@ -37,12 +37,12 @@ public class AbilityDbService {
         abilityRepository.deleteAll(abilityList);
     }
 
-    public List<AbilityResponse.KeywordStateDto> findKeywordGraph(User user) {
-        return abilityRepository.findKeywordStateDtoList(user);
+    public List<AbilityResponse.KeywordStateDto> findKeywordGraph(Long userId) {
+        return abilityRepository.findKeywordStateDtoList(userId);
     }
 
-    public List<String> findKeywordList(User user) {
-        return abilityRepository.getKeywordList(user).stream()
+    public List<String> findKeywordList(Long userId) {
+        return abilityRepository.getKeywordList(userId).stream()
                 .map(Keyword::getValue)
                 .toList();
     }
