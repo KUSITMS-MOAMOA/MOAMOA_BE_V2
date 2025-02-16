@@ -51,7 +51,8 @@ public class AbilityServiceImpl implements AbilityService {
         return AbilityConverter.toGraphDto(keywordGraph);
     }
 
-    /** AI를 통해 얻은 키워드 정보를 파싱해 저장합니다.
+    /**
+     * AI를 통해 얻은 키워드 정보를 파싱해 저장합니다.
      * keywordList를 순회하며 최대 3개의 Keyword를 파싱합니다.
      * 파싱된 데이터를 기반으로 Ability entity를 생성 및 저장합니다.
      *
@@ -83,7 +84,8 @@ public class AbilityServiceImpl implements AbilityService {
             throw new AbilityException(AbilityErrorStatus.INVALID_ABILITY_KEYWORD);
     }
 
-    /** Analysis와 연관된 모든 Ability entity를 제거합니다.
+    /**
+     * Analysis와 연관된 모든 Ability entity를 제거합니다.
      *
      * @param analysis
      */
@@ -102,7 +104,8 @@ public class AbilityServiceImpl implements AbilityService {
         }
     }
 
-    /** 기존 Analysis의 역량 분석 데이터를 변경합니다.
+    /**
+     * 기존 Analysis의 역량 분석 데이터를 변경합니다.
      * 기존 keyword의 content를 새로운 응답값으로 변경합니다.
      *
      * @param analysis

@@ -140,7 +140,8 @@ public class AnalysisServiceImpl implements AnalysisService {
         return analysis;
     }
 
-    /** analysisId를 받아 경험 분석 상세 정보를 반환합니다.
+    /**
+     * analysisId를 받아 경험 분석 상세 정보를 반환합니다.
      *
      * @param userId
      * @param analysisId

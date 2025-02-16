@@ -46,7 +46,8 @@ public class ChatServiceImpl implements ChatService {
         return ChatConverter.toChatRoomDto(chatRoom, firstChat);
     }
 
-    /** user의 채팅방에 채팅을 생성하고 생성된 채팅 정보와 AI 답변 반환합니다.
+    /**
+     * user의 채팅방에 채팅을 생성하고 생성된 채팅 정보와 AI 답변 반환합니다.
      *
      * @param chatRoomId
      * @param chatDto
@@ -104,7 +105,8 @@ public class ChatServiceImpl implements ChatService {
         return ChatConverter.toChatListDto(chatList);
     }
 
-    /** user의 채팅방을 삭제합니다.
+    /**
+     * user의 채팅방을 삭제합니다.
      *
      * @param userId
      * @param chatRoomId
@@ -128,7 +130,8 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    /** user의 채팅의 요약 정보를 반환합니다.
+    /**
+     * user의 채팅의 요약 정보를 반환합니다.
      *
      * @param userId
      * @param chatRoomId
@@ -167,7 +170,8 @@ public class ChatServiceImpl implements ChatService {
         }
     }
 
-    /** user의 임시 채팅방과 임시 채팅 저장 유무를 반환합니다.
+    /**
+     * user의 임시 채팅방과 임시 채팅 저장 유무를 반환합니다.
      *
      * @param userId
      * @return chatTmpDto
@@ -186,7 +190,8 @@ public class ChatServiceImpl implements ChatService {
         return ChatConverter.toExistingChatTmpDto(chatRoomId);
     }
 
-    /** user의 채팅방을 임시 저장합니다.
+    /**
+     * user의 채팅방을 임시 저장합니다.
      *
      * @param userId
      * @param chatRoomId
