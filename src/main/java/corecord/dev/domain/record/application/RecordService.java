@@ -16,7 +16,7 @@ public interface RecordService {
 
     // record list
     RecordResponse.RecordListDto getRecordListByFolder(Long userId, String folderName, Long lastRecordId);
-    RecordResponse.KeywordRecordListDto getRecordListByKeyword(Long userId, String keywordValue, Long lastRecordId);
+    RecordResponse.RecordListDto getRecordListByKeyword(Long userId, String keywordValue, Long lastRecordId);
     RecordResponse.RecordListDto getRecentRecordList(Long userId);
 
     void updateFolderOfRecord(Long userId, RecordRequest.UpdateFolderDto updateFolderDto);

@@ -160,7 +160,7 @@ public class RecordServiceImpl implements RecordService {
         if (hasNext)
             recordList = recordList.subList(0, listSize);
 
-        return RecordConverter.toRecordListDto(folderName, recordList, hasNext);
+        return RecordConverter.toRecordListDto(recordList, hasNext);
     }
 
     private List<Record> fetchRecords(Long userId, String folderName, Long lastRecordId) {
@@ -181,7 +181,7 @@ public class RecordServiceImpl implements RecordService {
      */
     @Override
     @Transactional(readOnly = true)
-    public RecordResponse.KeywordRecordListDto getRecordListByKeyword(Long userId, String keywordValue, Long lastRecordId) {
+    public RecordResponse.RecordListDto getRecordListByKeyword(Long userId, String keywordValue, Long lastRecordId) {
         // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
         Keyword keyword = getKeyword(keywordValue);
         List<Record> recordList = recordDbService.findRecordListByKeyword(userId, keyword, lastRecordId);
@@ -191,7 +191,7 @@ public class RecordServiceImpl implements RecordService {
         if (hasNext)
             recordList = recordList.subList(0, listSize);
 
-        return RecordConverter.toKeywordRecordListDto(recordList, hasNext);
+        return RecordConverter.toRecordListDto(recordList, hasNext);
     }
 
     private Keyword getKeyword(String keywordValue) {
@@ -207,7 +207,7 @@ public class RecordServiceImpl implements RecordService {
      */
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
         List<Record> recordList = recordDbService.findRecordList(userId, -1L);
-        return RecordConverter.toRecordListDto("all", recordList, false);
+        return RecordConverter.toRecordListDto(recordList, false);
     }
 
     private void validTextLength(String title, String content) {
