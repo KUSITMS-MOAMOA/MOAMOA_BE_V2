@@ -18,4 +18,7 @@ public enum Issue {
 
     private final String description;
 
+    public String getDescription() {
+        return description;
+    }
 }
