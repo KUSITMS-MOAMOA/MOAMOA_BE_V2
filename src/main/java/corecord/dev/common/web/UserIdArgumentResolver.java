@@ -26,8 +26,7 @@ public class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
         if (authentication == null) {
             throw new GeneralException(ErrorStatus.UNAUTHORIZED);
         } else {
-            Long userId = Long.valueOf(authentication.getPrincipal().toString());
-            return userId;
+            return Long.valueOf(authentication.getPrincipal().toString());
         }
     }
 }

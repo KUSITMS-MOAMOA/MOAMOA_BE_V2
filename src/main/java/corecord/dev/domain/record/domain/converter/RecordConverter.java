@@ -75,39 +75,13 @@ public class RecordConverter {
                 .build();
     }
 
-    public static RecordResponse.RecordListDto toRecordListDto(String folder, List<Record> recordList, boolean hasNext) {
+    public static RecordResponse.RecordListDto toRecordListDto(List<Record> recordList, boolean hasNext) {
         List<RecordResponse.RecordDto> recordDtoList = recordList.stream()
                 .map(RecordConverter::toRecordDto)
                 .toList();
 
         return RecordResponse.RecordListDto.builder()
-                .folder(folder)
                 .recordDtoList(recordDtoList)
-                .hasNext(hasNext)
-                .build();
-    }
-
-    public static RecordResponse.KeywordRecordDto toKeywordRecordDto(Record record) {
-        String content = record.getContent();
-        String truncatedContent = content.length() > 30 ? content.substring(0, 30) : content;
-
-        return RecordResponse.KeywordRecordDto.builder()
-                .analysisId(record.getAnalysis().getAnalysisId())
-                .recordId(record.getRecordId())
-                .folder(record.getFolder().getTitle())
-                .title(record.getTitle())
-                .content(truncatedContent)
-                .createdAt(record.getCreatedAtFormatted())
-                .build();
-    }
-
-    public static RecordResponse.KeywordRecordListDto toKeywordRecordListDto(List<Record> recordList, boolean hasNext) {
-        List<RecordResponse.KeywordRecordDto> keywordRecordDtoList = recordList.stream()
-                .map(RecordConverter::toKeywordRecordDto)
-                .toList();
-
-        return RecordResponse.KeywordRecordListDto.builder()
-                .recordDtoList(keywordRecordDtoList)
                 .hasNext(hasNext)
                 .build();
     }

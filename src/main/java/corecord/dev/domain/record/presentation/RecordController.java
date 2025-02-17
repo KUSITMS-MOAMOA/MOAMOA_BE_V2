@@ -63,12 +63,12 @@ public class RecordController {
     }
 
     @GetMapping("/keyword")
-    public ResponseEntity<ApiResponse<RecordResponse.KeywordRecordListDto>> getRecordListByKeyword(
+    public ResponseEntity<ApiResponse<RecordResponse.RecordListDto>> getRecordListByKeyword(
             @UserId Long userId,
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "lastRecordId", defaultValue = "0") Long lastRecordId
     ) {
-        RecordResponse.KeywordRecordListDto recordResponse = recordService.getRecordListByKeyword(userId, keyword, lastRecordId);
+        RecordResponse.RecordListDto recordResponse = recordService.getRecordListByKeyword(userId, keyword, lastRecordId);
         return ApiResponse.success(RecordSuccessStatus.KEYWORD_RECORD_LIST_GET_SUCCESS, recordResponse);
     }
 
