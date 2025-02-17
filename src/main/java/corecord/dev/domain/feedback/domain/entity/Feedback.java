@@ -37,10 +37,6 @@ public class Feedback extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "chat_room_id", nullable = true)
-    private Long chatRoomId;
-
-    @Column(name = "analysis_id", nullable = true)
-    private Long analysisId;
-
+    @Column(name = "record_id", nullable = false)
+    private Long recordId;
 }
