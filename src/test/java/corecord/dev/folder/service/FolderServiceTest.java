@@ -49,7 +49,7 @@ public class FolderServiceTest {
 
         when(userDbService.findUserById(testId)).thenReturn(user);
         doNothing().when(folderDbService).saveFolder(any(Folder.class));
-        when(folderDbService.findFolderDtoList(user)).thenReturn(List.of(
+        when(folderDbService.findFolderDtoList(user.getUserId())).thenReturn(List.of(
                 FolderResponse.FolderDto.builder()
                         .folderId(testId)
                         .title(testTitle)
@@ -66,7 +66,7 @@ public class FolderServiceTest {
         // Then
         verify(userDbService).findUserById(testId);
         verify(folderDbService).saveFolder(any(Folder.class));
-        verify(folderDbService).findFolderDtoList(user);
+        verify(folderDbService).findFolderDtoList(user.getUserId());
 
         assertThat(response.getFolderDtoList()).isNotNull();
         assertThat(response.getFolderDtoList().get(0).getTitle()).isEqualTo(testTitle);
@@ -86,7 +86,7 @@ public class FolderServiceTest {
         when(userDbService.findUserById(testId)).thenReturn(user);
         when(folderDbService.findFolderById(testId)).thenReturn(folder);
         when(folderDbService.isFolderExist(updatedTitle, user)).thenReturn(false);
-        when(folderDbService.findFolderDtoList(user)).thenReturn(List.of(
+        when(folderDbService.findFolderDtoList(user.getUserId())).thenReturn(List.of(
                 FolderResponse.FolderDto.builder()
                         .folderId(testId)
                         .title(updatedTitle)
@@ -104,7 +104,7 @@ public class FolderServiceTest {
         // Then
         verify(folderDbService).findFolderById(testId);
         verify(folderDbService).isFolderExist(updatedTitle, user);
-        verify(folderDbService).findFolderDtoList(user);
+        verify(folderDbService).findFolderDtoList(user.getUserId());
 
         assertThat(response.getFolderDtoList()).isNotNull();
         assertThat(response.getFolderDtoList().get(0).getTitle()).isEqualTo(updatedTitle);

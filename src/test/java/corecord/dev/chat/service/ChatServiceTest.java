@@ -78,7 +78,7 @@ class ChatServiceTest {
         Chat aiChat = createTestChat("aiChat", 0);
 
         when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-        when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+        when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
         when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(List.of(userChat, aiChat));
 
         // When
@@ -104,7 +104,7 @@ class ChatServiceTest {
                     .build();
 
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                     .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
 
@@ -118,8 +118,13 @@ class ChatServiceTest {
             // Then
             verify(chatDbService, times(3)).saveChat(anyInt(), anyString(), eq(chatRoom)); // 사용자 입력 1개, 가이드 2개
             assertEquals(result.getChats().size(), 2); // Guide 메시지는 두 개 생성
-            assertEquals(result.getChats().get(0).getContent(), "걱정 마세요!\n저와 대화하다 보면 경험이 정리될 거예요\uD83D\uDCDD");
-            assertEquals(result.getChats().get(1).getContent(), "오늘은 어떤 경험을 했나요?\n상황과 해결한 문제를 말해주세요!");
+            assertEquals(result.getChats().get(0).getContent(), "아래 질문에 답하다 보면 경험이 정리될 거예요! \n" +
+                    "S(상황) : 어떤 상황이었나요?\n" +
+                    "T(과제) : 마주한 문제나 목표는 무엇이었나요?\n" +
+                    "A(행동) : 문제를 해결하기 위해 어떻게 노력했나요?\n" +
+                    "R(결과) : 그 결과는 어땠나요?");
+            assertEquals(result.getChats().get(1).getContent(), "우선 기억나는 내용부터 가볍게 적어보세요.\n" +
+                    "부족한 부분은 대화를 통해 모아모아가 도와줄게요! \uD83D\uDCDD");
         }
 
         @Test
@@ -131,7 +136,7 @@ class ChatServiceTest {
                     .build();
 
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.saveChat(anyInt(), anyString(), any(ChatRoom.class)))
                     .thenAnswer(invocation -> createTestChat(invocation.getArgument(1), invocation.getArgument(0)));
             when(chatAIService.generateChatResponse(anyList(), anyString())).thenReturn("AI의 예상 응답");
@@ -165,7 +170,7 @@ class ChatServiceTest {
             );
 
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(chatAIService.generateChatSummaryResponse(anyList()))
                     .thenReturn(new ChatSummaryAiResponse("요약 제목", "요약 내용"));
@@ -188,7 +193,7 @@ class ChatServiceTest {
             );
 
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(chatAIService.generateChatSummaryResponse(anyList()))
                     .thenReturn(new ChatSummaryAiResponse("", "")); // 빈 응답
@@ -208,7 +213,7 @@ class ChatServiceTest {
 
             String longTitle = "a".repeat(51); // 51자 제목 생성
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(chatAIService.generateChatSummaryResponse(anyList()))
                     .thenReturn(new ChatSummaryAiResponse(longTitle, "정상 내용")); // 50자 초과 제목
@@ -228,7 +233,7 @@ class ChatServiceTest {
 
             String longContent = "a".repeat(501); // 501자 응답 생성
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
             when(chatDbService.findChatsByChatRoom(chatRoom)).thenReturn(chatList);
             when(chatAIService.generateChatSummaryResponse(anyList()))
                     .thenReturn(new ChatSummaryAiResponse("정상 제목", longContent)); // 500자 초과 내용
@@ -247,14 +252,14 @@ class ChatServiceTest {
         void saveChatTmp() {
             // Given
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
 
             // When
             chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId());
 
             // Then
             verify(userDbService).findUserById(user.getUserId());
-            verify(chatDbService).findChatRoomById(chatRoom.getChatRoomId(), user);
+            verify(chatDbService).findChatRoomById(chatRoom.getChatRoomId(), user.getUserId());
             verify(userDbService).updateUserTmpChat(user, chatRoom.getChatRoomId());
         }
 
@@ -264,7 +269,7 @@ class ChatServiceTest {
             // Given
             user.updateTmpChat(chatRoom.getChatRoomId());
             when(userDbService.findUserById(user.getUserId())).thenReturn(user);
-            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user)).thenReturn(chatRoom);
+            when(chatDbService.findChatRoomById(chatRoom.getChatRoomId(), user.getUserId())).thenReturn(chatRoom);
 
             // When & Then
             assertThrows(ChatException.class, () -> chatService.saveChatTmp(user.getUserId(), chatRoom.getChatRoomId()));

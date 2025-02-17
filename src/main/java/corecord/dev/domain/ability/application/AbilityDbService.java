@@ -5,7 +5,6 @@ import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.ability.domain.entity.Keyword;
 import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +36,12 @@ public class AbilityDbService {
         abilityRepository.deleteAll(abilityList);
     }
 
-    public List<AbilityResponse.KeywordStateDto> findKeywordGraph(User user) {
-        return abilityRepository.findKeywordStateDtoList(user);
+    public List<AbilityResponse.KeywordStateDto> findKeywordGraph(Long userId) {
+        return abilityRepository.findKeywordStateDtoList(userId);
     }
 
-    public List<String> findKeywordList(User user) {
-        return abilityRepository.getKeywordList(user).stream()
+    public List<String> findKeywordList(Long userId) {
+        return abilityRepository.getKeywordList(userId).stream()
                 .map(Keyword::getValue)
                 .toList();
     }

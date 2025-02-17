@@ -58,7 +58,7 @@ public class RecordController {
         @RequestParam(name = "folder", defaultValue = "all") String folder,
         @RequestParam(name = "lastRecordId", defaultValue = "0") Long lastRecordId
     ) {
-        RecordResponse.RecordListDto recordResponse = recordService.getRecordList(userId, folder, lastRecordId);
+        RecordResponse.RecordListDto recordResponse = recordService.getRecordListByFolder(userId, folder, lastRecordId);
         return ApiResponse.success(RecordSuccessStatus.RECORD_LIST_GET_SUCCESS, recordResponse);
     }
 
@@ -68,7 +68,7 @@ public class RecordController {
             @RequestParam(name = "keyword") String keyword,
             @RequestParam(name = "lastRecordId", defaultValue = "0") Long lastRecordId
     ) {
-        RecordResponse.RecordListDto recordResponse = recordService.getKeywordRecordList(userId, keyword, lastRecordId);
+        RecordResponse.RecordListDto recordResponse = recordService.getRecordListByKeyword(userId, keyword, lastRecordId);
         return ApiResponse.success(RecordSuccessStatus.KEYWORD_RECORD_LIST_GET_SUCCESS, recordResponse);
     }
 
@@ -77,7 +77,7 @@ public class RecordController {
             @UserId Long userId,
             @RequestBody @Valid RecordRequest.UpdateFolderDto updateFolderDto
     ) {
-        recordService.updateFolder(userId, updateFolderDto);
+        recordService.updateFolderOfRecord(userId, updateFolderDto);
         return ApiResponse.success(RecordSuccessStatus.RECORD_FOLDER_UPDATE_SUCCESS);
     }
 

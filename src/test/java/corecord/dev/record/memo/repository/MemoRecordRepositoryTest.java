@@ -66,7 +66,7 @@ public class MemoRecordRepositoryTest {
         Record record2 = createRecord("Test Record2", user, folder);
 
         // When
-        List<Record> result = recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, pageable);
 
         // Then
         assertThat(result.size()).isEqualTo(2);
@@ -84,7 +84,7 @@ public class MemoRecordRepositoryTest {
         Folder folder = createFolder("Test Folder", user);
 
         // When
-        List<Record> result = recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, pageable);
 
         // Then
         assertEquals(result.size(), 0);
@@ -118,7 +118,7 @@ public class MemoRecordRepositoryTest {
         Record record2 = createRecord("Test Record2", user, folder);
 
         // When
-        List<Record> result = recordRepository.findRecordsByKeyword(Keyword.COLLABORATION, user, lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByKeyword(Keyword.COLLABORATION, user.getUserId(), lastRecordId, pageable);
 
         // Then
         assertEquals(result.size(), 2);

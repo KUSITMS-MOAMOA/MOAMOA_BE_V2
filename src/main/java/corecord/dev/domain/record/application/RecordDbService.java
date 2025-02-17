@@ -62,23 +62,21 @@ public class RecordDbService {
                 .orElseThrow(() -> new RecordException(RecordErrorStatus.RECORD_NOT_FOUND));
     }
 
-    public List<Record> findRecordListByFolder(User user, Folder folder, Long lastRecordId) {
+    public List<Record> findRecordListByFolder(Long userId, Folder folder, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByFolder(folder, user, lastRecordId, pageable);
+        return recordRepository.findRecordsByFolder(folder, userId, lastRecordId, pageable);
     }
 
-    public List<Record> findRecordList(User user, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecords(user, lastRecordId, pageable);
+    public List<Record> findRecordList(Long userId, Long lastRecordId) {
+        // -1일 경우 최근 생성된 6개 리스트만 조회
+        int newListSize = lastRecordId == -1 ? 6 : listSize + 1;
+
+        Pageable pageable = PageRequest.of(0, newListSize, Sort.by("createdAt").descending());
+        return recordRepository.findRecords(userId, lastRecordId, pageable);
     }
 
-    public List<Record> findRecordListOrderByCreatedAt(User user) {
-        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsOrderByCreatedAt(user, pageable);
-    }
-
-    public List<Record> findRecordListByKeyword(User user, Keyword keyword, Long lastRecordId) {
+    public List<Record> findRecordListByKeyword(Long userId, Keyword keyword, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByKeyword(keyword, user, lastRecordId, pageable);
+        return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, pageable);
     }
 }

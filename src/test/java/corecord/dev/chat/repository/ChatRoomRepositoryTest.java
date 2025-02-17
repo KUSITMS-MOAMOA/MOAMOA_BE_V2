@@ -39,7 +39,7 @@ class ChatRoomRepositoryTest {
         ChatRoom chatRoom = createTestChatRoom(user);
 
         // When
-        Optional<ChatRoom> foundChatRoom = chatRoomRepository.findByChatRoomIdAndUser(chatRoom.getChatRoomId(), user);
+        Optional<ChatRoom> foundChatRoom = chatRoomRepository.findByChatRoomIdAndUserId(chatRoom.getChatRoomId(), user.getUserId());
 
         // Then
         assertTrue(foundChatRoom.isPresent());
@@ -53,7 +53,7 @@ class ChatRoomRepositoryTest {
         User user = createTestUser();
 
         // When
-        Optional<ChatRoom> foundChatRoom = chatRoomRepository.findByChatRoomIdAndUser(999L, user);
+        Optional<ChatRoom> foundChatRoom = chatRoomRepository.findByChatRoomIdAndUserId(999L, user.getUserId());
 
         // Then
         assertFalse(foundChatRoom.isPresent());
