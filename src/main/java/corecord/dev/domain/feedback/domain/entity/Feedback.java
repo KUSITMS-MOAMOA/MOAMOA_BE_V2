@@ -21,12 +21,15 @@ public class Feedback extends BaseEntity {
     @Column(name = "feedback_id", nullable = false)
     private Long feedbackId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "satisfaction", nullable = false)
     private Satisfaction satisfaction;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "feedback_type", nullable = true)
     private FeedbackType feedbackType;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "issue", nullable = true)
     private Issue issue;
 
