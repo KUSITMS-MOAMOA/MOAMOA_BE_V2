@@ -158,7 +158,7 @@ public class RecordService {
         if (hasNext)
             recordList = recordList.subList(0, listSize);
 
-        return RecordConverter.toRecordListDto(folderName, recordList, hasNext);
+        return RecordConverter.toRecordListDto(recordList, hasNext);
     }
 
     private List<Record> fetchRecords(User user, String folderName, Long lastRecordId) {
@@ -177,7 +177,7 @@ public class RecordService {
      * @return
      */
     @Transactional(readOnly = true)
-    public RecordResponse.KeywordRecordListDto getKeywordRecordList(Long userId, String keywordValue, Long lastRecordId) {
+    public RecordResponse.RecordListDto getKeywordRecordList(Long userId, String keywordValue, Long lastRecordId) {
         User user = userDbService.findUserById(userId);
 
         // 해당 keyword를 가진 ability 객체 조회 후 맵핑된 Record 객체 리스트 조회
@@ -189,7 +189,7 @@ public class RecordService {
         if (hasNext)
             recordList = recordList.subList(0, listSize);
 
-        return RecordConverter.toKeywordRecordListDto(recordList, hasNext);
+        return RecordConverter.toRecordListDto(recordList, hasNext);
     }
 
     private Keyword getKeyword(String keywordValue) {
@@ -222,7 +222,7 @@ public class RecordService {
         // 최근 생성된 3개의 데이터만 조회
         List<Record> recordList = recordDbService.findRecordListOrderByCreatedAt(user);
 
-        return RecordConverter.toRecordListDto("all", recordList, false);
+        return RecordConverter.toRecordListDto(recordList, false);
     }
 
     private void validTextLength(String title, String content) {
