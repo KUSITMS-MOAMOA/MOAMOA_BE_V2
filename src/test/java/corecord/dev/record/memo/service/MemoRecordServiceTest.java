@@ -54,7 +54,7 @@ public class MemoRecordServiceTest {
     private Folder folder;
 
     private String testTitle = "Test Record";
-    private String testContent = "Test".repeat(10);
+    private String testContent = "Test!".repeat(10);
 
     @BeforeEach
     void setUp() {

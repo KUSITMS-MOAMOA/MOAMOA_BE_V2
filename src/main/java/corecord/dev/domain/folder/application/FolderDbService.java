@@ -32,8 +32,8 @@ public class FolderDbService {
         folderRepository.deleteFolderByUserId(userId);
     }
 
-    public Folder findFolderByTitle(User user, String title) {
-        return folderRepository.findFolderByTitle(title, user)
+    public Folder findFolderByTitle(Long userId, String title) {
+        return folderRepository.findFolderByTitle(title, userId)
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
     }
 
@@ -42,8 +42,8 @@ public class FolderDbService {
                 .orElseThrow(() -> new FolderException(FolderErrorStatus.FOLDER_NOT_FOUND));
     }
 
-    public List<FolderResponse.FolderDto> findFolderDtoList(User user) {
-        return folderRepository.findFolderDtoList(user);
+    public List<FolderResponse.FolderDto> findFolderDtoList(Long userId) {
+        return folderRepository.findFolderDtoList(userId);
     }
 
     public boolean isFolderExist(String title, User user) {
