@@ -2,6 +2,8 @@ package corecord.dev.domain.record.domain.converter;
 
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.domain.entity.Ability;
+import corecord.dev.domain.analysis.domain.converter.AnalysisConverter;
+import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.enums.RecordType;
@@ -56,6 +58,13 @@ public class RecordConverter {
                 .isExist(false)
                 .title(null)
                 .content(null)
+                .build();
+    }
+
+    public static RecordResponse.RecordAnalysisDto toRecordAnalysisDto(Analysis analysis, int chatRecordCount) {
+        return RecordResponse.RecordAnalysisDto.builder()
+                .analysisDto(AnalysisConverter.toAnalysisDto(analysis))
+                .chatRecordCount(chatRecordCount)
                 .build();
     }
 
