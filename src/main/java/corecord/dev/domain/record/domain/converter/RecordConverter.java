@@ -1,10 +1,10 @@
 package corecord.dev.domain.record.domain.converter;
 
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.domain.entity.Folder;
-import corecord.dev.domain.record.domain.entity.RecordType;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.dto.response.RecordResponse;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.user.domain.entity.User;

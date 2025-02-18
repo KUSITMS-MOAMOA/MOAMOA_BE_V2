@@ -1,8 +1,8 @@
 package corecord.dev.domain.feedback.domain.dto.request;
 
-import corecord.dev.domain.feedback.domain.entity.FeedbackType;
-import corecord.dev.domain.feedback.domain.entity.Issue;
-import corecord.dev.domain.feedback.domain.entity.Satisfaction;
+import corecord.dev.domain.feedback.domain.enums.FeedbackType;
+import corecord.dev.domain.feedback.domain.enums.Issue;
+import corecord.dev.domain.feedback.domain.enums.Satisfaction;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;

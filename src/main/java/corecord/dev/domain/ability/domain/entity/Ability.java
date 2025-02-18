@@ -1,6 +1,7 @@
 package corecord.dev.domain.ability.domain.entity;
 
 import corecord.dev.common.base.BaseEntity;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.user.domain.entity.User;
 import jakarta.persistence.*;

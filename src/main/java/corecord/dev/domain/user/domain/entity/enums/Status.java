@@ -1,4 +1,4 @@
-package corecord.dev.domain.user.domain.entity;
+package corecord.dev.domain.user.domain.entity.enums;
 
 import corecord.dev.domain.user.status.UserErrorStatus;
 import corecord.dev.domain.user.exception.UserException;

@@ -1,7 +1,7 @@
 package corecord.dev.domain.feedback.infra.notification.dto;
 
-import corecord.dev.domain.feedback.domain.entity.FeedbackType;
-import corecord.dev.domain.feedback.domain.entity.Issue;
+import corecord.dev.domain.feedback.domain.enums.FeedbackType;
+import corecord.dev.domain.feedback.domain.enums.Issue;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package corecord.dev.domain.feedback.domain.entity;
+package corecord.dev.domain.feedback.domain.enums;
 
 import lombok.AllArgsConstructor;
 

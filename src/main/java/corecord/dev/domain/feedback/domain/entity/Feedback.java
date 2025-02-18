@@ -1,6 +1,9 @@
 package corecord.dev.domain.feedback.domain.entity;
 
 import corecord.dev.common.base.BaseEntity;
+import corecord.dev.domain.feedback.domain.enums.FeedbackType;
+import corecord.dev.domain.feedback.domain.enums.Issue;
+import corecord.dev.domain.feedback.domain.enums.Satisfaction;
 import corecord.dev.domain.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

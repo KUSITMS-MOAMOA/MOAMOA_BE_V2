@@ -13,7 +13,7 @@ import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.user.domain.converter.UserConverter;
 import corecord.dev.domain.user.domain.dto.request.UserRequest;
 import corecord.dev.domain.user.domain.dto.response.UserResponse;
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.exception.UserException;
 import corecord.dev.domain.user.status.UserErrorStatus;

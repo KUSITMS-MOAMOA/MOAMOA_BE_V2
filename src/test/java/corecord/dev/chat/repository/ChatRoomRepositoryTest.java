@@ -2,7 +2,7 @@ package corecord.dev.chat.repository;
 
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.domain.repository.ChatRoomRepository;
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;

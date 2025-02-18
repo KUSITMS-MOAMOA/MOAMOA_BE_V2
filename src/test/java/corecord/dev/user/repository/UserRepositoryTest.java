@@ -1,6 +1,6 @@
 package corecord.dev.user.repository;
 
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.entity.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;

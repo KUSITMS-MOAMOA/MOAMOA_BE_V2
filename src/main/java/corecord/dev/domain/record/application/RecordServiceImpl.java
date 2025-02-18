@@ -1,6 +1,6 @@
 package corecord.dev.domain.record.application;
 
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.analysis.application.AnalysisService;
@@ -12,7 +12,7 @@ import corecord.dev.domain.record.domain.converter.RecordConverter;
 import corecord.dev.domain.record.domain.dto.request.RecordRequest;
 import corecord.dev.domain.record.domain.dto.response.RecordResponse;
 import corecord.dev.domain.record.domain.entity.Record;
-import corecord.dev.domain.record.domain.entity.RecordType;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.exception.RecordException;
 import corecord.dev.domain.record.status.RecordErrorStatus;
 import corecord.dev.domain.user.application.UserDbService;
