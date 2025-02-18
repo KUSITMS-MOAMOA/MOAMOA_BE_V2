@@ -1,6 +1,6 @@
 ---
-name: CORECORD issue template
-about: CORECORD Issue Template
+name: MOAMOA issue template
+about: MOAMOA Issue Template
 title: ''
 labels: ''
 assignees: ''
