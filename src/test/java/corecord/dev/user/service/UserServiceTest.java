@@ -82,7 +82,7 @@ public class UserServiceTest {
     void getUserInfo() {
         // Given
         when(userDbService.getUser(newUser.getUserId())).thenReturn(newUser);
-        when(recordDbService.getRecordCount(newUser)).thenReturn(0);
+        when(recordDbService.getRecordCount(newUser.getUserId())).thenReturn(0);
 
         // When
         UserResponse.UserInfoDto userInfoDto = userService.getUserInfo(newUser.getUserId());
