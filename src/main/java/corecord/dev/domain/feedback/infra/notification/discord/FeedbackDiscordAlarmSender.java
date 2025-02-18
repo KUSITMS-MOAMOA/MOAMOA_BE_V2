@@ -40,7 +40,7 @@ public class FeedbackDiscordAlarmSender implements FeedbackAlarmSender {
     }
 
     private void sendFeedbackDiscordAlarm(FeedbackAlarmDto feedbackAlarmDto) {
-        if (Arrays.asList(environment.getActiveProfiles()).contains("local")) {
+        if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
             webClient.post()
                     .uri(feedbackWebHookUrl)
                     .contentType(MediaType.APPLICATION_JSON)
