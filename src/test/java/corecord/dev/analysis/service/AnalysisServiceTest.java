@@ -19,7 +19,7 @@ import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.user.application.UserDbService;
-import corecord.dev.domain.user.domain.entity.enums.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

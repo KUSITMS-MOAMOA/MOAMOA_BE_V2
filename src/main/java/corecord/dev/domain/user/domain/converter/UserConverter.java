@@ -2,7 +2,7 @@ package corecord.dev.domain.user.domain.converter;
 
 import corecord.dev.domain.user.domain.dto.request.UserRequest;
 import corecord.dev.domain.user.domain.dto.response.UserResponse;
-import corecord.dev.domain.user.domain.entity.enums.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 
 public class UserConverter {

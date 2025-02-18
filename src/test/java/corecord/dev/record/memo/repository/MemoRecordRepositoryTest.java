@@ -10,7 +10,7 @@ import corecord.dev.domain.folder.domain.repository.FolderRepository;
 import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.domain.repository.RecordRepository;
-import corecord.dev.domain.user.domain.entity.enums.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;

@@ -7,7 +7,7 @@ import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.folder.exception.FolderException;
 import corecord.dev.domain.folder.application.FolderService;
 import corecord.dev.domain.user.application.UserDbService;
-import corecord.dev.domain.user.domain.entity.enums.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
