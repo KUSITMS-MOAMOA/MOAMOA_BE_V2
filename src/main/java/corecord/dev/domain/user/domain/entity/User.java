@@ -5,6 +5,7 @@ import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.entity.Record;
+import corecord.dev.domain.user.domain.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -10,7 +10,7 @@ import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.user.application.UserDbService;
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -4,6 +4,7 @@ import corecord.dev.common.base.BaseEntity;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,7 +1,7 @@
 package corecord.dev.analysis.service;
 
 import corecord.dev.domain.ability.domain.entity.Ability;
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.application.AbilityService;
@@ -16,10 +16,10 @@ import corecord.dev.domain.analysis.exception.AnalysisException;
 import corecord.dev.domain.analysis.application.AnalysisService;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.application.RecordDbService;
-import corecord.dev.domain.record.domain.entity.RecordType;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.user.application.UserDbService;
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

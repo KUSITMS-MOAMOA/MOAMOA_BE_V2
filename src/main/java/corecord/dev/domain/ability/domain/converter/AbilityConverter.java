@@ -2,7 +2,7 @@ package corecord.dev.domain.ability.domain.converter;
 
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.user.domain.entity.User;
 

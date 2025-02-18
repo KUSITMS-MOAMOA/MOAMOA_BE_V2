@@ -1,6 +1,6 @@
 package corecord.dev.domain.record.application;
 
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.domain.repository.RecordRepository;

@@ -3,7 +3,7 @@ package corecord.dev.domain.ability.application;
 import corecord.dev.domain.ability.domain.converter.AbilityConverter;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.analysis.domain.entity.Analysis;

@@ -1,6 +1,6 @@
 package corecord.dev.domain.record.domain.dto.request;
 
-import corecord.dev.domain.record.domain.entity.RecordType;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import jakarta.validation.constraints.NotNull;

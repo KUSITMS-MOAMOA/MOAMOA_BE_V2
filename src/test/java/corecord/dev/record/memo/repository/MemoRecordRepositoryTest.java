@@ -1,16 +1,16 @@
 package corecord.dev.record.memo.repository;
 
 import corecord.dev.domain.ability.domain.entity.Ability;
-import corecord.dev.domain.ability.domain.entity.Keyword;
+import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.folder.domain.repository.FolderRepository;
-import corecord.dev.domain.record.domain.entity.RecordType;
+import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.domain.repository.RecordRepository;
-import corecord.dev.domain.user.domain.entity.Status;
+import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package corecord.dev.domain.ability.domain.entity;
+package corecord.dev.domain.ability.domain.enums;
 
 import lombok.AllArgsConstructor;
 
