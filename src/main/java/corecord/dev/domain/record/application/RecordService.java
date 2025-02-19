@@ -7,7 +7,7 @@ import corecord.dev.domain.record.domain.dto.response.RecordResponse;
 public interface RecordService {
 
     // record
-    RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.RecordDto recordDto);
+    RecordResponse.RecordAnalysisDto createRecord(Long userId, RecordRequest.RecordDto recordDto);
     RecordResponse.MemoRecordDto getMemoRecordDetail(Long userId, Long recordId);
 
     // tmp record

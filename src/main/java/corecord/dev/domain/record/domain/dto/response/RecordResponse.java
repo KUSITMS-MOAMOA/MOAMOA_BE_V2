@@ -1,5 +1,6 @@
 package corecord.dev.domain.record.domain.dto.response;
 
+import corecord.dev.domain.analysis.domain.dto.response.AnalysisResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,15 @@ public class RecordResponse {
         private Boolean isExist;
         private String title;
         private String content;
+    }
+
+    @Builder
+    @Getter
+    @AllArgsConstructor
+    @Data
+    public static class RecordAnalysisDto {
+        private AnalysisResponse.AnalysisDto analysisDto;
+        private int chatRecordCount;
     }
 
     @Builder

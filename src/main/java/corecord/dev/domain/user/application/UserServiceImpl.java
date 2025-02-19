@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse.UserInfoDto getUserInfo(Long userId) {
         User user = userDbService.getUser(userId);
 
-        int recordCount = recordDbService.getRecordCount(user);;
+        int recordCount = recordDbService.getRecordCount(user.getUserId());;
         return UserConverter.toUserInfoDto(user, recordCount);
     }
 

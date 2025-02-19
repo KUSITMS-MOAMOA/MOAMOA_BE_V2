@@ -4,6 +4,7 @@ import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
 import corecord.dev.domain.analysis.application.AnalysisService;
+import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.chat.application.ChatDbService;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.application.FolderDbService;
@@ -37,13 +38,13 @@ public class RecordServiceImpl implements RecordService {
     private final int listSize = 30;
 
     /**
-     * user의 MEMO ver. 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환합니다.
+     * user의 경험을 기록하고 폴더를 지정한 후 생성된 경험 기록 정보를 반환합니다.
      *
      * @param userId, recordDto
      * @return recordId, title, content, folderName, createdAt
      */
     @Override
-    public RecordResponse.MemoRecordDto createMemoRecord(Long userId, RecordRequest.RecordDto recordDto) {
+    public RecordResponse.RecordAnalysisDto createRecord(Long userId, RecordRequest.RecordDto recordDto) {
         User user = userDbService.findUserById(userId);
         String title = recordDto.getTitle();
         String content = recordDto.getContent();
@@ -56,10 +57,12 @@ public class RecordServiceImpl implements RecordService {
         Record record = createRecordBasedOnType(recordDto, user, folder);
 
         // 역량 분석 레포트 생성
-        analysisService.createAnalysis(record, user);
+        Analysis analysis = analysisService.createAnalysis(record, user);
         recordDbService.saveRecord(record);
 
-        return RecordConverter.toMemoRecordDto(record);
+        // Chat 경험 기록 개수 카운트
+        int chatRecordCount = getChatRecordCount(record, userId);
+        return RecordConverter.toRecordAnalysisDto(analysis, chatRecordCount);
     }
 
     private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
@@ -68,6 +71,12 @@ public class RecordServiceImpl implements RecordService {
 
         ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
         return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
+    }
+
+    private int getChatRecordCount(Record record, Long userId) {
+        return record.isMemoType()
+                ? 0
+                : recordDbService.getRecordCountByChatType(userId);
     }
 
     /**

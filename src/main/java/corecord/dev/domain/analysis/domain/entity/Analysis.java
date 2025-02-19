@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -37,8 +38,8 @@ public class Analysis extends BaseEntity {
     private Record record;
 
     @BatchSize(size = 3)
-    @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Ability> abilityList;
+    @OneToMany(mappedBy = "analysis", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Ability> abilityList = new ArrayList<>();
 
     public void updateContent(String content) {
         if (content != null && !content.isEmpty())
@@ -52,9 +53,11 @@ public class Analysis extends BaseEntity {
     }
 
     public void addAbility(Ability ability) {
+        if (abilityList == null)
+            abilityList = new ArrayList<>();
+
         if (ability != null) {
             this.abilityList.add(ability);
         }
     }
-
 }

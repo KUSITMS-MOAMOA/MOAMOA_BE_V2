@@ -71,9 +71,8 @@ public class AbilityServiceImpl implements AbilityService {
 
             Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user);
             abilityDbService.saveAbility(ability);
+            analysis.addAbility(ability);
 
-            if (analysis.getAbilityList() != null)
-                analysis.addAbility(ability);
             abilityCount++;
         }
         validAbilityCount(abilityCount);

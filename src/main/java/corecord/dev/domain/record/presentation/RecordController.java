@@ -18,12 +18,12 @@ public class RecordController {
     private final RecordService recordService;
 
     @PostMapping("")
-    public ResponseEntity<ApiResponse<RecordResponse.MemoRecordDto>> createMemoRecord(
+    public ResponseEntity<ApiResponse<RecordResponse.RecordAnalysisDto>> createRecord(
             @UserId Long userId,
             @RequestBody RecordRequest.RecordDto recordDto
     ) {
-        RecordResponse.MemoRecordDto recordResponse = recordService.createMemoRecord(userId, recordDto);
-        return ApiResponse.success(RecordSuccessStatus.MEMO_RECORD_CREATE_SUCCESS, recordResponse);
+        RecordResponse.RecordAnalysisDto recordResponse = recordService.createRecord(userId, recordDto);
+        return ApiResponse.success(RecordSuccessStatus.RECORD_CREATE_SUCCESS, recordResponse);
     }
 
     @GetMapping("/memo/{recordId}")

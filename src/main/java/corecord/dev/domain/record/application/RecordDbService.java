@@ -43,8 +43,12 @@ public class RecordDbService {
         recordRepository.deleteRecordByFolder(folder);
     }
 
-    public int getRecordCount(User user) {
-        return recordRepository.getRecordCount(user);
+    public int getRecordCount(Long userId) {
+        return recordRepository.getRecordCount(userId);
+    }
+
+    public int getRecordCountByChatType(Long userId) {
+        return recordRepository.getRecordCountByType(userId);
     }
 
     @Transactional
