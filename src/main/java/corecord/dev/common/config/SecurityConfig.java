@@ -50,6 +50,7 @@ public class SecurityConfig {
         config.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
                 "http://localhost:5173", "https://localhost:5173",
+                "http://localhost:4173",
                 "https://corecord.site",
                 "https://www.corecord.site",
                 "https://corecord.vercel.app",
