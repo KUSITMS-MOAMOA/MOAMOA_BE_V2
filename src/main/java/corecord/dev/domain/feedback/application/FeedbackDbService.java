@@ -21,4 +21,9 @@ public class FeedbackDbService {
     public boolean existsByUserAndRecordId(User user, Long recordId) {
         return feedbackRepository.existsByUserAndRecordId(user, recordId);
     }
+
+    @Transactional
+    public void deleteFeedbackByUserId(Long userId) {
+        feedbackRepository.deleteByUserId(userId);
+    }
 }
