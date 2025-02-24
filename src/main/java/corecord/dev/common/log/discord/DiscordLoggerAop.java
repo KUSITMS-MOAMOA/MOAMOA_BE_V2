@@ -21,13 +21,13 @@ public class DiscordLoggerAop {
 
     private final DiscordAlarmSender discordAlarmSender;
 
-    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleGeneralException())")
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleGeneralException(..))")
     public void generalExceptionErrorLoggerExecute() {}
 
-    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleException())")
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleException(..))")
     public void serverExceptionErrorLoggerExecute() {}
 
-    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleNullPointerException())")
+    @Pointcut("execution(* corecord.dev.common.exception.GeneralExceptionAdvice.handleNullPointerException(..))")
     public void nullPointerExceptionErrorLoggerExecute() {}
 
     @Before("generalExceptionErrorLoggerExecute()")
