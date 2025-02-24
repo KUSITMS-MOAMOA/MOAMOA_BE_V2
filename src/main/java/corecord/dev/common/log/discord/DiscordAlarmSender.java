@@ -23,9 +23,10 @@ public class DiscordAlarmSender {
     private final DiscordUtil discordUtil;
     private final WebClient webClient = WebClient.create();
 
-    public Void sendDiscordAlarm(Exception exception, HttpServletRequest httpServletRequest) {
+    public void sendDiscordAlarm(Exception exception, HttpServletRequest httpServletRequest) {
         if (Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
-            return webClient.post()
+            log.info("[*] Send Discord Alarm");
+            webClient.post()
                     .uri(webHookUrl)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(discordUtil.createMessage(exception, httpServletRequest))
@@ -33,6 +34,5 @@ public class DiscordAlarmSender {
                     .bodyToMono(Void.class)
                     .block();
         }
-        return null;
     }
 }

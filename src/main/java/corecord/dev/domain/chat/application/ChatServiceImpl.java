@@ -149,12 +149,12 @@ public class ChatServiceImpl implements ChatService {
         return ChatConverter.toChatSummaryDto(chatRoom, response);
     }
 
-    private static void validateChatList(List<Chat> chatList) {
+    private void validateChatList(List<Chat> chatList) {
         if (chatList.size() <= 1)
             throw new ChatException(ChatErrorStatus.NO_RECORD);
     }
 
-    private static void validateResponse(ChatSummaryAiResponse response) {
+    private void validateResponse(ChatSummaryAiResponse response) {
         if (response.getTitle().equals("NO_RECORD") || response.getContent().equals("NO_RECORD") || response.getContent().equals("") || response.getTitle().equals("")) {
             throw new ChatException(ChatErrorStatus.NO_RECORD);
         }

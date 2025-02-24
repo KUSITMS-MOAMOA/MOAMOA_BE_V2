@@ -8,6 +8,7 @@ import corecord.dev.domain.auth.exception.TokenException;
 import corecord.dev.domain.auth.jwt.JwtUtil;
 import corecord.dev.domain.auth.status.TokenErrorStatus;
 import corecord.dev.domain.chat.application.ChatDbService;
+import corecord.dev.domain.feedback.application.FeedbackDbService;
 import corecord.dev.domain.folder.application.FolderDbService;
 import corecord.dev.domain.record.application.RecordDbService;
 import corecord.dev.domain.user.domain.converter.UserConverter;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     private final UserDbService userDbService;
     private final FolderDbService folderDbService;
     private final RecordDbService recordDbService;
+    private final FeedbackDbService feedbackDbService;
 
     /**
      * 회원가입
@@ -103,6 +105,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(Long userId, String refreshToken) {
         // 연관된 데이터 삭제
+        feedbackDbService.deleteFeedbackByUserId(userId);
         abilityDbService.deleteAbilityByUserId(userId);
         analysisDbService.deleteAnalysisByUserId(userId);
         chatDbService.deleteChatByUserId(userId);
