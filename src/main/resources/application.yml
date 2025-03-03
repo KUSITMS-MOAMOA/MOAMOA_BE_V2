@@ -1,22 +1,17 @@
 spring:
-  application:
-    name: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-  sql:
-    init:
-      platform: mysql
+  config:
+    import: application-secret.yml
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: update
-    generate-ddl: true
-    show-sql: true
     properties:
-      format_sql: true
+      hibernate:
+        jdbc:
+          time_zone: Asia/Seoul
+        show_sql: true
+        highlight_sql : true
+
 logging:
   level:
     org.springframework.web: DEBUG
+    org.springframework.web.client.DefaultRestClient: OFF
