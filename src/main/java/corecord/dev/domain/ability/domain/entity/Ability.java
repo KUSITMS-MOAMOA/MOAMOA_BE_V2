@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -40,7 +41,8 @@ public class Ability extends BaseEntity {
     @JoinColumn(name = "analysis_id", nullable = false)
     private Analysis analysis;
 
-    @Column(name = "is_example", nullable = false)
+    @Column(name = "is_example")
+    @ColumnDefault("'0'")
     private char isExample;
 
     public void updateContent(String content) {
