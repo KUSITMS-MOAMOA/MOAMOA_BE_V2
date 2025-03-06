@@ -10,12 +10,13 @@ import java.util.List;
 
 public class AbilityConverter {
 
-    public static Ability toAbility(Keyword keyword, String content, Analysis analysis, User user) {
+    public static Ability toAbility(Keyword keyword, String content, Analysis analysis, User user, char isExample) {
         return Ability.builder()
                 .keyword(keyword)
                 .content(content)
                 .analysis(analysis)
                 .user(user)
+                .isExample(isExample)
                 .build();
     }
 

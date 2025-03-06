@@ -71,7 +71,7 @@ public class AbilityServiceImpl implements AbilityService {
 
             if (keyword == null) continue;
 
-            Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user);
+            Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user, '0');
             abilityDbService.saveAbility(ability);
             analysis.addAbility(ability);
 
@@ -135,13 +135,11 @@ public class AbilityServiceImpl implements AbilityService {
         // ability 부분 추출
         JsonNode abilityListNode = ResourceLoader.getExampleRecordJson().path("analysis").get("ability");
         for (JsonNode abilityNode : abilityListNode) {
-            System.out.println("read ability node: " + abilityNode);
             String keyword = abilityNode.path("keyword").asText();
             String content = abilityNode.path("content").asText();
-            System.out.println(keyword + " " + content);
 
             // ability 저장
-            Ability ability = AbilityConverter.toAbility(Keyword.getName(keyword), content, analysis, user);
+            Ability ability = AbilityConverter.toAbility(Keyword.getName(keyword), content, analysis, user, '1');
             abilityDbService.saveAbility(ability);
         }
     }
