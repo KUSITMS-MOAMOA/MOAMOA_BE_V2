@@ -216,8 +216,8 @@ public class AnalysisServiceImpl implements AnalysisService {
     public void createExampleAnalysis(User user, Record record) {
         // analysis 부분 추출
         JsonNode analysisNode = ResourceLoader.getExampleRecordJson().path("analysis");
-        String content = analysisNode.get("content").toString();
-        String comment = analysisNode.get("comment").toString();
+        String content = analysisNode.path("content").asText();
+        String comment = analysisNode.path("comment").asText();
 
         // analysis 저장
         Analysis analysis = AnalysisConverter.toAnalysis(content, comment, record);

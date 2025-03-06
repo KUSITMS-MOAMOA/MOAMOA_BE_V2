@@ -263,8 +263,8 @@ public class RecordServiceImpl implements RecordService {
     public void createExampleRecord(User user, Folder folder, ChatRoom chatRoom) {
         // record 부분 추출
         JsonNode recordNode = ResourceLoader.getExampleRecordJson().path("record");
-        String title = recordNode.get("title").toString();
-        String content = recordNode.get("content").toString();
+        String title = recordNode.path("title").asText();
+        String content = recordNode.path("content").asText();
 
         // record 저장
         Record record = RecordConverter.toChatRecordEntity(title, content, user, folder, chatRoom);

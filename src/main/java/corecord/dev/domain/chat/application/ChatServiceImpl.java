@@ -27,7 +27,6 @@ public class ChatServiceImpl implements ChatService {
     private final ChatDbService chatDbService;
     private final ChatAIService chatAIService;
     private final UserDbService userDbService;
-    private final ChatRepository chatRepository;
 
     /**
      * user의 채팅방을 생성하고 생성된 채팅방 정보를 반환합니다.
@@ -231,8 +230,8 @@ public class ChatServiceImpl implements ChatService {
         JsonNode chatListNode = ResourceLoader.getExampleRecordJson().path("chatList");
         for (JsonNode chatNode : chatListNode) {
             // 발화자, 채팅 내용 추출
-            int author = Integer.parseInt(chatNode.path("author").toString());
-            String content = chatNode.path("content").toString();
+            int author = Integer.parseInt(chatNode.path("author").asText());
+            String content = chatNode.path("content").asText();
 
             if (content.contains("%s")) {
                 content = parseUserName(content, user.getNickName());
