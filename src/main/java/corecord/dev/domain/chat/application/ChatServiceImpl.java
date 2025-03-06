@@ -1,11 +1,14 @@
 package corecord.dev.domain.chat.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.chat.domain.converter.ChatConverter;
 import corecord.dev.domain.chat.domain.dto.request.ChatRequest;
 import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
 import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
+import corecord.dev.domain.chat.domain.repository.ChatRepository;
 import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import corecord.dev.domain.user.application.UserDbService;
@@ -14,6 +17,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -23,6 +27,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatDbService chatDbService;
     private final ChatAIService chatAIService;
     private final UserDbService userDbService;
+    private final ChatRepository chatRepository;
 
     /**
      * user의 채팅방을 생성하고 생성된 채팅방 정보를 반환합니다.
@@ -38,7 +43,7 @@ public class ChatServiceImpl implements ChatService {
         ChatRoom chatRoom = chatDbService.createChatRoom(user);
 
         // 첫번째 채팅 생성
-        String firstChatContent = String.format("안녕하세요! %s님의 경험을 말해주세요.\n어떤 경험을 했나요? 당시 상황과 문제를 해결하기 위한 %s님의 노력이 궁금해요", user.getNickName(), user.getNickName());
+        String firstChatContent = String.format("안녕하세요! %s님의 경험을 말해주세요.\n어떤 경험을 했나요? 당시 상황과 문제를 해결하기 위한 %s님의 노력이 궁금해요.", user.getNickName(), user.getNickName());
         Chat firstChat = chatDbService.saveChat(0, firstChatContent, chatRoom);
 
         return ChatConverter.toChatRoomDto(chatRoom, firstChat);
@@ -135,6 +140,7 @@ public class ChatServiceImpl implements ChatService {
      * @param chatRoomId
      * @return chat 요약 결과(제목, 본문)
      */
+    @Override
     public ChatResponse.ChatSummaryDto getChatSummary(Long userId, Long chatRoomId) {
         ChatRoom chatRoom = chatDbService.findChatRoomById(chatRoomId, userId);
         List<Chat> chatList = chatDbService.findChatsByChatRoom(chatRoom);
@@ -174,6 +180,7 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @return chatTmpDto
      */
+    @Override
     @Transactional
     public ChatResponse.ChatTmpDto getChatTmp(Long userId) {
         User user = userDbService.findUserById(userId);
@@ -194,6 +201,7 @@ public class ChatServiceImpl implements ChatService {
      * @param userId
      * @param chatRoomId
      */
+    @Override
     @Transactional
     public void saveChatTmp(Long userId, Long chatRoomId) {
         User user = userDbService.findUserById(userId);
@@ -206,4 +214,41 @@ public class ChatServiceImpl implements ChatService {
         userDbService.updateUserTmpChat(user, chatRoom.getChatRoomId());
     }
 
+    /**
+     * 예시용 채팅을 생성합니다.
+     * example-record.json 파일의 chatList 필드를 파싱한 후, 발화자와 채팅 내용을 구분해 Chat Entity를 저장합니다.
+     *
+     * @param user
+     * @return chatRoom
+     */
+    @Override
+    @Transactional
+    public ChatRoom createExampleChat(User user) {
+        // 채팅방 생성
+        ChatRoom chatRoom = chatDbService.createChatRoom(user);
+
+        // chatList 부분 데이터 추출 및 파싱
+        JsonNode chatListNode = ResourceLoader.getExampleRecordJson().path("chatList");
+        for (JsonNode chatNode : chatListNode) {
+            // 발화자, 채팅 내용 추출
+            int author = Integer.parseInt(chatNode.path("author").toString());
+            String content = chatNode.path("content").toString();
+
+            if (content.contains("%s")) {
+                content = parseUserName(content, user.getNickName());
+            }
+            chatDbService.saveChat(author, content, chatRoom);
+        }
+
+        return chatRoom;
+    }
+
+    private String parseUserName(String content, String userName) {
+        // %s의 개수를 세고, 그에 맞춰서 닉네임 적용
+        int placeholderCount = content.split("%s", -1).length - 1;
+        String[] replacements = new String[placeholderCount];
+
+        Arrays.fill(replacements, userName);
+        return String.format(content, (Object[]) replacements);
+    }
 }

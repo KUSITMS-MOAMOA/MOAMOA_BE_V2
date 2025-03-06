@@ -1,5 +1,7 @@
 package corecord.dev.domain.record.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
@@ -64,6 +66,7 @@ public class RecordServiceImpl implements RecordService {
         int chatRecordCount = getChatRecordCount(record, userId);
         return RecordConverter.toRecordAnalysisDto(analysis, chatRecordCount);
     }
+
 
     private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
         if (recordDto.getRecordType() == RecordType.MEMO)
@@ -214,6 +217,7 @@ public class RecordServiceImpl implements RecordService {
      * @param userId
      * @return RecordListDto
      */
+    @Override
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
         List<Record> recordList = recordDbService.findRecordList(userId, -1L);
         return RecordConverter.toRecordListDto(recordList, false);
@@ -237,11 +241,35 @@ public class RecordServiceImpl implements RecordService {
      * @param userId
      * @param updateFolderDto
      */
+    @Override
     @Transactional
     public void updateFolderOfRecord(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
         Record record = recordDbService.findRecordById(updateFolderDto.getRecordId());
         Folder folder = folderDbService.findFolderByTitle(userId, updateFolderDto.getFolder());
 
         record.updateFolder(folder);
+    }
+
+    /**
+     * 예시용 경험 기록을 생성합니다.
+     * example-record.json 파일의 record 필드를 파싱한 후, 제목과 경험 기록 내용을 구분해 Record Entity를 저장합니다.
+     *
+     * @param user
+     * @param folder
+     * @param chatRoom
+     */
+    @Override
+    @Transactional
+    public void createExampleRecord(User user, Folder folder, ChatRoom chatRoom) {
+        // record 부분 추출
+        JsonNode recordNode = ResourceLoader.getExampleRecordJson().path("record");
+        String title = recordNode.get("title").toString();
+        String content = recordNode.get("content").toString();
+
+        // record 저장
+        Record record = RecordConverter.toChatRecordEntity(title, content, user, folder, chatRoom);
+        recordDbService.saveRecord(record);
+
+        analysisService.createExampleAnalysis(user, record);
     }
 }
