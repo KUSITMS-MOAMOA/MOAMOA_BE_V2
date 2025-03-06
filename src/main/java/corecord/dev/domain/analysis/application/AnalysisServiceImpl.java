@@ -1,5 +1,7 @@
 package corecord.dev.domain.analysis.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.ability.application.AbilityService;
 import corecord.dev.domain.analysis.domain.converter.AnalysisConverter;
 import corecord.dev.domain.analysis.domain.dto.request.AnalysisRequest;
@@ -200,6 +202,28 @@ public class AnalysisServiceImpl implements AnalysisService {
         validIsUserAuthorizedForAnalysis(userId, analysis);
 
         analysisDbService.deleteAnalysis(analysis);
+    }
+
+    /**
+     * 예시용 경험 분석을 생성합니다.
+     * example-record.json 파일의 analysis 필드를 파싱한 후, 경험 기록과 코멘트를 구분해 Analysis Entity를 저장합니다.
+     *
+     * @param user
+     * @param record
+     */
+    @Override
+    @Transactional
+    public void createExampleAnalysis(User user, Record record) {
+        // analysis 부분 추출
+        JsonNode analysisNode = ResourceLoader.getExampleRecordJson().path("analysis");
+        String content = analysisNode.path("content").asText();
+        String comment = analysisNode.path("comment").asText();
+
+        // analysis 저장
+        Analysis analysis = AnalysisConverter.toAnalysis(content, comment, record);
+        analysisDbService.saveAnalysis(analysis);
+
+        abilityService.createExampleAbility(user, analysis);
     }
 
     private void validIsUserAuthorizedForAnalysis(Long userId, Analysis analysis) {

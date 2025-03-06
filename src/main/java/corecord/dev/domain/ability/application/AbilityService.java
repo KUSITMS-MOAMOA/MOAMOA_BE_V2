@@ -15,4 +15,6 @@ public interface AbilityService {
     void parseAndSaveAbilities(Map<String, String> keywordList, Analysis analysis, User user);
     void deleteOriginAbilityList(Analysis analysis);
     void updateAbilityContents(Analysis analysis, Map<String, String> abilityMap);
+
+    void createExampleAbility(User user, Analysis analysis);
 }

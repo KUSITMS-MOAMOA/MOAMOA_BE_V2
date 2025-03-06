@@ -40,6 +40,9 @@ public class Ability extends BaseEntity {
     @JoinColumn(name = "analysis_id", nullable = false)
     private Analysis analysis;
 
+    @Column(name = "is_example", nullable = false)
+    private char isExample;
+
     public void updateContent(String content) {
         if (content != null && !content.isEmpty()) {
             this.content = content;
