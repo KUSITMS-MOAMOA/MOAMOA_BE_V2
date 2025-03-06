@@ -14,4 +14,5 @@ public interface AnalysisService {
     AnalysisResponse.AnalysisDto updateAnalysis(Long userId, AnalysisRequest.AnalysisUpdateDto analysisUpdateDto);
     void deleteAnalysis(Long userId, Long analysisId);
 
+    void createExampleAnalysis(User user, Record record);
 }
