@@ -14,24 +14,16 @@ import corecord.dev.domain.user.domain.entity.User;
 import java.util.List;
 
 public class RecordConverter {
-    public static Record toMemoRecordEntity(String title, String content, User user, Folder folder) {
-        return Record.builder()
-                .title(title)
-                .user(user)
-                .content(content)
-                .folder(folder)
-                .type(RecordType.MEMO)
-                .build();
-    }
-
-    public static Record toChatRecordEntity(String title, String content, User user, Folder folder, ChatRoom chatRoom) {
+    public static Record toRecordEntity(String title, String content, User user,
+                                        Folder folder, ChatRoom chatRoom, RecordType recordType, char isExample) {
         return Record.builder()
                 .title(title)
                 .user(user)
                 .content(content)
                 .folder(folder)
                 .chatRoom(chatRoom)
-                .type(RecordType.CHAT)
+                .type(recordType)
+                .isExample(isExample)
                 .build();
     }
 

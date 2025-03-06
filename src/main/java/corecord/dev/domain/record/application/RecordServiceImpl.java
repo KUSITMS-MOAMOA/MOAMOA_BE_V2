@@ -69,11 +69,11 @@ public class RecordServiceImpl implements RecordService {
 
 
     private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
-        if (recordDto.getRecordType() == RecordType.MEMO)
-            return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
-
-        ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
-        return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
+        ChatRoom chatRoom = null;
+        if (recordDto.getChatRoomId() != null) {
+            chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
+        }
+        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType(), '0');
     }
 
     private int getChatRecordCount(Record record, Long userId) {
@@ -118,7 +118,7 @@ public class RecordServiceImpl implements RecordService {
         validTextLength(title, content);
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
-        Record record = RecordConverter.toMemoRecordEntity(title, content, user, null);
+        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO, '0');
         Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
@@ -267,7 +267,7 @@ public class RecordServiceImpl implements RecordService {
         String content = recordNode.path("content").asText();
 
         // record 저장
-        Record record = RecordConverter.toChatRecordEntity(title, content, user, folder, chatRoom);
+        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT, '1');
         recordDbService.saveRecord(record);
 
         analysisService.createExampleAnalysis(user, record);

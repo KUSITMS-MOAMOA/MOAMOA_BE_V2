@@ -35,6 +35,9 @@ public class Record extends BaseEntity {
     @Column(name = "content", nullable = false, length = 500)
     private String content;
 
+    @Column(name = "is_example", nullable = false)
+    private char isExample;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
