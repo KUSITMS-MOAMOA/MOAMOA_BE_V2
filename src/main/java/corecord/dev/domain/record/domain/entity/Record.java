@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter @Builder
@@ -34,6 +35,10 @@ public class Record extends BaseEntity {
 
     @Column(name = "content", nullable = false, length = 500)
     private String content;
+
+    @Column(name = "is_example")
+    @ColumnDefault("'0'")
+    private char isExample;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
