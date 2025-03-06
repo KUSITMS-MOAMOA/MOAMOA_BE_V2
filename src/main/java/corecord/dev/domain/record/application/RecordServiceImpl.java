@@ -1,5 +1,7 @@
 package corecord.dev.domain.record.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.ability.exception.AbilityException;
 import corecord.dev.domain.ability.status.AbilityErrorStatus;
@@ -65,12 +67,13 @@ public class RecordServiceImpl implements RecordService {
         return RecordConverter.toRecordAnalysisDto(analysis, chatRecordCount);
     }
 
-    private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
-        if (recordDto.getRecordType() == RecordType.MEMO)
-            return RecordConverter.toMemoRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder);
 
-        ChatRoom chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
-        return RecordConverter.toChatRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom);
+    private Record createRecordBasedOnType(RecordRequest.RecordDto recordDto, User user, Folder folder) {
+        ChatRoom chatRoom = null;
+        if (recordDto.getChatRoomId() != null) {
+            chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
+        }
+        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType(), '0');
     }
 
     private int getChatRecordCount(Record record, Long userId) {
@@ -115,7 +118,7 @@ public class RecordServiceImpl implements RecordService {
         validTextLength(title, content);
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
-        Record record = RecordConverter.toMemoRecordEntity(title, content, user, null);
+        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO, '0');
         Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
@@ -214,6 +217,7 @@ public class RecordServiceImpl implements RecordService {
      * @param userId
      * @return RecordListDto
      */
+    @Override
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
         List<Record> recordList = recordDbService.findRecordList(userId, -1L);
         return RecordConverter.toRecordListDto(recordList, false);
@@ -237,11 +241,35 @@ public class RecordServiceImpl implements RecordService {
      * @param userId
      * @param updateFolderDto
      */
+    @Override
     @Transactional
     public void updateFolderOfRecord(Long userId, RecordRequest.UpdateFolderDto updateFolderDto) {
         Record record = recordDbService.findRecordById(updateFolderDto.getRecordId());
         Folder folder = folderDbService.findFolderByTitle(userId, updateFolderDto.getFolder());
 
         record.updateFolder(folder);
+    }
+
+    /**
+     * 예시용 경험 기록을 생성합니다.
+     * example-record.json 파일의 record 필드를 파싱한 후, 제목과 경험 기록 내용을 구분해 Record Entity를 저장합니다.
+     *
+     * @param user
+     * @param folder
+     * @param chatRoom
+     */
+    @Override
+    @Transactional
+    public void createExampleRecord(User user, Folder folder, ChatRoom chatRoom) {
+        // record 부분 추출
+        JsonNode recordNode = ResourceLoader.getExampleRecordJson().path("record");
+        String title = recordNode.path("title").asText();
+        String content = recordNode.path("content").asText();
+
+        // record 저장
+        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT, '1');
+        recordDbService.saveRecord(record);
+
+        analysisService.createExampleAnalysis(user, record);
     }
 }

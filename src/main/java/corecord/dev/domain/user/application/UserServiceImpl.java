@@ -8,9 +8,14 @@ import corecord.dev.domain.auth.exception.TokenException;
 import corecord.dev.domain.auth.jwt.JwtUtil;
 import corecord.dev.domain.auth.status.TokenErrorStatus;
 import corecord.dev.domain.chat.application.ChatDbService;
+import corecord.dev.domain.chat.application.ChatService;
+import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.feedback.application.FeedbackDbService;
 import corecord.dev.domain.folder.application.FolderDbService;
+import corecord.dev.domain.folder.application.FolderService;
+import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.application.RecordDbService;
+import corecord.dev.domain.record.application.RecordService;
 import corecord.dev.domain.user.domain.converter.UserConverter;
 import corecord.dev.domain.user.domain.dto.request.UserRequest;
 import corecord.dev.domain.user.domain.dto.response.UserResponse;
@@ -40,6 +45,9 @@ public class UserServiceImpl implements UserService {
     private final FolderDbService folderDbService;
     private final RecordDbService recordDbService;
     private final FeedbackDbService feedbackDbService;
+    private final ChatService chatService;
+    private final RecordService recordService;
+    private final FolderService folderService;
 
     /**
      * 회원가입
@@ -65,6 +73,11 @@ public class UserServiceImpl implements UserService {
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
         String accessToken = jwtUtil.generateAccessToken(savedUser.getUserId());
         saveRefreshToken(refreshToken, savedUser);
+
+        // 가이드용 채팅 경험 기록 생성
+        ChatRoom chatRoom = chatService.createExampleChat(savedUser);
+        Folder folder = folderService.createExampleFolder(savedUser);
+        recordService.createExampleRecord(savedUser, folder, chatRoom);
 
         return UserConverter.toUserDto(savedUser, accessToken, refreshToken);
     }

@@ -1,5 +1,7 @@
 package corecord.dev.domain.ability.application;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.ability.domain.converter.AbilityConverter;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.ability.domain.entity.Ability;
@@ -69,7 +71,7 @@ public class AbilityServiceImpl implements AbilityService {
 
             if (keyword == null) continue;
 
-            Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user);
+            Ability ability = AbilityConverter.toAbility(keyword, entry.getValue(), analysis, user, '0');
             abilityDbService.saveAbility(ability);
             analysis.addAbility(ability);
 
@@ -118,6 +120,28 @@ public class AbilityServiceImpl implements AbilityService {
             Ability ability = findAbilityByKeyword(analysis, key);
             ability.updateContent(content);
         });
+    }
+
+    /**
+     * 예시용 경험을 생성합니다.
+     * example-record.json 파일의 ability 필드를 파싱한 후, 역량 키워드와 분석 내용을 구분해 Ability Entity를 저장합니다.
+     *
+     * @param user
+     * @param analysis
+     */
+    @Override
+    @Transactional
+    public void createExampleAbility(User user, Analysis analysis) {
+        // ability 부분 추출
+        JsonNode abilityListNode = ResourceLoader.getExampleRecordJson().path("analysis").get("ability");
+        for (JsonNode abilityNode : abilityListNode) {
+            String keyword = abilityNode.path("keyword").asText();
+            String content = abilityNode.path("content").asText();
+
+            // ability 저장
+            Ability ability = AbilityConverter.toAbility(Keyword.getName(keyword), content, analysis, user, '1');
+            abilityDbService.saveAbility(ability);
+        }
     }
 
     private Ability findAbilityByKeyword(Analysis analysis, Keyword key) {

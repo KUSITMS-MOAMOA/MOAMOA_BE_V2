@@ -110,6 +110,20 @@ public class FolderServiceImpl implements FolderService {
         return FolderConverter.toFolderDtoList(folderList);
     }
 
+    /**
+     * 예시용 폴더를 생성합니다.
+     *
+     * @param user
+     * @return folder
+     */
+    @Override
+    @Transactional
+    public Folder createExampleFolder(User user) {
+        Folder folder = FolderConverter.toFolderEntity("MOAMOA", user);
+        folderDbService.saveFolder(folder);
+        return folder;
+    }
+
     private void validDuplicatedFolderTitleAndLength(String title, User user) {
         // 폴더명 글자 수 검사
         if (title.length() > 15) {
