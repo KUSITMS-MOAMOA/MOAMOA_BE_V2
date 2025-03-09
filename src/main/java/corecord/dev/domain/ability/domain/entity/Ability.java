@@ -17,8 +17,9 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "ability",
-        indexes = {@Index(name = "user_keyword_created_idx", columnList = "user_id, keyword, created_at"),
-        @Index(name = "ability_analysis_idx", columnList = "analysis_id, user_id, keyword")})
+        indexes = {@Index(name = "user_is_example_keyword_created_idx", columnList = "user_id, is_example, keyword, created_at"),
+                @Index(name = "ability_keyword_analysis_idx", columnList = "user_id, keyword, is_example, analysis_id, created_at"),
+                @Index(name = "ability_analysis_idx", columnList = "analysis_id, user_id, keyword")})
 public class Ability extends BaseEntity {
 
     @Id

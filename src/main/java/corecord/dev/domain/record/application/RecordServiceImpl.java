@@ -73,7 +73,7 @@ public class RecordServiceImpl implements RecordService {
         if (recordDto.getChatRoomId() != null) {
             chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
         }
-        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType(), '0');
+        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType());
     }
 
     private int getChatRecordCount(Record record, Long userId) {
@@ -117,7 +117,7 @@ public class RecordServiceImpl implements RecordService {
         validTextLength(title, content);
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
-        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO, '0');
+        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO);
         Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
@@ -266,7 +266,7 @@ public class RecordServiceImpl implements RecordService {
         String content = recordNode.path("content").asText();
 
         // record 저장
-        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT, '1');
+        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT);
         recordDbService.saveRecord(record);
 
         analysisService.createExampleAnalysis(user, record);

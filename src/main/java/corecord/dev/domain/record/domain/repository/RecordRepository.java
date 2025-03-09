@@ -51,14 +51,13 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             Pageable pageable);
 
     @Query("SELECT r FROM Ability a " +
-            "JOIN a.analysis an " +
-            "JOIN an.record r " +
+            "JOIN a.analysis.record r " +
             "JOIN FETCH r.folder f " +
             "WHERE a.user.userId = :userId " +
             "AND a.keyword = :keyword " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null " + // 임시 저장 기록 제외
-            "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
+            "AND r.folder.title NOT IN (:example_folder_name)") // 예시 경험 기록 제외
     List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
             @Param(value = "userId") Long userId,
@@ -67,7 +66,7 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             Pageable pageable
             );
 
-    @Query("SELECT DISTINCT r FROM Record r " +
+    @Query("SELECT r FROM Record r " +
             "JOIN FETCH r.analysis a " +
             "JOIN FETCH r.folder f " +
             "JOIN FETCH a.abilityList al " +

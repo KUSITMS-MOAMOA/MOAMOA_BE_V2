@@ -17,8 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "record",
-        indexes = {@Index(name = "created_at_idx", columnList = "created_at"),
-        @Index(name = "user_created_at_idx", columnList = "user_id, created_at")})
+        indexes = {@Index(name = "user_created_at_idx", columnList = "user_id, created_at desc, record_id")})
 public class Record extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

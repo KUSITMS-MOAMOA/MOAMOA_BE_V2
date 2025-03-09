@@ -15,7 +15,7 @@ import java.util.List;
 
 public class RecordConverter {
     public static Record toRecordEntity(String title, String content, User user,
-                                        Folder folder, ChatRoom chatRoom, RecordType recordType, char isExample) {
+                                        Folder folder, ChatRoom chatRoom, RecordType recordType) {
         return Record.builder()
                 .title(title)
                 .user(user)
