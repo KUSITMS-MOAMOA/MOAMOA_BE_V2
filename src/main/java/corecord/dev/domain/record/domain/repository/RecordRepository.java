@@ -16,47 +16,37 @@ import java.util.Optional;
 @Repository
 public interface RecordRepository extends JpaRepository<Record, Long> {
 
-    @Query("SELECT r " +
-            "FROM Record r " +
-            "JOIN FETCH r.analysis a " +
-            "JOIN FETCH r.folder f " +
-            "JOIN FETCH a.abilityList al " +
+    @Query("SELECT r.recordId FROM Record r " +
             "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null " + // 임시 저장 기록 제외
             "AND r.folder = :folder " +
             "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
-    List<Record> findRecordsByFolder(
+    List<Long> findRecordIdsByFolder(
             @Param(value = "folder") Folder folder,
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
             @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable);
 
-    @Query("SELECT r FROM Record r " +
-            "JOIN FETCH r.analysis a " +
-            "JOIN FETCH r.folder f " +
-            "JOIN FETCH a.abilityList al " +
+    @Query("SELECT r.recordId FROM Record r " +
             "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND (:last_record_id <= 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null " + // 임시 저장 기록 제외
             "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
-    List<Record> findRecords(
+    List<Long> findRecordIds(
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
             @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable);
 
-    @Query("SELECT r FROM Record r " +
-            "JOIN FETCH r.analysis a " +
-            "JOIN FETCH r.folder f " +
-            "JOIN FETCH a.abilityList al " +
+    @Query("SELECT r.recordId FROM Record r " +
             "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND r.folder is not null") // 임시 저장 기록 제외
-    List<Record> findRecentRecords(
+    List<Long> findRecentRecordIds(
             @Param(value = "userId") Long userId,
             Pageable pageable);
 
@@ -76,6 +66,15 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable
             );
+
+    @Query("SELECT DISTINCT r FROM Record r " +
+            "JOIN FETCH r.analysis a " +
+            "JOIN FETCH r.folder f " +
+            "JOIN FETCH a.abilityList al " +
+            "JOIN FETCH r.user u " +
+            "WHERE r.recordId IN :record_ids " +
+            "ORDER BY r.createdAt DESC")
+    List<Record> findRecordsByIds(@Param("record_ids") List<Long> recordIds);
 
     @Query("SELECT r FROM Record r " +
             "JOIN FETCH r.analysis a " +
