@@ -86,17 +86,19 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
     @Query("SELECT COUNT(r) " +
             "FROM Record r " +
             "WHERE r.user.userId = :userId " +
-            "AND r.isExample = '0' " + // 예시 기록 제외
-            "AND r.folder is not null") // 임시 저장 기록 제외
-    int getRecordCount(@Param(value = "userId") Long userId);
+            "AND r.folder is not null " + // 임시 저장 기록 제외
+            "AND r.folder.title <> :example_folder_name") // 예시 기록 제외
+    int getRecordCount(@Param(value = "userId") Long userId,
+                       @Param(value = "example_folder_name") String exampleFolderName);
 
     @Query("SELECT COUNT(r) " +
             "FROM Record r " +
             "WHERE r.user.userId = :userId " +
-            "AND r.isExample = '0' " + // 예시 기록 제외
             "AND r.folder is not null " + // 임시 저장 기록 제외
+            "AND r.folder.title <> :example_folder_name " + // 예시 기록 제외
             "AND r.type = 'CHAT' ")
-    int getRecordCountByType(@Param(value = "userId") Long userId);
+    int getRecordCountByType(@Param(value = "userId") Long userId,
+                             @Param(value = "example_folder_name") String exampleFolderName);
 
     @Modifying
     @Query("DELETE " +

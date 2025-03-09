@@ -45,11 +45,11 @@ public class RecordDbService {
     }
 
     public int getRecordCount(Long userId) {
-        return recordRepository.getRecordCount(userId);
+        return recordRepository.getRecordCount(userId, ExampleFolder.EXAMPLE.getValue());
     }
 
     public int getRecordCountByChatType(Long userId) {
-        return recordRepository.getRecordCountByType(userId);
+        return recordRepository.getRecordCountByType(userId, ExampleFolder.EXAMPLE.getValue());
     }
 
     @Transactional
