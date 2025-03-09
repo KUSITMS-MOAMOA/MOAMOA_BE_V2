@@ -23,7 +23,6 @@ public class RecordConverter {
                 .folder(folder)
                 .chatRoom(chatRoom)
                 .type(recordType)
-                .isExample(isExample)
                 .build();
     }
 
