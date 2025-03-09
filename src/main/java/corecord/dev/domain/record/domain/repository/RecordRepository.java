@@ -25,7 +25,9 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
-            "AND r.folder is not null AND r.folder = :folder") // 임시 저장 기록 제외
+            "AND r.folder is not null " + // 임시 저장 기록 제외
+            "AND r.folder = :folder " +
+            "AND r.folder.title <> '경험 기록 예시 폴더'") // 예시 경험 기록 제외
     List<Record> findRecordsByFolder(
             @Param(value = "folder") Folder folder,
             @Param(value = "userId") Long userId,
@@ -39,7 +41,8 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "JOIN r.user u " +
             "WHERE u.userId = :userId " +
             "AND (:last_record_id <= 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
-            "AND r.folder is not null") // 임시 저장 기록 제외
+            "AND r.folder is not null " + // 임시 저장 기록 제외
+            "AND r.folder.title <> '경험 기록 예시 폴더'") // 예시 경험 기록 제외
     List<Record> findRecords(
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
