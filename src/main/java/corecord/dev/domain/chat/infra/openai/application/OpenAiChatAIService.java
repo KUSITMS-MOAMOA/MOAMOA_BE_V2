@@ -44,7 +44,7 @@ public class OpenAiChatAIService implements ChatAIService {
         try {
             return chatModel.call(String.valueOf(messages));
         } catch (HttpServerErrorException e) {
-            return clovaChatAIService.  generateChatResponse(chatHistory, userContent);
+            return clovaChatAIService.generateChatResponse(chatHistory, userContent);
         }
     }
 
