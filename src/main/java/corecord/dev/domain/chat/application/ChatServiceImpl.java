@@ -199,14 +199,14 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponse.ChatTmpDto getChatTmp(Long userId) {
         User user = userDbService.findUserById(userId);
         if (user.getTmpChat() == null) {
-            return ChatConverter.toNotExistingChatTmpDto();
+            return ChatConverter.toChatTmpDto(null);
         }
 
         // 임시 채팅 제거 후 반환
         Long chatRoomId = user.getTmpChat();
         userDbService.deleteUserTmpChat(user);
 
-        return ChatConverter.toExistingChatTmpDto(chatRoomId);
+        return ChatConverter.toChatTmpDto(chatRoomId);
     }
 
     /**

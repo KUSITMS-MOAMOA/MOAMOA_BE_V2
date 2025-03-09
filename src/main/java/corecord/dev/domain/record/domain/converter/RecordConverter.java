@@ -36,19 +36,11 @@ public class RecordConverter {
                 .build();
     }
 
-    public static RecordResponse.TmpMemoRecordDto toExistingTmpMemoRecordDto(Record record) {
+    public static RecordResponse.TmpMemoRecordDto toTmpMemoRecordDto(Record record) {
         return RecordResponse.TmpMemoRecordDto.builder()
-                .isExist(true)
-                .title(record.getTitle())
-                .content(record.getContent())
-                .build();
-    }
-
-    public static RecordResponse.TmpMemoRecordDto toNotExistingTmpMemoRecordDto() {
-        return RecordResponse.TmpMemoRecordDto.builder()
-                .isExist(false)
-                .title(null)
-                .content(null)
+                .isExist(record != null)
+                .title(record == null ? null : record.getTitle())
+                .content(record == null ? null : record.getContent())
                 .build();
     }
 

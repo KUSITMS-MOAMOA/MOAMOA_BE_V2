@@ -114,7 +114,6 @@ public class RecordServiceImpl implements RecordService {
 
         // User의 임시 메모 저장 유무 확인
         validHasUserTmpMemo(user);
-
         validTextLength(title, content);
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
@@ -143,7 +142,7 @@ public class RecordServiceImpl implements RecordService {
 
         // 임시 저장 내역이 없는 경우 isExist=false 반환
         if (tmpMemoRecordId == null) {
-            return RecordConverter.toNotExistingTmpMemoRecordDto();
+            return RecordConverter.toTmpMemoRecordDto(null);
         }
 
         // 임시 저장 내역이 있는 경우 결과 조회
@@ -152,7 +151,7 @@ public class RecordServiceImpl implements RecordService {
         // 기존 데이터 제거 후 결과 반환
         user.deleteTmpMemo();
         recordDbService.deleteRecord(tmpMemoRecord);
-        return RecordConverter.toExistingTmpMemoRecordDto(tmpMemoRecord);
+        return RecordConverter.toTmpMemoRecordDto(tmpMemoRecord);
     }
 
     /**
