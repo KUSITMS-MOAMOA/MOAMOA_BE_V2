@@ -23,7 +23,7 @@ public class Chat extends BaseEntity {
     @Column(name = "author", nullable = false)
     private Integer author; // 0(user), 1(ai)
 
-    @Column(name = "content", nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 550)
     private String content;
 
     @ManyToOne
