@@ -18,6 +18,7 @@ public interface FolderRepository extends JpaRepository<Folder, Long> {
     @Query("SELECT new corecord.dev.domain.folder.domain.dto.response.FolderResponse$FolderDto(f.folderId, f.title) " +
             "FROM Folder f " +
             "WHERE f.user.userId = :userId " +
+            "AND f.title <> '경험 기록 예시 폴더' " +
             "ORDER BY f.createdAt desc ")
     List<FolderResponse.FolderDto> findFolderDtoList(@Param(value = "userId") Long userId);
 
