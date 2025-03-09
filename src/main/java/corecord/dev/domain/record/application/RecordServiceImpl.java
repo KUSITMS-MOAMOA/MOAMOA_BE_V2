@@ -219,7 +219,7 @@ public class RecordServiceImpl implements RecordService {
      */
     @Override
     public RecordResponse.RecordListDto getRecentRecordList(Long userId) {
-        List<Record> recordList = recordDbService.findRecordList(userId, -1L);
+        List<Record> recordList = recordDbService.findRecentRecordList(userId);
         return RecordConverter.toRecordListDto(recordList, false);
     }
 
