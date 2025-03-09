@@ -7,6 +7,7 @@ import corecord.dev.domain.folder.domain.converter.FolderConverter;
 import corecord.dev.domain.folder.domain.dto.request.FolderRequest;
 import corecord.dev.domain.folder.domain.dto.response.FolderResponse;
 import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.domain.enums.ExampleFolder;
 import corecord.dev.domain.folder.exception.FolderException;
 import corecord.dev.domain.folder.status.FolderErrorStatus;
 import corecord.dev.domain.record.application.RecordDbService;
@@ -119,7 +120,7 @@ public class FolderServiceImpl implements FolderService {
     @Override
     @Transactional
     public Folder createExampleFolder(User user) {
-        Folder folder = FolderConverter.toFolderEntity("경험 기록 예시 폴더", user);
+        Folder folder = FolderConverter.toFolderEntity(ExampleFolder.EXAMPLE.getValue(), user);
         folderDbService.saveFolder(folder);
         return folder;
     }

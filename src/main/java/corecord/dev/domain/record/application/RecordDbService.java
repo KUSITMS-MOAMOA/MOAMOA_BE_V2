@@ -2,11 +2,11 @@ package corecord.dev.domain.record.application;
 
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.domain.enums.ExampleFolder;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.domain.repository.RecordRepository;
 import corecord.dev.domain.record.exception.RecordException;
 import corecord.dev.domain.record.status.RecordErrorStatus;
-import corecord.dev.domain.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +22,7 @@ public class RecordDbService {
     private final RecordRepository recordRepository;
 
     private final int listSize = 30;
+    private final int recentListSize = 6;
 
     @Transactional
     public Record saveRecord(Record record) {
@@ -68,21 +69,21 @@ public class RecordDbService {
 
     public List<Record> findRecordListByFolder(Long userId, Folder folder, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByFolder(folder, userId, lastRecordId, pageable);
+        return recordRepository.findRecordsByFolder(folder, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
     }
 
     public List<Record> findRecordList(Long userId, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecords(userId, lastRecordId, pageable);
+        return recordRepository.findRecords(userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
     }
 
     public List<Record> findRecentRecordList(Long userId) {
-        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, recentListSize, Sort.by("createdAt").descending());
         return recordRepository.findRecentRecords(userId, pageable);
     }
 
     public List<Record> findRecordListByKeyword(Long userId, Keyword keyword, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, pageable);
+        return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
     }
 }

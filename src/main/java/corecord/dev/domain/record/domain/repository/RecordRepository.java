@@ -3,7 +3,6 @@ package corecord.dev.domain.record.domain.repository;
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.entity.Record;
-import corecord.dev.domain.user.domain.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -27,11 +26,12 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " +  // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null " + // 임시 저장 기록 제외
             "AND r.folder = :folder " +
-            "AND r.folder.title <> '경험 기록 예시 폴더'") // 예시 경험 기록 제외
+            "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
     List<Record> findRecordsByFolder(
             @Param(value = "folder") Folder folder,
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
+            @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable);
 
     @Query("SELECT r FROM Record r " +
@@ -42,10 +42,11 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "WHERE u.userId = :userId " +
             "AND (:last_record_id <= 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
             "AND r.folder is not null " + // 임시 저장 기록 제외
-            "AND r.folder.title <> '경험 기록 예시 폴더'") // 예시 경험 기록 제외
+            "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
     List<Record> findRecords(
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
+            @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable);
 
     @Query("SELECT r FROM Record r " +
@@ -66,11 +67,13 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             "WHERE a.user.userId = :userId " +
             "AND a.keyword = :keyword " +
             "AND (:last_record_id = 0 OR r.recordId < :last_record_id) " + // 제일 마지막에 읽은 데이터 이후부터 가져옴
-            "AND r.folder is not null") // 임시 저장 기록 제외
+            "AND r.folder is not null " + // 임시 저장 기록 제외
+            "AND r.folder.title <> :example_folder_name") // 예시 경험 기록 제외
     List<Record> findRecordsByKeyword(
             @Param(value = "keyword")Keyword keyword,
             @Param(value = "userId") Long userId,
             @Param(value = "last_record_id") Long lastRecordId,
+            @Param(value = "example_folder_name") String exampleFolderName,
             Pageable pageable
             );
 

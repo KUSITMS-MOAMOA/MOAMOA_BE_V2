@@ -6,6 +6,7 @@ import corecord.dev.domain.ability.domain.repository.AbilityRepository;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
 import corecord.dev.domain.analysis.domain.repository.AnalysisRepository;
 import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.domain.enums.ExampleFolder;
 import corecord.dev.domain.folder.domain.repository.FolderRepository;
 import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
@@ -66,7 +67,7 @@ public class MemoRecordRepositoryTest {
         Record record2 = createRecord("Test Record2", user, folder);
 
         // When
-        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
 
         // Then
         assertThat(result.size()).isEqualTo(2);
@@ -84,7 +85,7 @@ public class MemoRecordRepositoryTest {
         Folder folder = createFolder("Test Folder", user);
 
         // When
-        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByFolder(folder, user.getUserId(), lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
 
         // Then
         assertEquals(result.size(), 0);
@@ -118,7 +119,7 @@ public class MemoRecordRepositoryTest {
         Record record2 = createRecord("Test Record2", user, folder);
 
         // When
-        List<Record> result = recordRepository.findRecordsByKeyword(Keyword.COLLABORATION, user.getUserId(), lastRecordId, pageable);
+        List<Record> result = recordRepository.findRecordsByKeyword(Keyword.COLLABORATION, user.getUserId(), lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
 
         // Then
         assertEquals(result.size(), 2);
