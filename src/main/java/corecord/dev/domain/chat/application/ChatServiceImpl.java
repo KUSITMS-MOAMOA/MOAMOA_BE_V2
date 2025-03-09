@@ -71,9 +71,24 @@ public class ChatServiceImpl implements ChatService {
         // AI 답변 생성
         List<Chat> chatHistory = chatDbService.findChatsByChatRoom(chatRoom);
         String aiAnswer = chatAIService.generateChatResponse(chatHistory, chatDto.getContent());
+
+        // AI 답변 길이 제한 및 재생성
+        aiAnswer = validateAiChat(chatDto, aiAnswer, chatHistory);
+
         Chat aiChat = chatDbService.saveChat(0, aiAnswer, chatRoom);
 
         return ChatConverter.toChatsDto(List.of(aiChat));
+    }
+
+    private String validateAiChat(ChatRequest.ChatDto chatDto, String aiAnswer, List<Chat> chatHistory) {
+        if (aiAnswer.length() >= 500) {
+            aiAnswer = chatAIService.generateChatResponse(chatHistory, chatDto.getContent());
+        }
+
+        if (aiAnswer.length() >= 500) {
+            aiAnswer = aiAnswer.substring(0, 500);
+        }
+        return aiAnswer;
     }
 
     private static void checkGuideChat(ChatRoom chatRoom) {

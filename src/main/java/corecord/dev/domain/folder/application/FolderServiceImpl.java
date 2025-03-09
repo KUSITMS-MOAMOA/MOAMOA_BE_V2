@@ -119,7 +119,7 @@ public class FolderServiceImpl implements FolderService {
     @Override
     @Transactional
     public Folder createExampleFolder(User user) {
-        Folder folder = FolderConverter.toFolderEntity("MOAMOA", user);
+        Folder folder = FolderConverter.toFolderEntity("경험 기록 예시 폴더", user);
         folderDbService.saveFolder(folder);
         return folder;
     }
