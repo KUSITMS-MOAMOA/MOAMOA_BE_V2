@@ -8,7 +8,6 @@ import corecord.dev.domain.chat.domain.dto.response.ChatResponse;
 import corecord.dev.domain.chat.domain.dto.response.ChatSummaryAiResponse;
 import corecord.dev.domain.chat.domain.entity.Chat;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
-import corecord.dev.domain.chat.domain.repository.ChatRepository;
 import corecord.dev.domain.chat.exception.ChatException;
 import corecord.dev.domain.chat.status.ChatErrorStatus;
 import corecord.dev.domain.user.application.UserDbService;
@@ -70,6 +69,7 @@ public class ChatServiceImpl implements ChatService {
 
         // AI 답변 생성
         List<Chat> chatHistory = chatDbService.findChatsByChatRoom(chatRoom);
+        // TODO: VALID AI MAX TOKEN
         String aiAnswer = chatAIService.generateChatResponse(chatHistory, chatDto.getContent());
 
         // AI 답변 길이 제한 및 재생성
