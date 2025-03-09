@@ -48,6 +48,16 @@ public interface RecordRepository extends JpaRepository<Record, Long> {
             @Param(value = "last_record_id") Long lastRecordId,
             Pageable pageable);
 
+    @Query("SELECT r FROM Record r " +
+            "JOIN FETCH r.analysis a " +
+            "JOIN FETCH r.folder f " +
+            "JOIN FETCH a.abilityList al " +
+            "JOIN r.user u " +
+            "WHERE u.userId = :userId " +
+            "AND r.folder is not null") // 임시 저장 기록 제외
+    List<Record> findRecentRecords(
+            @Param(value = "userId") Long userId,
+            Pageable pageable);
 
     @Query("SELECT r FROM Ability a " +
             "JOIN a.analysis an " +

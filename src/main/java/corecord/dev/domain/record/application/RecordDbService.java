@@ -72,11 +72,13 @@ public class RecordDbService {
     }
 
     public List<Record> findRecordList(Long userId, Long lastRecordId) {
-        // -1일 경우 최근 생성된 6개 리스트만 조회
-        int newListSize = lastRecordId == -1 ? 6 : listSize + 1;
-
-        Pageable pageable = PageRequest.of(0, newListSize, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
         return recordRepository.findRecords(userId, lastRecordId, pageable);
+    }
+
+    public List<Record> findRecentRecordList(Long userId) {
+        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
+        return recordRepository.findRecentRecords(userId, pageable);
     }
 
     public List<Record> findRecordListByKeyword(Long userId, Keyword keyword, Long lastRecordId) {
