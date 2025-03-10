@@ -1,5 +1,6 @@
 package corecord.dev.domain.user.application;
 
+import corecord.dev.common.util.RedisLockUtil;
 import corecord.dev.domain.ability.application.AbilityDbService;
 import corecord.dev.domain.analysis.application.AnalysisDbService;
 import corecord.dev.domain.auth.domain.entity.RefreshToken;
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
     private final ChatService chatService;
     private final RecordService recordService;
     private final FolderService folderService;
+    private final RedisLockUtil redisLockUtil;
 
     /**
      * 회원가입
@@ -59,27 +61,38 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse.UserDto registerUser(String registerToken, UserRequest.UserRegisterDto userRegisterDto) {
-        validRegisterToken(registerToken);
-        validateUserInfo(userRegisterDto.getNickName());
-
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
-        checkExistUser(providerId);
 
-        // 새로운 유저 생성
-        User newUser = UserConverter.toUserEntity(userRegisterDto, providerId);
-        User savedUser = userDbService.saveUser(newUser);
+        // 5초간 동일한 providerId로 회원가입 시도 방지
+        String lockKey = "register:" + providerId;
+        if (!redisLockUtil.acquireLock(lockKey, 5)) {
+            throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
+        }
 
-        // RefreshToken 생성 및 저장
-        String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
-        String accessToken = jwtUtil.generateAccessToken(savedUser.getUserId());
-        saveRefreshToken(refreshToken, savedUser);
+        try {
+            validRegisterToken(registerToken);
+            validateUserInfo(userRegisterDto.getNickName());
+            checkExistUser(providerId);
 
-        // 가이드용 채팅 경험 기록 생성
-        ChatRoom chatRoom = chatService.createExampleChat(savedUser);
-        Folder folder = folderService.createExampleFolder(savedUser);
-        recordService.createExampleRecord(savedUser, folder, chatRoom);
+            // 새로운 유저 생성
+            User newUser = UserConverter.toUserEntity(userRegisterDto, providerId);
+            User savedUser = userDbService.saveUser(newUser);
 
-        return UserConverter.toUserDto(savedUser, accessToken, refreshToken);
+            // RefreshToken 생성 및 저장
+            String refreshToken = jwtUtil.generateRefreshToken(savedUser.getUserId());
+            String accessToken = jwtUtil.generateAccessToken(savedUser.getUserId());
+            saveRefreshToken(refreshToken, savedUser);
+
+            // 가이드용 채팅 경험 기록 생성
+            ChatRoom chatRoom = chatService.createExampleChat(savedUser);
+            Folder folder = folderService.createExampleFolder(savedUser);
+            recordService.createExampleRecord(savedUser, folder, chatRoom);
+
+            return UserConverter.toUserDto(savedUser, accessToken, refreshToken);
+        } finally {
+            // 락 해제
+            redisLockUtil.releaseLock(lockKey);
+        }
     }
 
     private void validRegisterToken(String registerToken) {
