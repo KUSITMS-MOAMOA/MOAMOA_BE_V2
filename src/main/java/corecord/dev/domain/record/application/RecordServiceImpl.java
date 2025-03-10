@@ -73,7 +73,7 @@ public class RecordServiceImpl implements RecordService {
         if (recordDto.getChatRoomId() != null) {
             chatRoom = chatDbService.findChatRoomById(recordDto.getChatRoomId(), user.getUserId());
         }
-        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType(), '0');
+        return RecordConverter.toRecordEntity(recordDto.getTitle(), recordDto.getContent(), user, folder, chatRoom, recordDto.getRecordType());
     }
 
     private int getChatRecordCount(Record record, Long userId) {
@@ -114,11 +114,10 @@ public class RecordServiceImpl implements RecordService {
 
         // User의 임시 메모 저장 유무 확인
         validHasUserTmpMemo(user);
-
         validTextLength(title, content);
 
         // Record entity 생성 후 user.tmpMemo 필드에 recordId 저장
-        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO, '0');
+        Record record = RecordConverter.toRecordEntity(title, content, user, null, null, RecordType.MEMO);
         Record tmpRecord = recordDbService.saveRecord(record);
         user.updateTmpMemo(tmpRecord.getRecordId());
     }
@@ -143,7 +142,7 @@ public class RecordServiceImpl implements RecordService {
 
         // 임시 저장 내역이 없는 경우 isExist=false 반환
         if (tmpMemoRecordId == null) {
-            return RecordConverter.toNotExistingTmpMemoRecordDto();
+            return RecordConverter.toTmpMemoRecordDto(null);
         }
 
         // 임시 저장 내역이 있는 경우 결과 조회
@@ -152,7 +151,7 @@ public class RecordServiceImpl implements RecordService {
         // 기존 데이터 제거 후 결과 반환
         user.deleteTmpMemo();
         recordDbService.deleteRecord(tmpMemoRecord);
-        return RecordConverter.toExistingTmpMemoRecordDto(tmpMemoRecord);
+        return RecordConverter.toTmpMemoRecordDto(tmpMemoRecord);
     }
 
     /**
@@ -267,7 +266,7 @@ public class RecordServiceImpl implements RecordService {
         String content = recordNode.path("content").asText();
 
         // record 저장
-        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT, '1');
+        Record record = RecordConverter.toRecordEntity(title, content, user, folder, chatRoom, RecordType.CHAT);
         recordDbService.saveRecord(record);
 
         analysisService.createExampleAnalysis(user, record);

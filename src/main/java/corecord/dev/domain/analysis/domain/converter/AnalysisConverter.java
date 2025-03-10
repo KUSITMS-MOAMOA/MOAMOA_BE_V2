@@ -4,7 +4,6 @@ import corecord.dev.domain.ability.domain.converter.AbilityConverter;
 import corecord.dev.domain.ability.domain.dto.response.AbilityResponse;
 import corecord.dev.domain.analysis.domain.dto.response.AnalysisResponse;
 import corecord.dev.domain.analysis.domain.entity.Analysis;
-import corecord.dev.domain.record.domain.enums.RecordType;
 import corecord.dev.domain.record.domain.entity.Record;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class AnalysisConverter {
 
         return AnalysisResponse.AnalysisDto.builder()
                 .analysisId(analysis.getAnalysisId())
-                .chatRoomId(record.getType() == RecordType.CHAT ? record.getChatRoom().getChatRoomId() : null)
+                .chatRoomId(record.isMemoType() ? null : record.getChatRoom().getChatRoomId())
                 .recordId(record.getRecordId())
                 .recordType(record.getType())
                 .folderName(record.getFolder().getTitle())

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -68,22 +69,32 @@ public class RecordDbService {
     }
 
     public List<Record> findRecordListByFolder(Long userId, Folder folder, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByFolder(folder, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        Pageable pageable = PageRequest.of(0, listSize + 1);
+        List<Long> recordIds = recordRepository.findRecordIdsByFolder(folder, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecordList(Long userId, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecords(userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        Pageable pageable = PageRequest.of(0, listSize + 1);
+        List<Long> recordIds = recordRepository.findRecordIds(userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecentRecordList(Long userId) {
         Pageable pageable = PageRequest.of(0, recentListSize, Sort.by("createdAt").descending());
-        return recordRepository.findRecentRecords(userId, pageable);
+        List<Long> recordIds = recordRepository.findRecentRecordIds(userId, pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecordListByKeyword(Long userId, Keyword keyword, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
         return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+    }
+
+    private List<Record> getRecordListResult(List<Long> recordIds) {
+        if (recordIds.isEmpty()) {
+            return new ArrayList<>(); // 결과 없을 경우 빈 리스트 반환
+        }
+        return recordRepository.findRecordsByIds(recordIds);
     }
 }

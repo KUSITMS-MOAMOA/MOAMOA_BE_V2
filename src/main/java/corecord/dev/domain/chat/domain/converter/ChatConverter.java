@@ -48,7 +48,7 @@ public class ChatConverter {
     public static ChatResponse.ChatDetailDto toChatDetailDto(Chat chat) {
         return ChatResponse.ChatDetailDto.builder()
                 .chatId(chat.getChatId())
-                .author(chat.getAuthor() == 0 ? "ai" : "user")
+                .author(chat.isAiAuthor() ? "ai" : "user")
                 .content(chat.getContent())
                 .created_at(chat.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
@@ -56,7 +56,8 @@ public class ChatConverter {
 
     public static ChatResponse.ChatListDto toChatListDto(List<Chat> chatList) {
         return ChatResponse.ChatListDto.builder()
-                .chats(chatList.stream().map(ChatConverter::toChatDetailDto).toList())
+                .chats(chatList.stream()
+                        .map(ChatConverter::toChatDetailDto).toList())
                 .build();
     }
 
@@ -68,17 +69,10 @@ public class ChatConverter {
                 .build();
     }
 
-    public static ChatResponse.ChatTmpDto toExistingChatTmpDto(Long chatRoomId) {
+    public static ChatResponse.ChatTmpDto toChatTmpDto(Long chatRoomId) {
         return ChatResponse.ChatTmpDto.builder()
-                .isExist(true)
+                .isExist(chatRoomId != null)
                 .chatRoomId(chatRoomId)
-                .build();
-    }
-
-    public static ChatResponse.ChatTmpDto toNotExistingChatTmpDto() {
-        return ChatResponse.ChatTmpDto.builder()
-                .isExist(false)
-                .chatRoomId(null)
                 .build();
     }
 }

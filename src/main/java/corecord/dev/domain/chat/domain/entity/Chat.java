@@ -21,7 +21,7 @@ public class Chat extends BaseEntity {
     private Long chatId;
 
     @Column(name = "author", nullable = false)
-    private Integer author; // 0(user), 1(ai)
+    private Integer author; // 0(ai), 1(user)
 
     @Column(name = "content", nullable = false, length = 550)
     private String content;
@@ -29,4 +29,8 @@ public class Chat extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "chat_room_id", nullable = false)
     private ChatRoom chatRoom;
+
+    public boolean isAiAuthor() {
+        return this.author == 0;
+    }
 }
