@@ -2,11 +2,11 @@ package corecord.dev.domain.record.application;
 
 import corecord.dev.domain.ability.domain.enums.Keyword;
 import corecord.dev.domain.folder.domain.entity.Folder;
+import corecord.dev.domain.folder.domain.enums.ExampleFolder;
 import corecord.dev.domain.record.domain.entity.Record;
 import corecord.dev.domain.record.domain.repository.RecordRepository;
 import corecord.dev.domain.record.exception.RecordException;
 import corecord.dev.domain.record.status.RecordErrorStatus;
-import corecord.dev.domain.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,6 +23,7 @@ public class RecordDbService {
     private final RecordRepository recordRepository;
 
     private final int listSize = 30;
+    private final int recentListSize = 6;
 
     @Transactional
     public Record saveRecord(Record record) {
@@ -44,11 +46,11 @@ public class RecordDbService {
     }
 
     public int getRecordCount(Long userId) {
-        return recordRepository.getRecordCount(userId);
+        return recordRepository.getRecordCount(userId, ExampleFolder.EXAMPLE.getValue());
     }
 
     public int getRecordCountByChatType(Long userId) {
-        return recordRepository.getRecordCountByType(userId);
+        return recordRepository.getRecordCountByType(userId, ExampleFolder.EXAMPLE.getValue());
     }
 
     @Transactional
@@ -67,22 +69,32 @@ public class RecordDbService {
     }
 
     public List<Record> findRecordListByFolder(Long userId, Folder folder, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByFolder(folder, userId, lastRecordId, pageable);
+        Pageable pageable = PageRequest.of(0, listSize + 1);
+        List<Long> recordIds = recordRepository.findRecordIdsByFolder(folder, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecordList(Long userId, Long lastRecordId) {
-        Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecords(userId, lastRecordId, pageable);
+        Pageable pageable = PageRequest.of(0, listSize + 1);
+        List<Long> recordIds = recordRepository.findRecordIds(userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecentRecordList(Long userId) {
-        Pageable pageable = PageRequest.of(0, 6, Sort.by("createdAt").descending());
-        return recordRepository.findRecentRecords(userId, pageable);
+        Pageable pageable = PageRequest.of(0, recentListSize, Sort.by("createdAt").descending());
+        List<Long> recordIds = recordRepository.findRecentRecordIds(userId, pageable);
+        return getRecordListResult(recordIds);
     }
 
     public List<Record> findRecordListByKeyword(Long userId, Keyword keyword, Long lastRecordId) {
         Pageable pageable = PageRequest.of(0, listSize + 1, Sort.by("createdAt").descending());
-        return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, pageable);
+        return recordRepository.findRecordsByKeyword(keyword, userId, lastRecordId, ExampleFolder.EXAMPLE.getValue(), pageable);
+    }
+
+    private List<Record> getRecordListResult(List<Long> recordIds) {
+        if (recordIds.isEmpty()) {
+            return new ArrayList<>(); // 결과 없을 경우 빈 리스트 반환
+        }
+        return recordRepository.findRecordsByIds(recordIds);
     }
 }
