@@ -1,5 +1,6 @@
 package corecord.dev.domain.auth.application;
 
+import corecord.dev.domain.auth.domain.enums.TokenType;
 import corecord.dev.domain.auth.jwt.JwtUtil;
 import corecord.dev.domain.auth.domain.entity.RefreshToken;
 import corecord.dev.domain.auth.domain.entity.TmpToken;
@@ -65,7 +66,7 @@ public class TokenService {
     }
 
     private void validateRefreshToken(String refreshToken) {
-        if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+        if (!jwtUtil.isTokenValid(refreshToken, TokenType.REFRESH)) {
             throw new TokenException(TokenErrorStatus.INVALID_REFRESH_TOKEN);
         }
 
@@ -74,7 +75,7 @@ public class TokenService {
     }
 
     private TmpToken validateTmpToken(String tmpToken) {
-        if (!jwtUtil.isTmpTokenValid(tmpToken)) {
+        if (!jwtUtil.isTokenValid(tmpToken, TokenType.TMP)) {
             throw new TokenException(TokenErrorStatus.INVALID_TMP_TOKEN);
         }
         return tmpTokenRepository.findByTmpToken(tmpToken)

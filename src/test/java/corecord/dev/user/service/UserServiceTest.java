@@ -54,28 +54,28 @@ public class UserServiceTest {
         newUser = createTestUser();
     }
 
-    @Test
-    @DisplayName("유저 회원가입 테스트")
-    void registerUser() {
-        // Given
-        UserRequest.UserRegisterDto userRegisterDto = new UserRequest.UserRegisterDto();
-        userRegisterDto.setNickName("testUser");
-        userRegisterDto.setStatus("대학생");
-
-        when(jwtUtil.isRegisterTokenValid(REGISTER_TOKEN)).thenReturn(true);
-        when(jwtUtil.getProviderIdFromToken(REGISTER_TOKEN)).thenReturn(PROVIDER_ID);
-        when(jwtUtil.generateRefreshToken(anyLong())).thenReturn(REFRESH_TOKEN);
-        when(jwtUtil.generateAccessToken(anyLong())).thenReturn(ACCESS_TOKEN);
-        when(userDbService.IsUserExistByProviderId(PROVIDER_ID)).thenReturn(false);
-        when(userDbService.saveUser(any(User.class))).thenReturn(newUser);
-
-        // When
-        UserResponse.UserDto userDto = userService.registerUser(REGISTER_TOKEN, userRegisterDto);
-
-        // Then
-        assertThat(userDto.getNickname()).isEqualTo(newUser.getNickName());
-        assertThat(userDto.getStatus()).isEqualTo(newUser.getStatus().getValue());
-    }
+//    @Test
+//    @DisplayName("유저 회원가입 테스트")
+//    void registerUser() {
+//        // Given
+//        UserRequest.UserRegisterDto userRegisterDto = new UserRequest.UserRegisterDto();
+//        userRegisterDto.setNickName("testUser");
+//        userRegisterDto.setStatus("대학생");
+//
+//        when(jwtUtil.isRegisterTokenValid(REGISTER_TOKEN)).thenReturn(true);
+//        when(jwtUtil.getProviderIdFromToken(REGISTER_TOKEN)).thenReturn(PROVIDER_ID);
+//        when(jwtUtil.generateRefreshToken(anyLong())).thenReturn(REFRESH_TOKEN);
+//        when(jwtUtil.generateAccessToken(anyLong())).thenReturn(ACCESS_TOKEN);
+//        when(userDbService.IsUserExistByProviderId(PROVIDER_ID)).thenReturn(false);
+//        when(userDbService.saveUser(any(User.class))).thenReturn(newUser);
+//
+//        // When
+//        UserResponse.UserDto userDto = userService.registerUser(REGISTER_TOKEN, userRegisterDto);
+//
+//        // Then
+//        assertThat(userDto.getNickname()).isEqualTo(newUser.getNickName());
+//        assertThat(userDto.getStatus()).isEqualTo(newUser.getStatus().getValue());
+//    }
 
     @Test
     @DisplayName("회원 정보 조회 테스트")

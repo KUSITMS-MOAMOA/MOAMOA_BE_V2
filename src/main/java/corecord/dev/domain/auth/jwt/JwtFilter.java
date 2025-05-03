@@ -1,6 +1,7 @@
 package corecord.dev.domain.auth.jwt;
 
 import corecord.dev.common.util.CookieUtil;
+import corecord.dev.domain.auth.domain.enums.TokenType;
 import corecord.dev.domain.auth.exception.TokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String accessToken = cookieUtil.getCookieValue(request, "accessToken");
-            if (accessToken != null && jwtUtil.isAccessTokenValid(accessToken)) {
+            if (accessToken != null && jwtUtil.isTokenValid(accessToken, TokenType.ACCESS)) {
                 String userId = jwtUtil.getUserIdFromAccessToken(accessToken);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(
                         userId, // principal로 userId 사용
@@ -50,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // 특정 경로는 필터링하지 않도록 설정
         String path = request.getRequestURI();
-        return path.startsWith("/oauth2/authorization/kakao") || path.startsWith("/api/users/register") || path.startsWith("/api/token") || path.startsWith("/actuator/health") || path.startsWith("/login/oauth2/code/**");
+        return path.startsWith("/oauth2/authorization/**") || path.startsWith("/api/users/register") || path.startsWith("/api/token") || path.startsWith("/actuator/health") || path.startsWith("/login/oauth2/code/**");
     }
 
     private void handleTokenException(HttpServletResponse response, TokenException e) throws IOException {

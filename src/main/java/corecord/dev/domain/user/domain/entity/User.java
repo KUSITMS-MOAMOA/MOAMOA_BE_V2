@@ -5,6 +5,7 @@ import corecord.dev.domain.ability.domain.entity.Ability;
 import corecord.dev.domain.chat.domain.entity.ChatRoom;
 import corecord.dev.domain.folder.domain.entity.Folder;
 import corecord.dev.domain.record.domain.entity.Record;
+import corecord.dev.domain.user.domain.enums.Provider;
 import corecord.dev.domain.user.domain.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -40,6 +41,10 @@ public class User extends BaseEntity {
 
     @Column(name = "tmp_memo")
     private Long tmpMemo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false)
+    private Provider provider;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Record> records;

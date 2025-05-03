@@ -40,7 +40,7 @@ public class SecurityConfig {
 
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
-    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/actuator/health", "/api/token/**", "/api/token", "/login/oauth2/code/**"};
+    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/**", "/actuator/health", "/api/token/**", "/api/token", "/login/oauth2/code/**"};
     private final String[] allowedUrls = Stream.concat(Arrays.stream(swaggerUrls), Arrays.stream(authUrls))
             .toArray(String[]::new);
 

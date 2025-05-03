@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorStatus implements BaseErrorStatus {
     INVALID_USER_NICKNAME(HttpStatus.BAD_REQUEST, "E101_NICKNAME", "유효하지 않은 닉네임입니다."),
     INVALID_USER_STATUS(HttpStatus.BAD_REQUEST, "E101_STATUS", "신분상태의 입력이 잘못되었습니다."),
+    INVALID_OUATH2_PROVIDER(HttpStatus.BAD_REQUEST, "E101_OAUTH2_PROVIDER", "유효하지 않은 OAuth2 제공자입니다."),
     ALREADY_EXIST_USER(HttpStatus.BAD_REQUEST, "E101_EXIST_USER", "이미 존재하는 유저입니다."),;
 
     private final HttpStatus httpStatus;
