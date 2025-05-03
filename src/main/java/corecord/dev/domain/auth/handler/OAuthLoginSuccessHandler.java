@@ -1,6 +1,8 @@
 package corecord.dev.domain.auth.handler;
 
 import corecord.dev.common.util.CookieUtil;
+import corecord.dev.domain.auth.domain.dto.GoogleUserInfo;
+import corecord.dev.domain.auth.domain.dto.NaverUserInfo;
 import corecord.dev.domain.auth.jwt.JwtUtil;
 import corecord.dev.domain.auth.domain.dto.KakaoUserInfo;
 import corecord.dev.domain.auth.domain.dto.OAuth2UserInfo;
@@ -10,6 +12,8 @@ import corecord.dev.domain.auth.domain.repository.RefreshTokenRepository;
 import corecord.dev.domain.auth.domain.repository.TmpTokenRepository;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.domain.repository.UserRepository;
+import corecord.dev.domain.user.exception.UserException;
+import corecord.dev.domain.user.status.UserErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +26,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -43,19 +48,34 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) authentication;
-        OAuth2UserInfo oAuth2UserInfo = new KakaoUserInfo(token.getPrincipal().getAttributes());
+        OAuth2UserInfo oAuth2UserInfo = extractOAuth2UserInfo(token, token.getAuthorizedClientRegistrationId());
 
         String providerId = oAuth2UserInfo.getProviderId();
         String name = oAuth2UserInfo.getName();
+        String provider = oAuth2UserInfo.getProvider();
         log.info("providerId: {}", providerId);
         log.info("name: {}", name);
+        log.info("provider: {}", provider);
 
         Optional<User> optionalUser = userRepository.findByProviderId(providerId);
 
         if (optionalUser.isPresent()) {
             handleExistingUser(request, response, optionalUser.get());
         } else {
-            handleNewUser(request, response, providerId);
+            handleNewUser(request, response, providerId, provider);
+        }
+    }
+
+    private OAuth2UserInfo extractOAuth2UserInfo(OAuth2AuthenticationToken token, String provider) {
+        switch (provider) {
+            case "google":
+                return new GoogleUserInfo(token.getPrincipal().getAttributes());
+            case "kakao":
+                return new KakaoUserInfo(token.getPrincipal().getAttributes());
+            case "naver":
+                return new NaverUserInfo((Map<String, Object>) token.getPrincipal().getAttributes().get("response"));
+            default:
+                throw new UserException(UserErrorStatus.INVALID_OUATH2_PROVIDER);
         }
     }
 
@@ -80,10 +100,10 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     }
 
     // 신규 유저 처리
-    private void handleNewUser(HttpServletRequest request, HttpServletResponse response, String providerId) throws IOException {
+    private void handleNewUser(HttpServletRequest request, HttpServletResponse response, String providerId, String provider) throws IOException {
         log.info("신규 유저입니다. 레지스터 토큰을 발급합니다.");
         // 레지스터 토큰 발급
-        String registerToken = jwtUtil.generateRegisterToken(providerId);
+        String registerToken = jwtUtil.generateRegisterToken(providerId, provider);
         String redirectURI = String.format(REGISTER_TOKEN_REDIRECT_URI, registerToken);
         getRedirectStrategy().sendRedirect(request, response, redirectURI);
     }
