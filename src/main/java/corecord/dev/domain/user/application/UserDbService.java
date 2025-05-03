@@ -3,6 +3,7 @@ package corecord.dev.domain.user.application;
 import corecord.dev.common.exception.GeneralException;
 import corecord.dev.common.status.ErrorStatus;
 import corecord.dev.domain.user.domain.entity.User;
+import corecord.dev.domain.user.domain.enums.Provider;
 import corecord.dev.domain.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +34,8 @@ public class UserDbService {
         return userRepository.save(user);
     }
 
-    public boolean IsUserExistByProviderId(String providerId) {
-        return userRepository.existsByProviderId(providerId);
+    public boolean existsByProviderIdAndProvider(String providerId, Provider provider) {
+        return userRepository.existsByProviderIdAndProvider(providerId, provider);
     }
 
     public User getUser(Long userId) {
