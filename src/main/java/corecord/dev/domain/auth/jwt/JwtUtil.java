@@ -71,10 +71,14 @@ public class JwtUtil {
     // === 토큰 검증 ===
 
     public boolean isTokenValid(String token, TokenType type) {
-        return isTokenValid(token, type.getClaimKey(), type.getErrorStatus());
+        return validateClaims(token, type.getErrorStatus(), type.getClaimKey());
     }
 
-    private boolean isTokenValid(String token, String claimKey, TokenErrorStatus errorStatus) {
+    public boolean isRegisterTokenValid(String token) {
+        return validateClaims(token, TokenErrorStatus.INVALID_REGISTER_TOKEN, "providerId", "provider");
+    }
+
+    private boolean validateClaims(String token, TokenErrorStatus errorStatus, String... requiredKeys) {
         try {
             var claims = Jwts.parser()
                     .verifyWith(getSigningKey())
@@ -82,13 +86,14 @@ public class JwtUtil {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            String value = claims.get(claimKey, String.class);
-            if (value == null || value.isEmpty()) {
-                throw new TokenException(errorStatus);
+            for (String key : requiredKeys) {
+                String value = claims.get(key, String.class);
+                if (value == null || value.isEmpty()) {
+                    throw new TokenException(errorStatus);
+                }
             }
 
             return true;
-
         } catch (ExpiredJwtException e) {
             log.warn("Expired token: {}", e.getMessage());
             throw new TokenException(errorStatus);
@@ -97,36 +102,6 @@ public class JwtUtil {
             throw new TokenException(errorStatus);
         }
     }
-
-
-    // RegisterToken 전용: claim 2개 확인
-    public boolean isRegisterTokenValid(String token) {
-        try {
-            var claims = Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            String providerId = claims.get("providerId", String.class);
-            String provider = claims.get("provider", String.class);
-
-            if (providerId == null || providerId.isEmpty() ||
-                    provider == null || provider.isEmpty()) {
-                throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-            }
-
-            return true;
-
-        } catch (ExpiredJwtException e) {
-            log.warn("Register token expired: {}", e.getMessage());
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        } catch (Exception e) {
-            log.warn("Invalid register token: {}", e.getMessage());
-            throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
-        }
-    }
-
 
     // === 클레임 추출 ===
 
