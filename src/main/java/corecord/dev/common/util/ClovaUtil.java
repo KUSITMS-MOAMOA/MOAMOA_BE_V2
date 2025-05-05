@@ -16,16 +16,16 @@ public class ClovaUtil {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.create();
 
-    @Value("${ncp.chat.host}")
+    @Value("${spring.ai.ncp.chat.host}")
     private String chatHost;
 
-    @Value("${ncp.chat.api-key}")
+    @Value("${spring.ai.ncp.chat.api-key}")
     private String chatApiKey;
 
-    @Value("${ncp.chat.api-key-primary-val}")
+    @Value("${spring.ai.ncp.chat.api-key-primary-val}")
     private String chatApiKeyPrimaryVal;
 
-    @Value("${ncp.chat.request-id}")
+    @Value("${spring.ai.ncp.chat.request-id}")
     private String chatRequestId;
 
     public String postWebClient(Object clovaRequest) {
