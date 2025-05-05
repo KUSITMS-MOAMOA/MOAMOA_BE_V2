@@ -31,7 +31,7 @@ public class Record extends BaseEntity {
     @Column(name = "title", length = 50)
     private String title;
 
-    @Column(name = "content", nullable = false, length = 500)
+    @Column(name = "content", nullable = false, length = 1000)
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
