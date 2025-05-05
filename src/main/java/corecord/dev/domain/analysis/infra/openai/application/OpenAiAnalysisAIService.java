@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import corecord.dev.common.util.ResourceLoader;
 import corecord.dev.domain.analysis.application.AnalysisAIService;
-import corecord.dev.domain.analysis.infra.clova.application.ClovaAnalysisAIService;
+import corecord.dev.domain.analysis.infra.gemini.application.GeminiAnalysisAIService;
 import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import corecord.dev.domain.analysis.exception.AnalysisException;
@@ -13,24 +13,24 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 @Primary
 @Service
 @RequiredArgsConstructor
 public class OpenAiAnalysisAIService implements AnalysisAIService {
     private final OpenAiChatModel chatModel;
-    private final ClovaAnalysisAIService clovaAnalysisAIService;
+    private final GeminiAnalysisAIService geminiAnalysisAIService;
     private static final String ABILITY_ANALYSIS_SYSTEM_CONTENT = ResourceLoader.getResourceContent("ability-analysis-prompt.txt");
     private static final String SUMMARY_SYSTEM_CONTENT = ResourceLoader.getResourceContent("memo-summary-prompt.txt");
 
     @Override
     public AnalysisAiResponse generateAbilityAnalysis(String content) {
-        String response;
         try {
-            response = chatModel.call(ABILITY_ANALYSIS_SYSTEM_CONTENT + content);
+            String response = chatModel.call(ABILITY_ANALYSIS_SYSTEM_CONTENT + content);
             return parseAnalysisAiResponse(response);
-        } catch (HttpServerErrorException e) {
-            return clovaAnalysisAIService.generateAbilityAnalysis(content);
+        } catch (HttpServerErrorException | WebClientException e) {
+            return geminiAnalysisAIService.generateAbilityAnalysis(content);
         }
     }
 
@@ -38,8 +38,8 @@ public class OpenAiAnalysisAIService implements AnalysisAIService {
     public String generateMemoSummary(String content) {
         try {
             return chatModel.call(SUMMARY_SYSTEM_CONTENT + content);
-        } catch (HttpServerErrorException e) {
-            return clovaAnalysisAIService.generateMemoSummary(content);
+        } catch (HttpServerErrorException | WebClientException e) {
+            return geminiAnalysisAIService.generateMemoSummary(content);
         }
     }
 
