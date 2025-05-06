@@ -29,7 +29,6 @@ public class GeminiAnalysisAIService implements AnalysisAIService {
             GeminiAnalysisRequest geminiRequest = GeminiAnalysisRequest.createAbilityAnalysisRequest(content);
             String responseBody = geminiUtil.postWebClient(geminiRequest);
             String aiResponse = geminiUtil.parseContentFromResponse(responseBody);
-            log.info("airesponse = " + aiResponse);
 
             return parseAnalysisAiResponse(aiResponse);
         } catch (HttpServerErrorException | WebClientException e) {

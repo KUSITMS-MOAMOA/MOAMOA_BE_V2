@@ -31,7 +31,6 @@ public class GeminiChatAIService implements ChatAIService {
         try {
             GeminiChatRequest geminiRequest = GeminiChatRequest.createChatRequest(chatHistory, userContent);
             String responseBody = geminiUtil.postWebClient(geminiRequest);
-
             return geminiUtil.parseContentFromResponse(responseBody);
         } catch (HttpServerErrorException | WebClientException e) {
             return clovaChatAIService.generateChatResponse(chatHistory, userContent);
@@ -44,7 +43,6 @@ public class GeminiChatAIService implements ChatAIService {
             GeminiChatRequest geminiRequest = GeminiChatRequest.createChatSummaryRequest(chatHistory);
             String responseBody = geminiUtil.postWebClient(geminiRequest);
             String aiResponse = geminiUtil.parseContentFromResponse(responseBody);
-
             return parseChatSummaryResponse(aiResponse);
         } catch (HttpServerErrorException | WebClientException e) {
             return clovaChatAIService.generateChatSummaryResponse(chatHistory);

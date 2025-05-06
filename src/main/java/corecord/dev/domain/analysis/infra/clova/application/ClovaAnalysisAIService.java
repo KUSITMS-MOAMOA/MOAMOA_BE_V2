@@ -27,7 +27,6 @@ public class ClovaAnalysisAIService implements AnalysisAIService {
             ClovaAnalysisRequest clovaRequest = ClovaAnalysisRequest.createAbilityAnalysisRequest(content);
             String responseBody = clovaUtil.postWebClient(clovaRequest);
             String aiResponse = clovaUtil.parseContentFromResponse(responseBody);
-
             return parseAnalysisAiResponse(aiResponse);
         } catch (HttpServerErrorException | WebClientException e) {
             log.error("CLOVA 역량 분석 AI 응답 생성 실패", e);
