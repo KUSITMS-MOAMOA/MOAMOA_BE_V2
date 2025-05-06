@@ -229,7 +229,7 @@ public class RecordServiceImpl implements RecordService {
         if (content != null && content.length() < 50)
             throw new RecordException(RecordErrorStatus.NOT_ENOUGH_MEMO_RECORD_CONTENT);
 
-        if (content != null && content.length() > 500) {
+        if (content != null && content.length() > 1000) {
             throw new RecordException(RecordErrorStatus.OVERFLOW_MEMO_RECORD_CONTENT);
         }
     }

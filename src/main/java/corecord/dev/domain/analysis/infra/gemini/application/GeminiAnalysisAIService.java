@@ -1,11 +1,12 @@
-package corecord.dev.domain.analysis.infra.clova.application;
+package corecord.dev.domain.analysis.infra.gemini.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import corecord.dev.common.util.ClovaUtil;
+import corecord.dev.common.util.GeminiUtil;
 import corecord.dev.domain.analysis.application.AnalysisAIService;
 import corecord.dev.domain.analysis.exception.AnalysisException;
-import corecord.dev.domain.analysis.infra.clova.dto.request.ClovaAnalysisRequest;
+import corecord.dev.domain.analysis.infra.clova.application.ClovaAnalysisAIService;
+import corecord.dev.domain.analysis.infra.gemini.dto.request.GeminiAnalysisRequest;
 import corecord.dev.domain.analysis.infra.openai.dto.response.AnalysisAiResponse;
 import corecord.dev.domain.analysis.status.AnalysisErrorStatus;
 import lombok.RequiredArgsConstructor;
@@ -17,39 +18,40 @@ import org.springframework.web.reactive.function.client.WebClientException;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ClovaAnalysisAIService implements AnalysisAIService {
+public class GeminiAnalysisAIService implements AnalysisAIService {
 
-    private final ClovaUtil clovaUtil;
+    private final GeminiUtil geminiUtil;
+    private final ClovaAnalysisAIService clovaAnalysisAIService;
 
     @Override
     public AnalysisAiResponse generateAbilityAnalysis(String content) {
         try {
-            ClovaAnalysisRequest clovaRequest = ClovaAnalysisRequest.createAbilityAnalysisRequest(content);
-            String responseBody = clovaUtil.postWebClient(clovaRequest);
-            String aiResponse = clovaUtil.parseContentFromResponse(responseBody);
+            GeminiAnalysisRequest geminiRequest = GeminiAnalysisRequest.createAbilityAnalysisRequest(content);
+            String responseBody = geminiUtil.postWebClient(geminiRequest);
+            String aiResponse = geminiUtil.parseContentFromResponse(responseBody);
+
             return parseAnalysisAiResponse(aiResponse);
         } catch (HttpServerErrorException | WebClientException e) {
-            log.error("CLOVA 역량 분석 AI 응답 생성 실패", e);
-            throw new AnalysisException(AnalysisErrorStatus.AI_RESPONSE_ERROR);
+            return clovaAnalysisAIService.generateAbilityAnalysis(content);
         }
     }
 
     @Override
     public String generateMemoSummary(String content) {
         try {
-            ClovaAnalysisRequest clovaRequest = ClovaAnalysisRequest.createMemoSummaryRequest(content);
-            String responseBody = clovaUtil.postWebClient(clovaRequest);
-            return clovaUtil.parseContentFromResponse(responseBody);
+            GeminiAnalysisRequest geminiRequest = GeminiAnalysisRequest.createMemoSummaryRequest(content);
+            String responseBody = geminiUtil.postWebClient(geminiRequest);
+            return geminiUtil.parseContentFromResponse(responseBody);
         } catch (HttpServerErrorException | WebClientException e) {
-            log.error("CLOVA 메모 요약 AI 응답 생성 실패", e);
-            throw new AnalysisException(AnalysisErrorStatus.AI_RESPONSE_ERROR);
+            return clovaAnalysisAIService.generateMemoSummary(content);
         }
     }
 
     private AnalysisAiResponse parseAnalysisAiResponse(String aiResponse) {
+        String cleanedAiResponse = aiResponse.replaceAll("```json\\s*", "").replaceAll("```", "");
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            return objectMapper.readValue(aiResponse, AnalysisAiResponse.class);
+            return objectMapper.readValue(cleanedAiResponse, AnalysisAiResponse.class);
         } catch (JsonProcessingException e) {
             throw new AnalysisException(AnalysisErrorStatus.INVALID_ABILITY_ANALYSIS);
         }

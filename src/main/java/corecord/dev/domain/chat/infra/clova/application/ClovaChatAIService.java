@@ -12,6 +12,7 @@ import corecord.dev.domain.chat.status.ChatErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.util.List;
@@ -28,9 +29,8 @@ public class ClovaChatAIService implements ChatAIService {
         try {
             ClovaChatRequest clovaRequest = ClovaChatRequest.createChatRequest(chatHistory, userInput);
             String responseBody = clovaUtil.postWebClient(clovaRequest);
-
             return clovaUtil.parseContentFromResponse(responseBody);
-        } catch (WebClientException e) {
+        } catch (HttpServerErrorException | WebClientException e) {
             log.error("CLOVA 채팅 AI 응답 생성 실패", e);
             throw new ChatException(ChatErrorStatus.AI_RESPONSE_ERROR);
         }
@@ -42,9 +42,8 @@ public class ClovaChatAIService implements ChatAIService {
             ClovaChatRequest clovaRequest = ClovaChatRequest.createChatSummaryRequest(chatHistory);
             String responseBody = clovaUtil.postWebClient(clovaRequest);
             String aiResponse = clovaUtil.parseContentFromResponse(responseBody);
-
             return parseChatSummaryResponse(aiResponse);
-        } catch (WebClientException e) {
+        } catch (HttpServerErrorException | WebClientException e) {
             log.error("CLOVA 채팅 AI 응답 생성 실패", e);
             throw new ChatException(ChatErrorStatus.AI_RESPONSE_ERROR);
         }

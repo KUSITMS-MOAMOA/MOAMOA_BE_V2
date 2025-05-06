@@ -93,7 +93,7 @@ public class AnalysisServiceImpl implements AnalysisService {
     }
 
     private void validAnalysisContentLength(String content) {
-        if (content.isEmpty() || content.length() > 500)
+        if (content.isEmpty() || content.length() > 1000)
             throw new AnalysisException(AnalysisErrorStatus.OVERFLOW_ANALYSIS_CONTENT);
     }
 
