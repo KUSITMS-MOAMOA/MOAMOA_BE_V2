@@ -40,7 +40,7 @@ public class SecurityConfig {
 
 
     private final String[] swaggerUrls = {"/swagger-ui/**", "/v3/**"};
-    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/kakao", "/actuator/health", "/api/token/**", "/api/token", "/login/oauth2/code/**"};
+    private final String[] authUrls = {"/", "/api/users/register", "/oauth2/authorization/**", "/actuator/health", "/api/token/**", "/api/token", "/login/oauth2/code/**"};
     private final String[] allowedUrls = Stream.concat(Arrays.stream(swaggerUrls), Arrays.stream(authUrls))
             .toArray(String[]::new);
 
@@ -54,7 +54,8 @@ public class SecurityConfig {
                 "https://corecord.site",
                 "https://www.corecord.site",
                 "https://corecord.vercel.app",
-                "https://moamoa.site", "https://www.moamoa.site", "https://moamoa.vercel.app"
+                "https://moamoa.site", "https://www.moamoa.site", "https://moamoa.vercel.app",
+                "https://test.moamoa.site", "https://www.test.moamoa.site"
         ));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));

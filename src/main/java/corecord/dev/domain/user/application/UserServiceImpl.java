@@ -20,6 +20,7 @@ import corecord.dev.domain.record.application.RecordService;
 import corecord.dev.domain.user.domain.converter.UserConverter;
 import corecord.dev.domain.user.domain.dto.request.UserRequest;
 import corecord.dev.domain.user.domain.dto.response.UserResponse;
+import corecord.dev.domain.user.domain.enums.Provider;
 import corecord.dev.domain.user.domain.enums.Status;
 import corecord.dev.domain.user.domain.entity.User;
 import corecord.dev.domain.user.exception.UserException;
@@ -62,6 +63,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse.UserDto registerUser(String registerToken, UserRequest.UserRegisterDto userRegisterDto) {
         String providerId = jwtUtil.getProviderIdFromToken(registerToken);
+        Provider provider = extractProviderFromToken(registerToken);
 
         // 5초간 동일한 providerId로 회원가입 시도 방지
         String lockKey = "register:" + providerId;
@@ -72,10 +74,10 @@ public class UserServiceImpl implements UserService {
         try {
             validRegisterToken(registerToken);
             validateUserInfo(userRegisterDto.getNickName());
-            checkExistUser(providerId);
+            checkExistUser(providerId, provider);
 
             // 새로운 유저 생성
-            User newUser = UserConverter.toUserEntity(userRegisterDto, providerId);
+            User newUser = UserConverter.toUserEntity(userRegisterDto, providerId, provider);
             User savedUser = userDbService.saveUser(newUser);
 
             // RefreshToken 생성 및 저장
@@ -95,13 +97,27 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    private Provider extractProviderFromToken(String registerToken) {
+        String provider = jwtUtil.getProviderFromToken(registerToken);
+        switch (provider) {
+            case "GOOGLE":
+                return Provider.GOOGLE;
+            case "KAKAO":
+                return Provider.KAKAO;
+            case "NAVER":
+                return Provider.NAVER;
+            default:
+                throw new UserException(UserErrorStatus.INVALID_OUATH2_PROVIDER);
+        }
+    }
+
     private void validRegisterToken(String registerToken) {
         if (!jwtUtil.isRegisterTokenValid(registerToken))
             throw new TokenException(TokenErrorStatus.INVALID_REGISTER_TOKEN);
     }
 
-    private void checkExistUser(String providerId) {
-        if (userDbService.IsUserExistByProviderId(providerId))
+    private void checkExistUser(String providerId, Provider provider) {
+        if (userDbService.existsByProviderIdAndProvider(providerId, provider))
             throw new UserException(UserErrorStatus.ALREADY_EXIST_USER);
     }
 

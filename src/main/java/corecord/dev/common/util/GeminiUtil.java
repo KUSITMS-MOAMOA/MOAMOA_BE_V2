@@ -12,31 +12,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Slf4j
 @Component
-public class ClovaUtil {
+public class GeminiUtil {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final WebClient webClient = WebClient.create();
 
-    @Value("${spring.ai.ncp.chat.host}")
-    private String chatHost;
+    @Value("${spring.ai.gemini.host}")
+    private String aiHost;
 
-    @Value("${spring.ai.ncp.chat.api-key}")
-    private String chatApiKey;
+    @Value("${spring.ai.gemini.api-key}")
+    private String apiKey;
 
-    @Value("${spring.ai.ncp.chat.api-key-primary-val}")
-    private String chatApiKeyPrimaryVal;
-
-    @Value("${spring.ai.ncp.chat.request-id}")
-    private String chatRequestId;
-
-    public String postWebClient(Object clovaRequest) {
+    public String postWebClient(Object geminiRequest) {
         return webClient.post()
-                .uri(chatHost)
-                .header("X-NCP-CLOVASTUDIO-API-KEY", chatApiKey)
-                .header("X-NCP-APIGW-API-KEY", chatApiKeyPrimaryVal)
-                .header("X-NCP-CLOVASTUDIO-REQUEST-ID", chatRequestId)
-                .header("Content-Type", "application/json; charset=utf-8")
+                .uri(aiHost + "?key=" + apiKey)
                 .header("Accept", "application/json")
-                .bodyValue(clovaRequest)
+                .bodyValue(geminiRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
                     log.error("클라이언트 오류 발생: 상태 코드 - {}", clientResponse.statusCode());
@@ -55,7 +45,10 @@ public class ClovaUtil {
     public String parseContentFromResponse(String responseBody) {
         try {
             JsonNode root = objectMapper.readTree(responseBody);
-            JsonNode messageContent = root.path("result").path("message").path("content");
+            JsonNode messageContent = root.path("candidates").get(0)
+                    .path("content")
+                    .path("parts").get(0)
+                    .path("text");
             return messageContent.asText();
         } catch (Exception e) {
             log.error("응답 파싱 실패", e);
